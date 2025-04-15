@@ -1,0 +1,10 @@
+[package]
+name = "stickle"
+version = "0.1.0"
+edition = "2024"
+
+[net]
+git-fetch-with-cli = true
+
+[dependencies]
+rusty = { path = "rusty" }
