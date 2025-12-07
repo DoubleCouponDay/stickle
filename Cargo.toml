@@ -7,4 +7,3 @@ edition = "2024"
 git-fetch-with-cli = true
 
 [dependencies]
-rusty = { path = "rusty" }
