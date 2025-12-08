@@ -1,8 +1,9 @@
 using System.Runtime.InteropServices;
+using System;
 
 namespace stickle;
 
-public class FFI {
-    [DllImport("../../../shared/hello_world.so")]
-    public static extern int helloworld_main();
+public partial class FFI {
+    [LibraryImport("../../../shared/hello_world.so", StringMarshalling = StringMarshalling.Utf16, SetLastError = true)]
+    public static partial int helloworld_main();
 }
