@@ -10,7 +10,7 @@ public class ClampAndSaw : Feature
     [Given("a machine is running")]
     public void GivenAMachineIsRunning()
     {
-        FFI.helloworld_main();
+        FFI.main();
     }
 
     [And("the Saw is retracted")]
