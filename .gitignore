@@ -23,3 +23,6 @@ target/
 # miscellaneous
 /rusty
 **/Cargo.lock
+**/obj
+**/.vs
+**/*.so
