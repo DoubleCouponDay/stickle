@@ -1,6 +1,8 @@
-
 using System.Runtime.InteropServices;
-using System.Security.Authentication.ExtendedProtection;
 
-[DllImport("hello_world.so")]
-static extern int helloworld_main();
+namespace stickle;
+
+public class FFI {
+    [DllImport("../../../shared/hello_world.so")]
+    public static extern int helloworld_main();
+}

@@ -2,7 +2,7 @@
 
 namespace stickle;
 
-[FeatureFile("../.../../../../features/clampandsaw.feature")]
+[FeatureFile("../../../features/clampandsaw.feature")]
 public class ClampAndSaw : Feature
 {
     //Scenario: 1: Clamps Extend
@@ -10,7 +10,7 @@ public class ClampAndSaw : Feature
     [Given("a machine is running")]
     public void GivenAMachineIsRunning()
     {
-        throw new NotImplementedException();
+        FFI.helloworld_main();
     }
 
     [And("the Saw is retracted")]
