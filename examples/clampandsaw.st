@@ -24,7 +24,7 @@ END_FUNCTION
 
 FUNCTION_BLOCK StateMachine
     VAR
-        currentState: State;
+        currentState: State := State.AllStopped;
     END_VAR
 
     VAR_OUTPUT
