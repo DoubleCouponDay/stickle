@@ -1,4 +1,5 @@
 ﻿using Xunit.Gherkin.Quick;
+using System;
 
 namespace stickle;
 
@@ -10,7 +11,11 @@ public class ClampAndSaw : Feature
     [Given("a machine is running")]
     public void GivenAMachineIsRunning()
     {
-        FFI.main();
+        while(true) {
+            int state = ClampAndSawFFI.main();
+            Console.WriteLine($"state: {state}");
+            Thread.Sleep(1000);
+        }        
     }
 
     [And("the Saw is retracted")]

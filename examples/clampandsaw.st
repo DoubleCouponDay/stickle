@@ -12,8 +12,7 @@ TYPE State : (
 END_TYPE
 
 VAR_GLOBAL
-    currentState : State := AllStopped;
-    THNTD : BOOL := FALSE;
+    THNTD: BOOL := FALSE;
 END_VAR
 
 {external}
@@ -24,42 +23,29 @@ END_VAR
 END_FUNCTION
 
 FUNCTION_BLOCK StateMachine
+    VAR
+        currentState: State;
+    END_VAR
+
+    VAR_OUTPUT
+        output: State;
+    END_VAR
+
     CASE currentState OF
         AllStopped:
-            IF THNTD = FALSE THEN
-                
-            ELSE
-            
-            END_IF;
             currentState := ClampsExtending;
 
         ClampsExtending:
-            IF THNTD THEN
-                currentState := ClampsExtended;
-            ELSE
-                currentState := AllStopped;
-            END_IF;
+            currentState := ClampsExtended;
 
         ClampsExtended:
-            IF THNTD THEN
-                currentState := SawExtending;
-            ELSE
-                currentState := ClampsExtending;
-            END_IF;
+            currentState := SawExtending;
 
         SawExtending:
-            IF THNTD THEN
-                currentState := SawExtended;
-            ELSE
-                currentState := ClampsExtended;
-            END_IF;
+            currentState := SawExtended;
 
         SawExtended:
-            IF THNTD THEN
-                currentState := SawRetracting;
-            ELSE
-                currentState := SawExtending;
-            END_IF;
+            currentState := SawRetracting;
 
         SawRetracting:
             currentState := SawRetracted;
@@ -73,11 +59,14 @@ FUNCTION_BLOCK StateMachine
         ClampsRetracted:
             currentState := AllStopped;
     END_CASE;
+    
+    output := currentState;
 END_FUNCTION_BLOCK
 
 FUNCTION main : DINT
-VAR
-    sm : StateMachine;
-END_VAR
-    sm();
+    VAR
+        sm : StateMachine;
+    END_VAR
+
+    main := sm();
 END_FUNCTION
