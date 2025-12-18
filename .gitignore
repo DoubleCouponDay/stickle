@@ -31,3 +31,8 @@ target/
 **/bin/
 **/*.exe
 **/*.dll
+**/compiler/
+**/*.dll
+**/*.a
+**/clampandsaw
+**/TestResults/

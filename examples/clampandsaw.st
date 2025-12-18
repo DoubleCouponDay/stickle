@@ -17,26 +17,29 @@ END_VAR
 
 {external}
 FUNCTION puts : DINT
-    VAR_INPUT {ref}
-        text : STRING;
-    END_VAR
+VAR_INPUT
+    text : STRING;
+END_VAR
 END_FUNCTION
 
 {external}
-FUNCTION UINT_TO_STRING : STRING
+FUNCTION DINT_TO_STRING : STRING
 VAR_INPUT
-    input : UINT;
+    in : DINT;
 END_VAR
 END_FUNCTION
 
 FUNCTION_BLOCK StateMachine
     VAR
-        currentState: State := State.AllStopped;
+        currentState: State;
     END_VAR
 
     VAR_OUTPUT
         output: State;
     END_VAR
+
+    puts('currentstate:');
+    puts(DINT_TO_STRING(currentState));
 
     CASE currentState OF
         AllStopped:
@@ -77,6 +80,5 @@ FUNCTION main : UINT
     END_VAR
 
     output := sm();
-    puts(UINT_TO_STRING(output));
     main := output;
 END_FUNCTION
