@@ -1,13 +1,13 @@
 TYPE State : (
-    AllStopped,
-    ClampsExtending,
-    ClampsExtended,
-    SawExtending,
-    SawExtended,
-    SawRetracting,
-    SawRetracted,
-    ClampsRetracting,
-    ClampsRetracted
+    AllStopped := 0,
+    ClampsExtending := 1,
+    ClampsExtended := 2,
+    SawExtending := 3,
+    SawExtended := 4,
+    SawRetracting := 5,
+    SawRetracted := 6,
+    ClampsRetracting := 7,
+    ClampsRetracted := 8
 );
 END_TYPE
 
@@ -17,8 +17,15 @@ END_VAR
 
 {external}
 FUNCTION puts : DINT
-VAR_INPUT {ref}
-    text : STRING;
+    VAR_INPUT {ref}
+        text : STRING;
+    END_VAR
+END_FUNCTION
+
+{external}
+FUNCTION UINT_TO_STRING : STRING
+VAR_INPUT
+    input : UINT;
 END_VAR
 END_FUNCTION
 
@@ -63,10 +70,13 @@ FUNCTION_BLOCK StateMachine
     output := currentState;
 END_FUNCTION_BLOCK
 
-FUNCTION main : DINT
+FUNCTION main : UINT
     VAR
-        sm : StateMachine;
+        sm : StateMachine;        
+        output : UINT;
     END_VAR
 
-    main := sm();
+    output := sm();
+    puts(UINT_TO_STRING(output));
+    main := output;
 END_FUNCTION

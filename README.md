@@ -9,9 +9,7 @@ For now, the rusty compiler only outputs Linux ELF binary format, not Windows PE
 
 - Install the Windows Subsystem for Linux (WSL).
 
-- Install Docker Desktop using the WSL2 backend (Windows Subsystem for Linux).
-
-    - When using the WSL, ensure that Docker Desktop is running.
+- Install Docker Desktop using the WSL2 backend.
 
 - In a WSL shell, install the Dotnet SDK:
 
@@ -26,6 +24,8 @@ For now, the rusty compiler only outputs Linux ELF binary format, not Windows PE
     ```
     docker run --rm --mount type=bind,src=./examples,dst=/examples --mount type=bind,src=./shared,dst=/shared ghcr.io/plc-lang/rusty:master "plc /examples/hello_world.st -o /shared/hello_world.so --shared --linker=cc --target=x86_64"
     ```
+
+    - Ensure that Docker Desktop is running.
 
 - Alternatively, Download and install [the build artifact](https://github.com/PLC-lang/rusty/actions/workflows/linux.yml) yourself. Each build pipeline for the Rusty Compiler produces a `plc` executable.
 
