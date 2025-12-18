@@ -13,7 +13,13 @@ For now, the rusty compiler only outputs Linux ELF binary format, not Windows PE
 
 - In a WSL shell, install the Dotnet SDK:
 
-    `sudo snap install --classic dotnet dotnet-runtime-100 dotnet-sdk-100`
+    `sudo snap install --classic dotnet`
+
+    `sudo snap install --classic dotnet-sdk-100`
+
+    `sudo snap install --classic dotnet-runtime-100`
+
+    `sudo snap install --classic aspnetcore-runtime-100`
 
 ## Compiling for a C# Unit Test
 
