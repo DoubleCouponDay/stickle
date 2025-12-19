@@ -13,13 +13,9 @@ For now, the rusty compiler only outputs Linux ELF binary format, not Windows PE
 
 - In a WSL shell, install the Dotnet SDK:
 
-    `sudo snap install --classic dotnet`
+    `sudo apt update && sudo apt install build-essential`
 
-    `sudo snap install dotnet-sdk-100`
-
-    `sudo snap install dotnet-runtime-100`
-
-    `sudo snap install aspnetcore-runtime-100`
+    `sudo snap install --classic dotnet && sudo snap install dotnet-sdk-100 && sudo snap install dotnet-runtime-100 && sudo snap install aspnetcore-runtime-100`
 
 - Download the compiler image:
 
@@ -38,7 +34,7 @@ For now, the rusty compiler only outputs Linux ELF binary format, not Windows PE
 - Download and install [the build artifact](https://github.com/PLC-lang/rusty/actions/workflows/linux.yml) yourself. Each build pipeline for the Rusty Compiler produces a `plc` executable.
 
     ```
-    plc /examples/clampandsaw.st --shared --linker=cc --target=x86_64 -o /compiled/libclampandsaw.so 
+    plc ./examples/clampandsaw.st --shared --linker=cc --target=x86_64 -l iec61131std -o ./compiled/libclampandsaw.so 
     ```
 
 - Once your Structured Text is compiled, simply run `dotnet test` from the root directory.

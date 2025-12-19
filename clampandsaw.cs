@@ -17,7 +17,7 @@ public class ClampAndSaw : Feature
     [And("the Saw is retracted")]
     public void AndTheSawIsRetracted()
     {
-        
+        var statenum = ClampAndSawFFI.ExecuteStateMachine();
     }
 
     [And("the Clamps are retracted")]
