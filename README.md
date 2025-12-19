@@ -9,30 +9,37 @@ For now, the rusty compiler only outputs Linux ELF binary format, not Windows PE
 
 - Install the Windows Subsystem for Linux (WSL).
 
-- Install Docker Desktop using the WSL2 backend.
-
-- In a WSL shell, install the Dotnet SDK:
+- In a WSL shell, install the following packages:
 
     `sudo apt update && sudo apt install build-essential`
 
     `sudo snap install --classic dotnet && sudo snap install dotnet-sdk-100 && sudo snap install dotnet-runtime-100 && sudo snap install aspnetcore-runtime-100`
 
+- Download the `plc` program from the [Linux Build Pipeline](https://github.com/PLC-lang/rusty/actions/workflows/linux.yml) and copy it into the `/usr/bin`.
+
+    `cd /mnt/c/Users/<USERNAME>`
+
+    `sudo cp ./Downloads/plc /usr/bin`
+
+    Each build pipeline for the Rusty Compiler produces a `plc` executable.
+
+- Download the `stdlib` zip from the [Linux Build Pipeline](https://github.com/PLC-lang/rusty/actions/workflows/linux.yml) and decompress it.
+
+    Ensure you take the `libiec61131std.so` file that corresponds with your microprocessor architecture (most likely x86_64-linux-gnu).
+
+    `sudo cp ~/Downloads/stdlib/x86_64-linux-gnu/libiec61131std.so /usr/lib`
+
+## Compiling for a C# Unit Test
+
+- Install Docker Desktop using the WSL2 backend.
+
+- Open this example project in the WSL.
+
 - Download the compiler image:
 
     `docker pull ghcr.io/plc-lang/rusty:master`
 
-- Download `stdlib` from the [Linux Build Pipeline](https://github.com/PLC-lang/rusty/actions/workflows/linux.yml) and export it into the `/lib` folder/.
-
-    Ensure you export the `libiec61131std.so` file that corresponds with your microprocessor architecture (most likely x86_64-linux-gnu).
-
-    `sudo cp ./libiec61131std.so /lib`
-
-## Compiling for a C# Unit Test
-
-- Open this example project in the WSL.
-
-- Download and install [the build artifact](https://github.com/PLC-lang/rusty/actions/workflows/linux.yml) yourself. Each build pipeline for the Rusty Compiler produces a `plc` executable.
-
+- Run the compilation:
     ```
     plc ./examples/clampandsaw.st --shared --linker=cc --target=x86_64 -l iec61131std -o ./compiled/libclampandsaw.so 
     ```
