@@ -40,29 +40,27 @@ For now, the rusty compiler only outputs Linux ELF binary format, not Windows PE
 - Run the following command from the root directory:
 
 ```
-docker run --rm --mount type=bind,src=./examples,dst=/examples --mount type=bind,src=./shared,dst=/shared --mount type=bind,src=/lib,dst=/copiedlibs ghcr.io/plc-lang/rusty:master "plc /examples/clampandsaw.st --linker=cc --target=x86_64 -L /copiedlibs -l iec61131std --shared -o /shared/clampandsaw.so"
+docker run --rm --mount type=bind,src=./examples,dst=/examples --mount type=bind,src=./compiled,dst=/compiled --mount type=bind,src=/lib,dst=/copiedlibs ghcr.io/plc-lang/rusty:master "plc /examples/clampandsaw.st --linker=cc --target=x86_64 -L /copiedlibs -l iec61131std --shared -o /compiled/libclampandsaw.so"
 ```
 
 - Once your Structured Text is compiled, simply run `dotnet test` from the root directory.
-
--
 
 ## Compiling without Docker
 
 Download and install [the build artifact](https://github.com/PLC-lang/rusty/actions/workflows/linux.yml) yourself. Each build pipeline for the Rusty Compiler produces a `plc` executable.
 
 ```
-plc /examples/clampandsaw.st -o /shared/clampandsaw.so --shared --linker=cc --target=x86_64
+plc /examples/clampandsaw.st -o /compiled/libclampandsaw.so --shared --linker=cc --target=x86_64
 ```
 
 If you go this route you will have to keep your version up to date manually!
 
-### Compiling as a standalone executable
+## Compiling as a standalone executable
 
 This can be useful if you need to debug a ST file and log directly to console using the `puts` or `printf` function. Please note that for whatever reason, `printf` does not accept CRLF or LF as newline sequences. Use `printf` to append to the current line and `puts` to write a new line.
 
 ```
-docker run --rm --mount type=bind,src=./examples,dst=/examples --mount type=bind,src=./shared,dst=/shared --mount type=bind,src=./lib,dst=/rustylib  ghcr.io/plc-lang/rusty:master "plc /examples/clampandsaw.st --linker=cc --target=x86_64 -L /rustylib -l iec61131std -o /shared/libclampandsaw"
+docker run --rm --mount type=bind,src=./examples,dst=/examples --mount type=bind,src=./compiled,dst=/compiled --mount type=bind,src=/lib,dst=/copiedlibs ghcr.io/plc-lang/rusty:master "plc /examples/clampandsaw.st --linker=cc --target=x86_64 -L /copiedlibs -l iec61131std -o /compiled/clampandsaw"
 ```
 
 To execute the standalone program:
