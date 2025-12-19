@@ -11,17 +11,13 @@ public class ClampAndSaw : Feature
     [Given("a machine is running")]
     public void GivenAMachineIsRunning()
     {
-        while(true) {
-            int state = ClampAndSawFFI.main();
-            Console.WriteLine($"state: {state}");
-            Thread.Sleep(1000);
-        }
+
     }
 
     [And("the Saw is retracted")]
     public void AndTheSawIsRetracted()
     {
-
+        
     }
 
     [And("the Clamps are retracted")]
