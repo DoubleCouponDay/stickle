@@ -11,30 +11,10 @@ public class ClampAndSaw : Feature
     [Given("a machine is running")]
     public void GivenAMachineIsRunning()
     {
-        // var cwd = Directory.GetCurrentDirectory();
-
-        // Console.WriteLine($"cwd: {cwd}");
-        // var files = Directory.GetFiles(cwd + "/../../../shared/");
-        // foreach (var file in files)
-        // {
-        //     Console.WriteLine($"file: {file}");
-        // }
-
-        // while(true) {
-        //     int state = ClampAndSawFFI.main();
-        //     Console.WriteLine($"state: {state}");
-        //     Thread.Sleep(1000);
-        // }     
-
-        try
-        {
-            ClampAndSawFFI.DINT_TO_STRING(42);
-            ClampAndSawFFI.main();
-        }
-
-        catch(Exception e)
-        {
-            Console.WriteLine(e);
+        while(true) {
+            int state = ClampAndSawFFI.main();
+            Console.WriteLine($"state: {state}");
+            Thread.Sleep(1000);
         }
     }
 

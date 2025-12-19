@@ -1,5 +1,5 @@
 # stickle
-Structured Text Unit Test examples for pipelines.
+Example Structured Text project for plain-text source control and CICD development.
 
 ## Compiling Structured Text
 
@@ -15,23 +15,37 @@ For now, the rusty compiler only outputs Linux ELF binary format, not Windows PE
 
     `sudo snap install --classic dotnet`
 
-    `sudo snap install --classic dotnet-sdk-100`
+    `sudo snap install dotnet-sdk-100`
 
-    `sudo snap install --classic dotnet-runtime-100`
+    `sudo snap install dotnet-runtime-100`
 
-    `sudo snap install --classic aspnetcore-runtime-100`
+    `sudo snap install aspnetcore-runtime-100`
+
+- Download the compiler image:
+
+    `docker pull ghcr.io/plc-lang/rusty:master`
+
+- Download `stdlib` from the [Linux Build Pipeline](https://github.com/PLC-lang/rusty/actions/workflows/linux.yml) and export it into the `/lib` folder
+
+    - Ensure you export the `libiec61131std.so` file that corresponds with your microprocessor architecture (most likely x86_64-linux-gnu).
+
+    `sudo cp ./libiec61131std.so /lib`
 
 ## Compiling for a C# Unit Test
 
 - Open this example project in the WSL.
 
+- Ensure that Docker Desktop is running.
+
 - Run the following command from the root directory:
 
     ```
-    docker run --rm --mount type=bind,src=./examples,dst=/examples --mount type=bind,src=./shared,dst=/shared ghcr.io/plc-lang/rusty:master "plc /examples/clampandsaw.st --linker=cc --target=x86_64 --shared -o /shared/clampandsaw.so"
+    docker run --rm --mount type=bind,src=./examples,dst=/examples --mount type=bind,src=./shared,dst=/shared --mount type=bind,src=/lib,dst=/copiedlibs ghcr.io/plc-lang/rusty:master "plc /examples/clampandsaw.st --linker=cc --target=x86_64 -L /copiedlibs -l iec61131std --shared -o /shared/clampandsaw.so"
     ```
 
-    - Ensure that Docker Desktop is running.
+-
+
+## Compiling without Docker
 
 - Alternatively, Download and install [the build artifact](https://github.com/PLC-lang/rusty/actions/workflows/linux.yml) yourself. Each build pipeline for the Rusty Compiler produces a `plc` executable.
 
@@ -46,7 +60,7 @@ For now, the rusty compiler only outputs Linux ELF binary format, not Windows PE
 ### Compiling as a standalone executable
 
 ```
-docker run --rm --mount type=bind,src=./examples,dst=/examples --mount type=bind,src=./shared,dst=/shared --mount type=bind,src=./lib,dst=/rustylib  ghcr.io/plc-lang/rusty:master "plc /examples/clampandsaw.st --linker=cc --target=x86_64 -L /rustylib -l iec61131std -o /shared/clampandsaw"
+docker run --rm --mount type=bind,src=./examples,dst=/examples --mount type=bind,src=./shared,dst=/shared --mount type=bind,src=./lib,dst=/rustylib  ghcr.io/plc-lang/rusty:master "plc /examples/clampandsaw.st --linker=cc --target=x86_64 -L /rustylib -l iec61131std -o /shared/libclampandsaw"
 ```
 
 And execute it:
@@ -62,3 +76,19 @@ And execute it:
 [Structured Text Compiler - Source Code](https://github.com/PLC-lang/rusty)
 
 [Foreign Function Invocations](https://learn.microsoft.com/en-us/dotnet/standard/native-interop/pinvoke)
+
+## TODO
+
+- Link the structured text with stdlib and get the unit test running.
+
+- Develop rough glue code for converting ST to Omron XML.
+
+- Propertly implement the converter into the Rusty Compiler.
+
+- test Windows development with the Clang linker.
+
+    `choco install llvm`
+
+- Make documentation PR for windows development.
+
+- Maybe clean up all the warnings when compiling stdlib from source.

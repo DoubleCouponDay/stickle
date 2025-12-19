@@ -1,3 +1,18 @@
+
+{external}
+FUNCTION puts : DINT
+VAR_INPUT
+    text : STRING;
+END_VAR
+END_FUNCTION
+
+{external}
+FUNCTION DINT_TO_STRING : STRING
+VAR_INPUT
+    IN : DINT;
+END_VAR
+END_FUNCTION
+
 TYPE State : (
     AllStopped := 0,
     ClampsExtending := 1,
@@ -14,20 +29,6 @@ END_TYPE
 VAR_GLOBAL
     THNTD: BOOL := FALSE;
 END_VAR
-
-{external}
-FUNCTION puts : DINT
-VAR_INPUT
-    text : STRING;
-END_VAR
-END_FUNCTION
-
-{external}
-FUNCTION DINT_TO_STRING : STRING
-VAR_INPUT
-    in : DINT;
-END_VAR
-END_FUNCTION
 
 FUNCTION_BLOCK StateMachine
     VAR
