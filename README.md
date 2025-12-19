@@ -65,7 +65,7 @@ This can be useful if you need to debug a ST file and log directly to console us
 docker run --rm --mount type=bind,src=./examples,dst=/examples --mount type=bind,src=./shared,dst=/shared --mount type=bind,src=./lib,dst=/rustylib  ghcr.io/plc-lang/rusty:master "plc /examples/clampandsaw.st --linker=cc --target=x86_64 -L /rustylib -l iec61131std -o /shared/libclampandsaw"
 ```
 
-And execute it:
+To execute the standalone program:
 
 ```
 ./clampandsaw
