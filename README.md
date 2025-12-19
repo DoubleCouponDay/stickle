@@ -35,25 +35,23 @@ For now, the rusty compiler only outputs Linux ELF binary format, not Windows PE
 
 - Open this example project in the WSL.
 
+- Download and install [the build artifact](https://github.com/PLC-lang/rusty/actions/workflows/linux.yml) yourself. Each build pipeline for the Rusty Compiler produces a `plc` executable.
+
+    ```
+    plc /examples/clampandsaw.st --shared --linker=cc --target=x86_64 -o /compiled/libclampandsaw.so 
+    ```
+
+- Once your Structured Text is compiled, simply run `dotnet test` from the root directory.
+
+## Compiling with Docker
+
 - Ensure that Docker Desktop is running.
 
 - Run the following command from the root directory:
 
-```
-docker run --rm --mount type=bind,src=./examples,dst=/examples --mount type=bind,src=./compiled,dst=/compiled --mount type=bind,src=/lib,dst=/copiedlibs ghcr.io/plc-lang/rusty:master "plc /examples/clampandsaw.st --linker=cc --target=x86_64 -L /copiedlibs -l iec61131std --shared -o /compiled/libclampandsaw.so"
-```
-
-- Once your Structured Text is compiled, simply run `dotnet test` from the root directory.
-
-## Compiling without Docker
-
-Download and install [the build artifact](https://github.com/PLC-lang/rusty/actions/workflows/linux.yml) yourself. Each build pipeline for the Rusty Compiler produces a `plc` executable.
-
-```
-plc /examples/clampandsaw.st --shared --linker=cc --target=x86_64 -o /compiled/libclampandsaw.so 
-```
-
-If you go this route you will have to keep your version up to date manually!
+    ```
+    docker run --rm --mount type=bind,src=./examples,dst=/examples --mount type=bind,src=./compiled,dst=/compiled --mount type=bind,src=/lib,dst=/copiedlibs ghcr.io/plc-lang/rusty:master "plc /examples/clampandsaw.st --linker=cc --target=x86_64 -L /copiedlibs -l iec61131std --shared -o /compiled/libclampandsaw.so"
+    ```
 
 ## Compiling as a standalone executable
 
@@ -83,7 +81,7 @@ To execute the standalone program:
 
 The WSL allows a Windows-based development team to use the ELF format `.so` dynamic libraries and link them with a Dotnet Core application. The Rusty compiler does have a Windows build pipeline available but it cannot yet compile to a Windows PE format `.dll` Dynamically Linked Libray.
 
-### Why do you need Docker Desktop?
+### Why use Docker Desktop?
 
 Docker provides a package manager for retrieving the latest updates to the Rusty Compiler. You can download it from the Linux Build Pipeline but you will need to maintain that installation manually. With Docker, simply run `docker pull ghcr.io/plc-lang/rusty:master` to retrieve the latest updates.
 
