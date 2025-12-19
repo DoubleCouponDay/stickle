@@ -25,9 +25,9 @@ For now, the rusty compiler only outputs Linux ELF binary format, not Windows PE
 
     `docker pull ghcr.io/plc-lang/rusty:master`
 
-- Download `stdlib` from the [Linux Build Pipeline](https://github.com/PLC-lang/rusty/actions/workflows/linux.yml) and export it into the `/lib` folder
+- Download `stdlib` from the [Linux Build Pipeline](https://github.com/PLC-lang/rusty/actions/workflows/linux.yml) and export it into the `/lib` folder/.
 
-    - Ensure you export the `libiec61131std.so` file that corresponds with your microprocessor architecture (most likely x86_64-linux-gnu).
+    Ensure you export the `libiec61131std.so` file that corresponds with your microprocessor architecture (most likely x86_64-linux-gnu).
 
     `sudo cp ./libiec61131std.so /lib`
 
@@ -87,9 +87,11 @@ The WSL allows a Windows-based development team to use the ELF format `.so` dyna
 
 Docker provides a package manager for retrieving the latest updates to the Rusty Compiler. You can download it from the Linux Build Pipeline but you will need to maintain that installation manually. With Docker, simply run `docker pull ghcr.io/plc-lang/rusty:master` to retrieve the latest updates.
 
+`stdlib` still needs to be maintained manually but the compiler engineer has signalled in future it will be bundled into the docker image.
+
 ## TODO
 
-- Link the structured text with stdlib and get the unit test running.
+- Develop the example unit test further.
 
 - Develop rough glue code for converting ST to Omron XML.
 
