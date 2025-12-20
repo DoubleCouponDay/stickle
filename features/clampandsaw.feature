@@ -3,8 +3,7 @@ Feature: Clamp And Saw
 
 Scenario: 1: Clamps Extend
     Given a machine is running
-    And the Saw is retracted
-    And the Clamps are retracted
+    Given all the Actuators are retracted
     When the Operator holds the THNTD buttons
     Then the Clamps will extend
 

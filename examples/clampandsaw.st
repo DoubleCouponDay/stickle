@@ -1,14 +1,14 @@
 
 TYPE State : (
-    AllStopped := 0,
-    ClampsExtending := 1,
-    ClampsExtended := 2,
-    SawExtending := 3,
-    SawExtended := 4,
-    SawRetracting := 5,
-    SawRetracted := 6,
-    ClampsRetracting := 7,
-    ClampsRetracted := 8
+    AllRetracted,
+    ClampsExtending,
+    ClampsExtended,
+    SawExtending,
+    SawExtended,
+    SawRetracting,
+    SawRetracted,
+    ClampsRetracting,
+    ClampsRetracted,
 );
 END_TYPE
 
@@ -19,7 +19,7 @@ END_VAR
 
 FUNCTION_BLOCK StateMachine
     VAR
-        currentState: State;
+        currentState: State := AllRetracted;
     END_VAR
 
     VAR_OUTPUT
@@ -27,7 +27,7 @@ FUNCTION_BLOCK StateMachine
     END_VAR
 
     CASE currentState OF
-        AllStopped:
+        AllRetracted:
             currentState := ClampsExtending;
 
         ClampsExtending:

@@ -5,7 +5,7 @@ Example Structured Text project for plain-text source control and CICD developme
 
 For now, the rusty compiler only outputs Linux ELF binary format, not Windows PE format. All commands have to be run in a Linux environment.
 
-### Setting Up Windows
+### Compiling on Windows
 
 - Install Chocolatey and use it to install mingw in an terminal with Administrative Privileges:
 
@@ -28,7 +28,7 @@ For now, the rusty compiler only outputs Linux ELF binary format, not Windows PE
 - Run the compilation:
     
     ```
-    plc.exe ./examples/clampandsaw.st --linker=cc --target=x86_64-windows-msvc --shared -o ./compiled/libclampandsaw.dll 
+    plc ./examples/clampandsaw.st --linker=cc --target=x86_64-windows-msvc --shared -o ./compiled/libclampandsaw.dll 
     ```
 
 - Link the dynamic library with dotnet and execute the unit test:
@@ -37,7 +37,7 @@ For now, the rusty compiler only outputs Linux ELF binary format, not Windows PE
     dotnet test
     ```
 
-### Setting Up Linux
+### Compiling on Linux
 
 - Install the following packages:
 
