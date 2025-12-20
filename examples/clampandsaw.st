@@ -1,11 +1,4 @@
 
-{external}
-FUNCTION DINT_TO_STRING : STRING
-VAR_INPUT
-    IN : DINT;
-END_VAR
-END_FUNCTION
-
 TYPE State : (
     AllStopped := 0,
     ClampsExtending := 1,
@@ -65,7 +58,7 @@ FUNCTION_BLOCK StateMachine
     output := currentState;
 END_FUNCTION_BLOCK
 
-FUNCTION ExecuteStateMachine : DINT
+FUNCTION main : DINT
     sm();
-    ExecuteStateMachine := sm.output;
+    main := sm.output;
 END_FUNCTION

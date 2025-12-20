@@ -1,54 +1,88 @@
-# stickle
-Example Structured Text project for plain-text source control and CICD development.
+# Stickle
+Example Structured Text project for plain-text source control and CICD development using the [Rusty Compiler](https://github.com/PLC-lang/rusty).
 
-## Compiling Structured Text
+## Setting up the Development Environment
 
 For now, the rusty compiler only outputs Linux ELF binary format, not Windows PE format. All commands have to be run in a Linux environment.
 
-### For Windows
+### Setting Up Windows
 
-- Install the Windows Subsystem for Linux (WSL).
+- Install Chocolatey and use it to install mingw in an terminal with Administrative Privileges:
 
-- In a WSL shell, install the following packages:
+    ```
+    Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
 
-    `sudo apt update && sudo apt install build-essential`
+    choco install mingw
+    ```
 
-    `sudo snap install --classic dotnet && sudo snap install dotnet-sdk-100 && sudo snap install dotnet-runtime-100 && sudo snap install aspnetcore-runtime-100`
+- Add mingw's bin folder to the `PATH` environment variable:
 
-- Download the `plc` program from the [Linux Build Pipeline](https://github.com/PLC-lang/rusty/actions/workflows/linux.yml) and copy it into the `/usr/bin`.
+    ```
+    C:\ProgramData\mingw64\mingw64\bin
+    ```
 
-    `cd /mnt/c/Users/<USERNAME>`
+- Download `plc.zip` from the [Linux Build Pipeline](https://github.com/PLC-lang/rusty/actions/workflows/linux.yml). Install it in the AppData folder.
 
-    `sudo cp ./Downloads/plc /usr/bin`
+- Add it's location to the PATH environment variable.
 
-    Each build pipeline for the Rusty Compiler produces a `plc` executable.
+- Run the compilation:
+    
+    ```
+    plc.exe ./examples/clampandsaw.st --linker=cc --target=x86_64-windows-msvc --shared -o ./compiled/libclampandsaw.dll 
+    ```
 
-- Download the `stdlib` zip from the [Linux Build Pipeline](https://github.com/PLC-lang/rusty/actions/workflows/linux.yml) and decompress it.
+- Link the dynamic library with dotnet and execute the unit test:
+
+    ```
+    dotnet test
+    ```
+
+### Setting Up Linux
+
+- Install the following packages:
+
+    ```
+    sudo apt update && sudo apt install build-essential
+    sudo snap install --classic dotnet && sudo snap install dotnet-sdk-100 && sudo snap install dotnet-runtime-100 && sudo snap install aspnetcore-runtime-100
+    ```
+
+- Download `plc.zip` from the [Linux Build Pipeline](https://github.com/PLC-lang/rusty/actions/workflows/linux.yml) and decompress it into the `/usr/bin`. Each build pipeline for the Rusty Compiler produces a `plc` executable.
+
+    ```
+    cd /mnt/c/Users/<USERNAME>
+    7z e ./Downloads/plc.zip
+    sudo cp ./Downloads/plc /usr/bin
+    ```
+
+- Download `stdlib.zip` from the [Linux Build Pipeline](https://github.com/PLC-lang/rusty/actions/workflows/linux.yml) and decompress it.
 
     Ensure you take the `libiec61131std.so` file that corresponds with your microprocessor architecture (most likely x86_64-linux-gnu).
 
-    `sudo cp ~/Downloads/stdlib/x86_64-linux-gnu/libiec61131std.so /usr/lib`
-
-## Compiling for a C# Unit Test
-
-- Install Docker Desktop using the WSL2 backend.
-
-- Open this example project in the WSL.
-
-- Download the compiler image:
-
-    `docker pull ghcr.io/plc-lang/rusty:master`
-
+    ```
+    sudo cp ~/Downloads/stdlib/x86_64-linux-gnu/libiec61131std.so /usr/lib
+    ```
+    
 - Run the compilation:
+    
     ```
     plc ./examples/clampandsaw.st --shared --linker=cc --target=x86_64 -l iec61131std -o ./compiled/libclampandsaw.so 
     ```
 
-- Once your Structured Text is compiled, simply run `dotnet test` from the root directory.
+- Link the dynamic library with dotnet and execute the unit test:
+
+    ```
+    dotnet test
+    ```
 
 ## Compiling with Docker
 
-- Ensure that Docker Desktop is running.
+- Install Docker Desktop using the WSL2 backend.
+
+- Download the compiler image:
+
+    ```
+    docker pull ghcr.io/plc-lang/rusty:master
+    ```
 
 - Run the following command from the root directory:
 
@@ -61,7 +95,7 @@ For now, the rusty compiler only outputs Linux ELF binary format, not Windows PE
 This can be useful if you need to debug a ST file and log directly to console using the `puts` or `printf` function. Please note that for whatever reason, `printf` does not accept CRLF or LF as newline sequences. Use `printf` to append to the current line and `puts` to write a new line.
 
 ```
-docker run --rm --mount type=bind,src=./examples,dst=/examples --mount type=bind,src=./compiled,dst=/compiled --mount type=bind,src=/lib,dst=/copiedlibs ghcr.io/plc-lang/rusty:master "plc /examples/clampandsaw.st --linker=cc --target=x86_64 -L /copiedlibs -l iec61131std -o /compiled/clampandsaw"
+plc /examples/clampandsaw.st --linker=cc --target=x86_64 -l iec61131std -o /compiled/clampandsaw
 ```
 
 To execute the standalone program:
@@ -72,9 +106,9 @@ To execute the standalone program:
 
 ## Further Reading
 
-[Structured Text Compiler - Documentation](https://plc-lang.github.io/rusty/intro_1.html)
+[Rusty Compiler - Documentation](https://plc-lang.github.io/rusty/intro_1.html)
 
-[Structured Text Compiler - Source Code](https://github.com/PLC-lang/rusty)
+[Rusty Compiler - Community](https://github.com/PLC-lang/rusty)
 
 [Foreign Function Invocations](https://learn.microsoft.com/en-us/dotnet/standard/native-interop/pinvoke)
 
@@ -92,15 +126,13 @@ Docker provides a package manager for retrieving the latest updates to the Rusty
 
 ## TODO
 
+- explore using msys2 with windows development.
+
 - Develop the example unit test further.
 
 - Develop rough glue code for converting ST to Omron XML.
 
 - Propertly implement the converter into the Rusty Compiler.
-
-- test Windows development with the Clang linker.
-
-    `choco install llvm`
 
 - Make documentation PR for windows development.
 
