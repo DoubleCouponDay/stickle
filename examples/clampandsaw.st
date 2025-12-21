@@ -52,7 +52,7 @@ FUNCTION_BLOCK StateMachine
             currentState := ClampsRetracted;
 
         ClampsRetracted:
-            currentState := AllStopped;
+            currentState := AllRetracted;
     END_CASE;
     
     output := currentState;

@@ -3,11 +3,9 @@ Example Structured Text project for plain-text source control and CICD developme
 
 ## Setting up the Development Environment
 
-For now, the rusty compiler only outputs Linux ELF binary format, not Windows PE format. All commands have to be run in a Linux environment.
-
 ### Compiling on Windows
 
-- Install Chocolatey and use it to install mingw in an terminal with Administrative Privileges:
+- Install Chocolatey and use it to install mingw in a terminal with Administrative Privileges:
 
     ```
     Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
@@ -21,7 +19,7 @@ For now, the rusty compiler only outputs Linux ELF binary format, not Windows PE
     C:\ProgramData\mingw64\mingw64\bin
     ```
 
-- Download `plc.zip` from the [Linux Build Pipeline](https://github.com/PLC-lang/rusty/actions/workflows/linux.yml). Install it in the AppData folder.
+- Download `plc.zip` from the [Windows Build Pipeline](https://github.com/PLC-lang/rusty/actions/workflows/windows.yml). Install it in the AppData folder.
 
 - Add it's location to the PATH environment variable.
 

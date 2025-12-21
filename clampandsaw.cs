@@ -19,16 +19,10 @@ public class ClampAndSaw : Feature
         }
     }
 
-    [And("the Saw is retracted")]
-    public void AndTheSawIsRetracted()
+    [And("all the Actuators are retracted")]
+    public void AndAllTheActuatorsAreRetracted()
     {
         
-    }
-
-    [And("the Clamps are retracted")]
-    public void AndTheClampsAreRetracted()
-    {
-
     }
 
     [When("the Operator holds the THNTD buttons")]
