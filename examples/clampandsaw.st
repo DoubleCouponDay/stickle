@@ -1,3 +1,30 @@
+{external}
+FUNCTION puts
+    VAR_INPUT
+        in: STRING;
+    END_VAR
+END_FUNCTION
+
+{external}
+FUNCTION SQRT<T : ANY_REAL> : T
+VAR_INPUT
+    in : T;
+END_VAR
+END_FUNCTION
+
+{external}
+FUNCTION REAL_TO_DINT : DINT
+VAR_INPUT
+    in : REAL;
+END_VAR
+END_FUNCTION
+
+{external}
+FUNCTION DINT_TO_STRING : STRING
+    VAR_INPUT
+        input: DINT;
+    END_VAR
+END_FUNCTION
 
 TYPE State : (
     AllRetracted,
@@ -59,6 +86,14 @@ FUNCTION_BLOCK StateMachine
 END_FUNCTION_BLOCK
 
 FUNCTION main : DINT
+    VAR
+        test1: REAL;
+    END_VAR
+
     sm();
     main := sm.output;
+    
+    test1 := SQRT(555);
+    main := REAL_TO_DINT(test1);
+    puts(DINT_TO_STRING(main));
 END_FUNCTION

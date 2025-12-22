@@ -5,19 +5,7 @@ Example Structured Text project for plain-text source control and CICD developme
 
 ### Compiling on Windows
 
-- Install Chocolatey and use it to install mingw in a terminal with Administrative Privileges:
 
-    ```
-    Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
-
-    choco install mingw
-    ```
-
-- Add mingw's bin folder to the `PATH` environment variable:
-
-    ```
-    C:\ProgramData\mingw64\mingw64\bin
-    ```
 
 - Download `plc.zip` from the [Windows Build Pipeline](https://github.com/PLC-lang/rusty/actions/workflows/windows.yml). Install it in the AppData folder.
 
@@ -26,7 +14,7 @@ Example Structured Text project for plain-text source control and CICD developme
 - Run the compilation:
     
     ```
-    plc ./examples/clampandsaw.st --linker=cc --target=x86_64-windows-msvc --shared -o ./compiled/libclampandsaw.dll 
+    plc ./examples/clampandsaw.st --linker=clang --target=x86_64-windows-msvc --shared -L C:/Users/sjsui/AppData/local/rustycompiler -l iec61131std -l ws2_32 -l ntdll -l userenv -o ./compiled/libclampandsaw.dll
     ```
 
 - Link the dynamic library with dotnet and execute the unit test:
