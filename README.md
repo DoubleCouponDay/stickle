@@ -5,6 +5,8 @@ Example Structured Text project for plain-text source control and CICD developme
 
 ### Compiling on Windows
 
+- Install [`LLVM 14.0.6`](https://github.com/PLC-lang/llvm-package-windows/releases/tag/v14.0.6) and add it's `bin` folder to your `PATH` environment variable.
+
 - Download `plc.zip` from the [Windows Build Pipeline](https://github.com/PLC-lang/rusty/actions/workflows/windows.yml).
 
     - Add it's location to the PATH environment variable. An AppData location is recommended.
