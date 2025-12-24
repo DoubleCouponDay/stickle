@@ -5,19 +5,35 @@ Example Structured Text project for plain-text source control and CICD developme
 
 ### Compiling on Windows
 
+- Download `plc.zip` from the [Windows Build Pipeline](https://github.com/PLC-lang/rusty/actions/workflows/windows.yml).
 
+    - Add it's location to the PATH environment variable. An AppData location is recommended.
 
-- Download `plc.zip` from the [Windows Build Pipeline](https://github.com/PLC-lang/rusty/actions/workflows/windows.yml). Install it in the AppData folder.
+- Download `stdlib.lib` from the same pipeline and install it to the same folder.
 
-- Add it's location to the PATH environment variable.
+- Install the `Windows SDK` and `MSVC`. You can use the Visual Studio Installer to do this or install them as standalone packages. 
 
-- Run the compilation:
+- Create a `LIB` environment variable containing paths to `libiec61131std.lib`, `ws2_32.lib`, `ntdll.lib`, `userenv.lib`, `libcmt.lib`, `oldnames.lib` and `libucrt.lib`.
+
+    - Your environment variable should look something like this:
+
+    ```
+    C:/Users/sjsui/AppData/Local/rustycompiler;
+    C:\Program Files (x86)\Windows Kits\10\Lib\10.0.26100.0\um\x64;
+    C:\Program Files (x86)\Windows Kits\10\Lib\10.0.26100.0\ucrt\x64;
+    C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\lib\x64;
+    ```
+
+- Restart your terminals to refresh the environment.
+
+- Proceed with compilation:
     
     ```
-    plc ./examples/clampandsaw.st --linker=clang --target=x86_64-windows-msvc --shared -L C:/Users/sjsui/AppData/local/rustycompiler -l iec61131std -l ws2_32 -l ntdll -l userenv -o ./compiled/libclampandsaw.dll
+    plc ./examples/clampandsaw.st -c -l iec61131std -l ws2_32 -l ntdll -l userenv -o ./compiled/libclampandsaw.o
+    clang ./compiled/libclampandsaw.o --shared -l iec61131std -l ws2_32 -l ntdll -l userenv -fuse-ld=lld-link "-Wl,/DEF:exports.def" -o ./compiled/libclampandsaw.dll
     ```
 
-- Link the dynamic library with dotnet and execute the unit test:
+- Finally, link everything together and execute the unit test:
 
     ```
     dotnet test
