@@ -118,15 +118,11 @@ To execute the standalone program:
 
 ## FAQ - Frequently Asked Questions
 
-### Why do you need a WSL Environment?
-
-The WSL allows a Windows-based development team to use the ELF format `.so` dynamic libraries and link them with a Dotnet Core application. The Rusty compiler does have a Windows build pipeline available but it cannot yet compile to a Windows PE format `.dll` Dynamically Linked Libray.
-
 ### Why use Docker Desktop?
 
 Docker provides a package manager for retrieving the latest updates to the Rusty Compiler. You can download it from the Linux Build Pipeline but you will need to maintain that installation manually. With Docker, simply run `docker pull ghcr.io/plc-lang/rusty:master` to retrieve the latest updates.
 
-`stdlib` still needs to be maintained manually but the compiler engineer has signalled in future it will be bundled into the docker image.
+`stdlib` still needs to be maintained manually but the compiler maintainer has signalled, in future, it will be bundled into the docker image.
 
 ## TODO
 
