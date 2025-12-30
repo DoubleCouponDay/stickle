@@ -31,8 +31,8 @@ Example Structured Text project for plain-text source control and CICD developme
 - Proceed with compilation:
     
     ```
-    plc ./examples/clampandsaw.st -c -l iec61131std -l ws2_32 -l ntdll -l userenv -o ./compiled/libclampandsaw.o
-    clang ./compiled/libclampandsaw.o --shared -l iec61131std -l ws2_32 -l ntdll -l userenv -fuse-ld=lld-link "-Wl,/DEF:exports.def" -o ./compiled/libclampandsaw.dll
+    plc ./source/clampandsaw.st -c -l iec61131std -l ws2_32 -l ntdll -l userenv -o ./compiled/lib_structured_text.o
+    clang ./compiled/lib_structured_text.o --shared -l iec61131std -l ws2_32 -l ntdll -l userenv -fuse-ld=lld-link "-Wl,/DEF:exports.def" -o ./compiled/lib_structured_text.dll
     ```
 
 - Finally, link everything together and execute the unit test:
@@ -40,6 +40,8 @@ Example Structured Text project for plain-text source control and CICD developme
     ```
     dotnet test
     ```
+
+You can execute the full process by simply running the `build.ps1` script.
 
 ### Compiling on Linux
 
@@ -69,7 +71,7 @@ Example Structured Text project for plain-text source control and CICD developme
 - Run the compilation:
     
     ```
-    plc ./examples/clampandsaw.st --shared --linker=cc --target=x86_64 -l iec61131std -o ./compiled/libclampandsaw.so
+    plc ./source/clampandsaw.st --shared --linker=cc --target=x86_64 -l iec61131std -o ./compiled/lib_structured_text.so
     ```
 
 - Link the dynamic library with dotnet and execute the unit test:
@@ -91,7 +93,7 @@ Example Structured Text project for plain-text source control and CICD developme
 - Run the following command from the root directory:
 
     ```
-    docker run --rm --mount type=bind,src=./examples,dst=/examples --mount type=bind,src=./compiled,dst=/compiled --mount type=bind,src=/lib,dst=/copiedlibs ghcr.io/plc-lang/rusty:master "plc /examples/clampandsaw.st --linker=cc --target=x86_64 -L /copiedlibs -l iec61131std --shared -o /compiled/libclampandsaw.so"
+    docker run --rm --mount type=bind,src=./source,dst=/source --mount type=bind,src=./compiled,dst=/compiled --mount type=bind,src=/lib,dst=/copiedlibs ghcr.io/plc-lang/rusty:master "plc /source/clampandsaw.st --linker=cc --target=x86_64 -L /copiedlibs -l iec61131std --shared -o /compiled/lib_structured_text.so"
     ```
 
 ## Compiling as a standalone executable
@@ -99,7 +101,7 @@ Example Structured Text project for plain-text source control and CICD developme
 This can be useful if you need to debug a ST file and log directly to console using the `puts` or `printf` function. Please note that for whatever reason, `printf` does not accept CRLF or LF as newline sequences. Use `printf` to append to the current line and `puts` to write a new line.
 
 ```
-plc /examples/clampandsaw.st --linker=cc --target=x86_64 -l iec61131std -o /compiled/clampandsaw
+plc /source/clampandsaw.st --linker=cc --target=x86_64 -l iec61131std -o /compiled/clampandsaw
 ```
 
 To execute the standalone program:
