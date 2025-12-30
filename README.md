@@ -126,14 +126,6 @@ Docker provides a package manager for retrieving the latest updates to the Rusty
 
 ## TODO
 
-- explore using msys2 with windows development.
-
-- Develop the example unit test further.
-
-- Develop rough glue code for converting ST to Omron XML.
-
 - Propertly implement the converter into the Rusty Compiler.
 
-- Make documentation PR for windows development.
-
-- Maybe clean up all the warnings when compiling stdlib from source.
+- Develop the example unit test further.
