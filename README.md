@@ -126,7 +126,12 @@ Docker provides a package manager for retrieving the latest updates to the Rusty
 
 ## TODO
 
-- Propertly implement the converter into the Rusty Compiler.
+- Properly implement the converter into the Rusty Compiler.
+
+    - Create a function that generates the template xml as a node tree.
+
+    - create a function that can parse the AST and convert it to xml.
+
+    - conditionally invoke the function if the CLI option `xml-omron` is present.
 
 - Develop the example unit test further.
-
