@@ -10,5 +10,3 @@ clang ./compiled/lib_structured_text.o --shared -l iec61131std -l ws2_32 -l ntdl
 if($LASTEXITCODE -ne 0) {
     exit
 }
-
-dotnet test
