@@ -83,6 +83,8 @@ public class ClampAndSaw : Feature
         }
 
         while(currentState == States.SawExtended && counter.Elapsed < TimeSpan.FromSeconds(4));
+        counter.Stop();
+        Assert.Equal(3, counter.Elapsed.Seconds);
     }
 
     [Then("the Saw will retract")]

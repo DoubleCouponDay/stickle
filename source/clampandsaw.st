@@ -68,10 +68,10 @@ FUNCTION_BLOCK StateMachine
             currentState := SawExtended;
 
         SawExtended:
-            threeseconds(IN:=TRUE, PT:=3000);
+            threeseconds(IN:=TRUE, PT:=T#3s);
 
             IF threeseconds.Q THEN
-                threeseconds(IN:=FALSE, PT:=3000); //reset the timer
+                threeseconds(IN:=FALSE, PT:=T#3s); //reset the timer
                 currentState := SawRetracting;
             END_IF
 
