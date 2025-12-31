@@ -1,4 +1,5 @@
 ﻿using Xunit.Gherkin.Quick;
+using System.Diagnostics;
 using System;
 
 namespace stickle;
@@ -6,35 +7,35 @@ namespace stickle;
 [FeatureFile("../../../features/clampandsaw.feature")]
 public class ClampAndSaw : Feature
 {
-    //Scenario: 1: Clamps Extend
+    States currentState = States.NoneGiven;
 
-    [Given("a machine is running")]
-    public void GivenAMachineIsRunning()
+    public ClampAndSaw()
     {
-        while(true)
-        {
-            var state = ClampAndSawFFI.ExecuteStateMachine();
-            Console.WriteLine(state);
-            Thread.Sleep(1000);
-        }
+        ClampAndSawFFI.Set_THNTD(false);
     }
 
-    [And("all the Actuators are retracted")]
-    public void AndAllTheActuatorsAreRetracted()
+    //Scenario: 1: Clamps Extend
+
+    [Given("all the Actuators are retracted")]
+    public void GivenAllTheActuatorsAreRetracted()
     {
-        
+        currentState = ClampAndSawFFI.ExecuteStateMachine().ParseState();
+        Assert.Equal(States.AllStopped, currentState);
     }
 
     [When("the Operator holds the THNTD buttons")]
     public void WhenTheOperatorHoldsTheTHNTDButtons()
     {
-
+        ClampAndSawFFI.Set_THNTD(true);
     }
 
     [Then("the Clamps will extend")]
     public void ThenTheClampsWillExtend()
     {
-
+        currentState = ClampAndSawFFI.ExecuteStateMachine().ParseState();
+        Assert.Equal(States.ClampsExtending, currentState);
+        currentState = ClampAndSawFFI.ExecuteStateMachine().ParseState();
+        Assert.Equal(States.ClampsExtended, currentState);
     }
 
 
@@ -43,36 +44,60 @@ public class ClampAndSaw : Feature
     [Given("the Clamps extended")]
     public void GivenTheClampsExtended()
     {
-
+        GivenAllTheActuatorsAreRetracted();
+        WhenTheOperatorHoldsTheTHNTDButtons();
+        ThenTheClampsWillExtend();        
     }
 
     [Then("the Saw will extend")]
     public void ThenTheSawWillExtend()
     {
-
+        currentState = ClampAndSawFFI.ExecuteStateMachine().ParseState();
+        Assert.Equal(States.SawExtending, currentState);
+        currentState = ClampAndSawFFI.ExecuteStateMachine().ParseState();
+        Assert.Equal(States.SawExtended, currentState);
     }
 
     [Given("the Saw extended")]
     public void GivenTheSawExtended()
     {
-
+        GivenTheClampsExtended();
+        ThenTheSawWillExtend();
     }
 
-    [When("4 seconds have elapsed")]
-    public void When4SecondsHaveElapsed()
+    [When("3 seconds have elapsed")]
+    public void When3SecondsHaveElapsed()
     {
+        var counter = new Stopwatch();
+        counter.Start();
+        Assert.Equal(States.SawExtended, currentState);
 
+        do //stop iterating the moment the state changes or the limit of 4 seconds is reached
+        {
+            var state = ClampAndSawFFI.ExecuteStateMachine();
+            currentState = state.ParseState();
+        }
+
+        while(currentState == States.SawExtended && counter.Elapsed < TimeSpan.FromSeconds(4));
     }
 
     [Then("the Saw will retract")]
     public void ThenTheSawWillRetract()
     {
-
+        Assert.Equal(States.SawRetracting, currentState);
+        currentState = ClampAndSawFFI.ExecuteStateMachine().ParseState();
+        Assert.Equal(States.SawRetracted, currentState);        
     }
 
     [And("the Clamps will retract")]
     public void AndTheClampsWillRetract()
     {
-
+        var state = ClampAndSawFFI.ExecuteStateMachine();
+        var currentState = state.ParseState();
+        Assert.Equal(States.ClampsRetracting, currentState);
+        currentState = ClampAndSawFFI.ExecuteStateMachine().ParseState();
+        Assert.Equal(States.ClampsRetracted, currentState);
+        currentState = ClampAndSawFFI.ExecuteStateMachine().ParseState();
+        Assert.Equal(States.AllStopped, currentState);        
     }
 }

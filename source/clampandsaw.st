@@ -1,33 +1,5 @@
-{external}
-FUNCTION puts
-    VAR_INPUT
-        in: STRING;
-    END_VAR
-END_FUNCTION
-
-{external}
-FUNCTION SQRT<T : ANY_REAL> : T
-VAR_INPUT
-    in : T;
-END_VAR
-END_FUNCTION
-
-{external}
-FUNCTION REAL_TO_DINT : DINT
-VAR_INPUT
-    in : REAL;
-END_VAR
-END_FUNCTION
-
-{external}
-FUNCTION DINT_TO_STRING : STRING
-    VAR_INPUT
-        input: DINT;
-    END_VAR
-END_FUNCTION
-
 TYPE State : (
-    AllRetracted,
+    AllStopped,
     ClampsExtending,
     ClampsExtended,
     SawExtending,
@@ -41,12 +13,25 @@ END_TYPE
 
 VAR_GLOBAL
     THNTD: BOOL := FALSE;
-    sm : StateMachine;
+    stateMachine : StateMachine;
+    threeseconds: TON;
 END_VAR
+
+FUNCTION main : DINT
+    stateMachine();
+    main := stateMachine.output;
+END_FUNCTION
+
+FUNCTION Set_THNTD
+    VAR_INPUT
+        input: BOOL;
+    END_VAR
+    THNTD := input;
+END_FUNCTION
 
 FUNCTION_BLOCK StateMachine
     VAR
-        currentState: State := AllRetracted;
+        currentState: State := AllStopped;
     END_VAR
 
     VAR_OUTPUT
@@ -54,18 +39,13 @@ FUNCTION_BLOCK StateMachine
     END_VAR
 
     CASE currentState OF
-        AllRetracted:
+        AllStopped:
             IF THNTD THEN
                 currentState := ClampsExtending;
             END_IF
 
         ClampsExtending:
-            IF THNTD = FALSE THEN
-                currentState := AllRetracted;
-                
-            ELSE
-                currentState := ClampsExtended;
-            END_IF
+            currentState := ClampsExtended;
             
         ClampsExtended:
             currentState := SawExtending;
@@ -74,7 +54,12 @@ FUNCTION_BLOCK StateMachine
             currentState := SawExtended;
 
         SawExtended:
-            currentState := SawRetracting;
+            threeseconds(IN:=TRUE, PT:=3000);
+
+            IF threeseconds.Q THEN
+                threeseconds(IN:=FALSE, PT:=3000); //reset the timer
+                currentState := SawRetracting;
+            END_IF
 
         SawRetracting:
             currentState := SawRetracted;
@@ -86,20 +71,10 @@ FUNCTION_BLOCK StateMachine
             currentState := ClampsRetracted;
 
         ClampsRetracted:
-            currentState := AllRetracted;
+            currentState := AllStopped;
+            THNTD := FALSE;
+
     END_CASE;
     
     output := currentState;
 END_FUNCTION_BLOCK
-
-FUNCTION main : DINT
-    VAR
-        test1: REAL;
-    END_VAR
-
-    sm();
-    test1 := SQRT(555);
-    main := REAL_TO_DINT(test1);
-    puts(DINT_TO_STRING(main));
-    main := sm.output;
-END_FUNCTION
