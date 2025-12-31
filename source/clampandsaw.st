@@ -18,7 +18,7 @@ VAR_GLOBAL
 END_VAR
 
 FUNCTION main : DINT
-    stateMachine(FALSE);
+    stateMachine(reset:=FALSE);
     main := stateMachine.output;
 END_FUNCTION
 
@@ -30,7 +30,7 @@ FUNCTION SetThntd
 END_FUNCTION
 
 FUNCTION ResetState
-    stateMachine(TRUE);
+    stateMachine(reset:=TRUE);
 END_FUNCTION
 
 FUNCTION_BLOCK StateMachine
