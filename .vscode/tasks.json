@@ -1,0 +1,16 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "build",			
+			"type": "dotnet",
+			"task": "build c:\\Users\\charisse\\Documents\\GitHub\\stickle\\stickle.csproj",
+			"file": "c:\\Users\\charisse\\Documents\\GitHub\\stickle\\stickle.csproj",
+			"problemMatcher": [],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},			
+		}
+	]
+}

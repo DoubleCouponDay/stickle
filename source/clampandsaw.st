@@ -18,7 +18,7 @@ VAR_GLOBAL
 END_VAR
 
 FUNCTION main : DINT
-    stateMachine();
+    stateMachine(FALSE);
     main := stateMachine.output;
 END_FUNCTION
 
@@ -29,7 +29,15 @@ FUNCTION Set_THNTD
     THNTD := input;
 END_FUNCTION
 
+FUNCTION ResetState
+    stateMachine(TRUE);
+END_FUNCTION
+
 FUNCTION_BLOCK StateMachine
+    VAR_INPUT 
+        reset: BOOL;
+    END_VAR
+
     VAR
         currentState: State := AllStopped;
     END_VAR
@@ -37,6 +45,12 @@ FUNCTION_BLOCK StateMachine
     VAR_OUTPUT
         output: State;
     END_VAR
+
+    IF reset THEN
+        currentState := AllStopped;
+        output := currentState;
+        RETURN
+    END_IF
 
     CASE currentState OF
         AllStopped:

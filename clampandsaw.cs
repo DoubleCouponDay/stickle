@@ -11,6 +11,7 @@ public class ClampAndSaw : Feature
 
     public ClampAndSaw()
     {
+        ClampAndSawFFI.ResetState();
         ClampAndSawFFI.Set_THNTD(false);
     }
 
@@ -57,6 +58,9 @@ public class ClampAndSaw : Feature
         currentState = ClampAndSawFFI.ExecuteStateMachine().ParseState();
         Assert.Equal(States.SawExtended, currentState);
     }
+
+
+    //Scenario: 3: Saw Retracts
 
     [Given("the Saw extended")]
     public void GivenTheSawExtended()
