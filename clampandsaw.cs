@@ -12,7 +12,7 @@ public class ClampAndSaw : Feature
     public ClampAndSaw()
     {
         ClampAndSawFFI.ResetState();
-        ClampAndSawFFI.Set_THNTD(false);
+        ClampAndSawFFI.SetThntd(false);
     }
 
     //Scenario: 1: Clamps Extend
@@ -27,7 +27,7 @@ public class ClampAndSaw : Feature
     [When("the Operator holds the THNTD buttons")]
     public void WhenTheOperatorHoldsTheTHNTDButtons()
     {
-        ClampAndSawFFI.Set_THNTD(true);
+        ClampAndSawFFI.SetThntd(true);
     }
 
     [Then("the Clamps will extend")]

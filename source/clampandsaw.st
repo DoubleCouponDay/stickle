@@ -22,7 +22,7 @@ FUNCTION main : DINT
     main := stateMachine.output;
 END_FUNCTION
 
-FUNCTION Set_THNTD
+FUNCTION SetThntd
     VAR_INPUT
         input: BOOL;
     END_VAR

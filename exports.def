@@ -1,4 +1,4 @@
 EXPORTS
     main
-    Set_THNTD
+    SetThntd
     ResetState
