@@ -1,5 +1,5 @@
 # Stickle
-Example Structured Text project for plain-text source control and CICD development using the [Rusty Compiler](https://github.com/PLC-lang/rusty).
+Example Structured Text project for plain-text source control and CICD development using the [Rusty Compiler](https://github.com/doublecouponday/rusty-fork).
 
 ## Setting up the Development Environment
 
@@ -7,7 +7,7 @@ Example Structured Text project for plain-text source control and CICD developme
 
 - Install [`LLVM 14.0.6`](https://github.com/PLC-lang/llvm-package-windows/releases/tag/v14.0.6) and add it's `bin` folder to your `PATH` environment variable.
 
-- Download `plc.zip` from the [Windows Build Pipeline](https://github.com/PLC-lang/rusty/actions/workflows/windows.yml).
+- Download `plc.zip` from the [Windows Build Pipeline](https://github.com/doublecouponday/rusty-fork/actions/workflows/windows.yml).
 
     - Add it's location to the PATH environment variable. An AppData location is recommended.
 
@@ -53,7 +53,7 @@ You can execute the full process by simply running the `build.ps1` script.
     sudo snap install --classic dotnet && sudo snap install dotnet-sdk-100 && sudo snap install dotnet-runtime-100 && sudo snap install aspnetcore-runtime-100
     ```
 
-- Download `plc.zip` from the [Linux Build Pipeline](https://github.com/PLC-lang/rusty/actions/workflows/linux.yml) and decompress it into the `/usr/bin`. Each build pipeline for the Rusty Compiler produces a `plc` executable.
+- Download `plc.zip` from the [Linux Build Pipeline](https://github.com/doublecouponday/rusty-fork/actions/workflows/linux.yml) and decompress it into the `/usr/bin`. Each build pipeline for the Rusty Compiler produces a `plc` executable.
 
     ```
     cd /mnt/c/Users/<USERNAME>
@@ -61,7 +61,7 @@ You can execute the full process by simply running the `build.ps1` script.
     sudo cp ./Downloads/plc /usr/bin
     ```
 
-- Download `stdlib.zip` from the [Linux Build Pipeline](https://github.com/PLC-lang/rusty/actions/workflows/linux.yml) and decompress it.
+- Download `stdlib.zip` from the [Linux Build Pipeline](https://github.com/doublecouponday/rusty-fork/actions/workflows/linux.yml) and decompress it.
 
     Ensure you take the `libiec61131std.so` file that corresponds with your microprocessor architecture (most likely x86_64-linux-gnu).
 
@@ -88,13 +88,13 @@ You can execute the full process by simply running the `build.ps1` script.
 - Download the compiler image:
 
     ```
-    docker pull ghcr.io/plc-lang/rusty:master
+    docker pull ghcr.io/doublecouponday/rusty:master
     ```
 
 - Run the following command from the root directory:
 
     ```
-    docker run --rm --mount type=bind,src=./source,dst=/source --mount type=bind,src=./compiled,dst=/compiled --mount type=bind,src=/lib,dst=/copiedlibs ghcr.io/plc-lang/rusty:master "plc /source/clampandsaw.st --linker=cc --target=x86_64 -L /copiedlibs -l iec61131std --shared -o /compiled/lib_structured_text.so"
+    docker run --rm --mount type=bind,src=./source,dst=/source --mount type=bind,src=./compiled,dst=/compiled --mount type=bind,src=/lib,dst=/copiedlibs ghcr.io/doublecouponday/rusty:master "plc /source/clampandsaw.st --linker=cc --target=x86_64 -L /copiedlibs -l iec61131std --shared -o /compiled/lib_structured_text.so"
     ```
 
 ## Compiling as a standalone executable
@@ -115,7 +115,7 @@ To execute the standalone program:
 
 [Rusty Compiler - Documentation](https://plc-lang.github.io/rusty/intro_1.html)
 
-[Rusty Compiler - Community](https://github.com/PLC-lang/rusty)
+[Rusty Compiler - Community](https://github.com/doublecouponday/rusty-fork)
 
 [Foreign Function Invocations](https://learn.microsoft.com/en-us/dotnet/standard/native-interop/pinvoke)
 
@@ -123,7 +123,7 @@ To execute the standalone program:
 
 ### Why use Docker Desktop?
 
-Docker provides a package manager for retrieving the latest updates to the Rusty Compiler. You can download it from the Linux Build Pipeline but you will need to maintain that installation manually. With Docker, simply run `docker pull ghcr.io/plc-lang/rusty:master` to retrieve the latest updates.
+Docker provides a package manager for retrieving the latest updates to the Rusty Compiler. You can download it from the Linux Build Pipeline but you will need to maintain that installation manually. With Docker, simply run `docker pull ghcr.io/doublecouponday/rusty:master` to retrieve the latest updates.
 
 `stdlib` still needs to be maintained manually but the compiler maintainer has signalled, in future, it will be bundled into the docker image.
 
