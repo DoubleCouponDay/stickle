@@ -127,6 +127,14 @@ Docker provides a package manager for retrieving the latest updates to the Rusty
 
 `stdlib` still needs to be maintained manually but the compiler maintainer has signalled, in future, it will be bundled into the docker image.
 
+### Why did you convert the Rusty Xml Nodes to all take String instead of &str?
+
+IntialValue AstNodes needed to be converted to Strings at runtime. Those strings must pass ownership to the Node Tree which won't work when passing references. The lifetime of those &strs would have been greater than their owned Strings.
+
+### Why did you change all the Xml Nodes children fields to Vec\<Box\<dyn IntoNode\>\>?
+
+I couldn't create a collection of Vec\<dyn IntoNode\> because their size is not known at compile time. This prevented me from iteratively adding to a Vec of child nodes.
+
 ## TODO
 
 - Properly implement the converter into the Rusty Compiler.
