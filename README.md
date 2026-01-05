@@ -133,7 +133,7 @@ IntialValue AstNodes needed to be converted to Strings at runtime. Those strings
 
 ### Why did you change all the Xml Nodes children fields to Vec\<Box\<dyn IntoNode\>\>?
 
-I couldn't create a collection of Vec\<dyn IntoNode\> because their size is not known at compile time. This prevented me from iteratively adding to a Vec of child nodes.
+I couldn't create a collection of Vec\<dyn IntoNode\> because their size is not known at compile time. This prevented me from iteratively adding to a Vec of child nodes, then using the .children() function.
 
 ## TODO
 
