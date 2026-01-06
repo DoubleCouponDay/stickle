@@ -47,7 +47,7 @@ You can execute the full process by simply running the `build.ps1` script.
 - The Structured Text in the `source` folder can also be compiled to 61131-10 XML, which can be imported into Omron Sysmac Studio.
 
 ```
-plc ./examples/hello_world.st --xml-omron -l iec61131std -o ./hello_world.xml
+plc ./examples/hello_world.st --xml-omron -l iec61131std -o ./compiled/hello_world.xml
 ```
 
 ### Compiling on Linux
