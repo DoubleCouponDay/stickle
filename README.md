@@ -154,3 +154,5 @@ I couldn't create a collection of Vec\<dyn IntoNode\> because their size is not 
     - Clean up duplicate symbols with vtable names.
 
     - Add conversion support for STRING -> String[1986].
+
+    - Variable comments.
