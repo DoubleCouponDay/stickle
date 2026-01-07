@@ -12,6 +12,7 @@ TYPE State : (
 END_TYPE
 
 VAR_GLOBAL
+    {attribute 'networkPublish' := 'PublishOnly'}
     THNTD: BOOL := FALSE;
     stateMachine : StateMachine;
     threeseconds: TON;
