@@ -145,10 +145,12 @@ I couldn't create a collection of Vec\<dyn IntoNode\> because their size is not 
 
 - Properly implement the converter into the Rusty Compiler.
 
+    - Parse Types.
+
     - Parse POUs.
 
     - Support network publish modes for globals. eg: custom token.
 
     - Clean up duplicate symbols with vtable names.
 
-    - Add conversion support for String -> String[1986].
+    - Add conversion support for STRING -> String[1986].
