@@ -36,6 +36,5 @@ target/
 **/*.a
 **/clampandsaw
 **/TestResults/
-**/lib/*.st
 **/*.lib
 **/*.xml
