@@ -157,6 +157,8 @@ I couldn't create a collection of Vec\<dyn IntoNode\> because their size is not 
 
 - Parse POUs.
 
+- Reduce indentation in xml_gen.rs
+
 - Support network publish modes for globals. eg: custom token.
 
 - Clean up duplicate symbols of vtable names.
