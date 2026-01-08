@@ -42,13 +42,17 @@ Example Structured Text project for plain-text source control and CICD developme
     dotnet test
     ```
 
-You can execute the full process by simply running the `build.ps1` script.
-
 - Structured Text can also be compiled to IEC 61131-10 XML, which imports into Omron Sysmac Studio.
 
-```
-plc ./source/clampandsaw.st --xml-omron -i ./lib/externals.st -l iec61131std -l ws2_32 -l ntdll -l userenv -o ./compiled/lib_structured_text.xml
-```
+    ```
+    plc ./source/clampandsaw.st --xml-omron -i ./lib/externals.st -l iec61131std -l ws2_32 -l ntdll -l userenv -o ./compiled/lib_structured_text.xml
+    ```
+
+You can execute the full process by simply running the `build.ps1` script, instead.
+
+    ```
+    ./build.ps1
+    ```
 
 ### Compiling on Linux
 
