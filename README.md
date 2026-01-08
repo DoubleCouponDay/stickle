@@ -31,7 +31,7 @@ Example Structured Text project for plain-text source control and CICD developme
 - Proceed with compilation:
     
     ```
-    plc ./source/* -c -l iec61131std -l ws2_32 -l ntdll -l userenv -o ./compiled/lib_structured_text.o
+    plc ./source/* -c -i ./lib/externals.st -l iec61131std -l ws2_32 -l ntdll -l userenv -o ./compiled/lib_structured_text.o
 
     clang ./compiled/lib_structured_text.o --shared -l iec61131std -l ws2_32 -l ntdll -l userenv -fuse-ld=lld-link "-Wl,/DEF:exports.def" -o ./compiled/lib_structured_text.dll
     ```
