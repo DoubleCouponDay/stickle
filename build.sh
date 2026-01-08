@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Compile PLC sources to object file
-plc ./source/* -c -l iec61131std -l ws2_32 -l ntdll -l userenv -o ./compiled/lib_structured_text.o
+plc ./source/* -c -i ./lib/externals.st -l iec61131std -l ws2_32 -l ntdll -l userenv -o ./compiled/lib_structured_text.o
 if [ $? -ne 0 ]; then
     exit 1
 fi
@@ -12,3 +12,5 @@ clang ./compiled/lib_structured_text.o --shared -l iec61131std -l ws2_32 -l ntdl
 if [ $? -ne 0 ]; then
     exit 1
 fi
+
+plc ./source/clampandsaw.st --xml-omron -i ./lib/externals.st -l iec61131std -l ws2_32 -l ntdll -l userenv -o ./compiled/lib_structured_text.xml

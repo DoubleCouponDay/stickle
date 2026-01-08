@@ -10,3 +10,5 @@ clang ./compiled/lib_structured_text.o --shared -l iec61131std -l ws2_32 -l ntdl
 if($LASTEXITCODE -ne 0) {
     exit
 }
+
+plc ./source/clampandsaw.st --xml-omron -i ./lib/externals.st -l iec61131std -l ws2_32 -l ntdll -l userenv -o ./compiled/lib_structured_text.xml
