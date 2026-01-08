@@ -44,15 +44,15 @@ Example Structured Text project for plain-text source control and CICD developme
 
 You can perform this compilation procedure by running the Powershell script, instead.
 
-    ```
-    ./build.ps1
-    ```
+```
+./build.ps1
+```
 
-- Structured Text can also be compiled to IEC 61131-10 XML, which imports into Omron Sysmac Studio.
+Structured Text can also be compiled to IEC 61131-10 XML, which imports into Omron Sysmac Studio.
 
-    ```
-    plc ./source/clampandsaw.st --xml-omron -i ./lib/externals.st -l iec61131std -l ws2_32 -l ntdll -l userenv -o ./compiled/lib_structured_text.xml
-    ```
+```
+plc ./source/clampandsaw.st --xml-omron -i ./lib/externals.st -l iec61131std -l ws2_32 -l ntdll -l userenv -o ./compiled/lib_structured_text.xml
+```
 
 ### Compiling on Linux
 
@@ -90,15 +90,15 @@ You can perform this compilation procedure by running the Powershell script, ins
 
 You can perform this compilation procedure by running the Bash script, instead.
 
-    ```
-    ./build.sh
-    ```    
+```
+./build.sh
+```
 
-- Link the dynamic library with dotnet and execute the unit test:
+Link the dynamic library with dotnet and execute the unit test:
 
-    ```
-    dotnet test
-    ```
+```
+dotnet test
+```
 
 ## Compiling with Docker
 
