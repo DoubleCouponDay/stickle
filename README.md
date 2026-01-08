@@ -15,7 +15,7 @@ Example Structured Text project for plain-text source control and CICD developme
 
 - Install the `Windows SDK` and `MSVC`. You can use the Visual Studio Installer to do this or install them as standalone packages. 
 
-- Create a `LIB` environment variable containing paths to `libiec61131std.lib`, `ws2_32.lib`, `ntdll.lib`, `userenv.lib`, `libcmt.lib`, `oldnames.lib` and `libucrt.lib`.
+- Create a `LIB` environment variable containing paths to `iec61131std.lib`, `ws2_32.lib`, `ntdll.lib`, `userenv.lib`, `libcmt.lib`, `oldnames.lib` and `libucrt.lib`.
 
     - Your environment variable should look something like this:
 
@@ -129,13 +129,13 @@ To execute the standalone program:
 
 ### Why use Docker Desktop?
 
-Docker provides a package manager for retrieving the latest updates to the Rusty Compiler. You can download it from the Linux Build Pipeline but you will need to maintain that installation manually. With Docker, simply run `docker pull ghcr.io/doublecouponday/rusty:master` to retrieve the latest updates.
+Docker provides a package manager for retrieving the latest updates to the Rusty Compiler. You can download it from Github Build Pipeline but you will need to maintain that installation manually. With Docker, simply run `docker pull ghcr.io/doublecouponday/rusty:master` to retrieve the latest updates.
 
 `stdlib` still needs to be maintained manually but the compiler maintainer has signalled, in future, it will be bundled into the docker image.
 
 ### Why did you convert the Rusty Xml Nodes to all take String instead of &str?
 
-IntialValue AstNodes needed to be converted to Strings at runtime. Those strings must pass ownership to the Node Tree which won't work when passing references. The lifetime of those &strs would have been greater than their owned Strings.
+InitialValue AstNodes needed to be converted to Strings at runtime. Those strings must pass ownership to the Node Tree which won't work when passing references. The lifetime of those &strs would have been greater than their owned Strings.
 
 ### Why did you change all the Xml Nodes children fields to Vec\<Box\<dyn IntoNode\>\>?
 
@@ -143,16 +143,16 @@ I couldn't create a collection of Vec\<dyn IntoNode\> because their size is not 
 
 ## TODO
 
-- Properly implement the converter into the Rusty Compiler.
+- Parse Types.
 
-    - Parse Types.
+- Parse POUs.
 
-    - Parse POUs.
+- Support network publish modes for globals. eg: custom token.
 
-    - Support network publish modes for globals. eg: custom token.
+- Clean up duplicate symbols of vtable names.
 
-    - Clean up duplicate symbols with vtable names.
+- Add conversion support for STRING -> String[1986].
 
-    - Add conversion support for STRING -> String[1986].
+- Support Variable comments.
 
-    - Variable comments.
+- Support Unions.
