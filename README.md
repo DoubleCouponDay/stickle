@@ -168,6 +168,10 @@ I couldn't create a collection of Vec\<dyn IntoNode\> because their size is not 
 
 ## Nice to have
 
+- Global pattern input files for xml conversion.
+
+    This works for `-c` so why not other compilation modes?
+
 - Support Variable comments.
 
 - Support Unions.
