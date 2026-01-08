@@ -48,7 +48,7 @@ Example Structured Text project for plain-text source control and CICD developme
     plc ./source/clampandsaw.st --xml-omron -i ./lib/externals.st -l iec61131std -l ws2_32 -l ntdll -l userenv -o ./compiled/lib_structured_text.xml
     ```
 
-You can execute the full process by simply running the `build.ps1` script, instead.
+You can perform this compilation procedure by running the Powershell script, instead.
 
     ```
     ./build.ps1
@@ -91,6 +91,12 @@ You can execute the full process by simply running the `build.ps1` script, inste
     dotnet test
     ```
 
+You can perform this compilation procedure by running the Bash script, instead.
+
+    ```
+    ./build.sh
+    ```    
+
 ## Compiling with Docker
 
 - Install Docker Desktop using the WSL2 backend.
@@ -111,15 +117,15 @@ You can execute the full process by simply running the `build.ps1` script, inste
 
 This can be useful if you need to debug a ST file and log directly to console using the `puts` or `printf` function. Please note that for whatever reason, `printf` does not accept CRLF or LF as newline sequences. Use `printf` to append to the current line and `puts` to write a new line.
 
-```
-plc /source/clampandsaw.st --linker=cc --target=x86_64 -l iec61131std -o /compiled/clampandsaw
-```
+    ```
+    plc /source/clampandsaw.st --linker=cc --target=x86_64 -l iec61131std -o /compiled/clampandsaw
+    ```
 
 To execute the standalone program:
 
-```
-./clampandsaw
-```
+    ```
+    ./clampandsaw
+    ```
 
 ## Further Reading
 
