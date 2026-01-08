@@ -42,16 +42,16 @@ Example Structured Text project for plain-text source control and CICD developme
     dotnet test
     ```
 
-- Structured Text can also be compiled to IEC 61131-10 XML, which imports into Omron Sysmac Studio.
-
-    ```
-    plc ./source/clampandsaw.st --xml-omron -i ./lib/externals.st -l iec61131std -l ws2_32 -l ntdll -l userenv -o ./compiled/lib_structured_text.xml
-    ```
-
 You can perform this compilation procedure by running the Powershell script, instead.
 
     ```
     ./build.ps1
+    ```
+
+- Structured Text can also be compiled to IEC 61131-10 XML, which imports into Omron Sysmac Studio.
+
+    ```
+    plc ./source/clampandsaw.st --xml-omron -i ./lib/externals.st -l iec61131std -l ws2_32 -l ntdll -l userenv -o ./compiled/lib_structured_text.xml
     ```
 
 ### Compiling on Linux
@@ -70,7 +70,7 @@ You can perform this compilation procedure by running the Powershell script, ins
     cd /mnt/c/Users/<USERNAME>
 
     7z e ./Downloads/plc.zip
-    
+
     sudo cp ./Downloads/plc /usr/bin
     ```
 
@@ -88,17 +88,17 @@ You can perform this compilation procedure by running the Powershell script, ins
     plc ./source/clampandsaw.st --shared --linker=cc --target=x86_64 -l iec61131std -o ./compiled/lib_structured_text.so
     ```
 
-- Link the dynamic library with dotnet and execute the unit test:
-
-    ```
-    dotnet test
-    ```
-
 You can perform this compilation procedure by running the Bash script, instead.
 
     ```
     ./build.sh
     ```    
+
+- Link the dynamic library with dotnet and execute the unit test:
+
+    ```
+    dotnet test
+    ```
 
 ## Compiling with Docker
 
@@ -156,6 +156,8 @@ I couldn't create a collection of Vec\<dyn IntoNode\> because their size is not 
 
 ## TODO
 
+- Double-check docker commands in readme; Both platforms.
+
 - Parse POUs.
 
 - Clean up duplicate symbols of vtable names.
@@ -165,8 +167,6 @@ I couldn't create a collection of Vec\<dyn IntoNode\> because their size is not 
 - Add conversion support for STRING -> String[1986].
 
 ## Nice to have
-
-- Implement Enum Initial Values properly. Auto ascending.
 
 - Support Variable comments.
 
