@@ -165,6 +165,8 @@ I couldn't create a collection of Vec\<dyn IntoNode\> because their size is not 
 
 - Add conversion support for STRING -> String[1986].
 
+- Implement Enum Initial Values properly. Auto ascending.
+
 - Support Variable comments.
 
 - Support Unions.
