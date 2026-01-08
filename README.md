@@ -71,7 +71,7 @@ You can perform this compilation procedure by running the Powershell script, ins
     sudo cp ./Downloads/plc /usr/bin
     ```
 
-- Download `stdlib.zip` from the [Linux Build Pipeline](https://github.com/doublecouponday/rusty-fork/actions/workflows/linux.yml) and decompress it.
+- Download `stdlib.zip` from the [Linux Build Pipeline](https://github.com/doublecouponday/rusty-fork/actions/workflows/linux.yml) and decompress it into the `/lib` folder.
 
     Ensure you take the `libiec61131std.so` file that corresponds with your microprocessor architecture (most likely x86_64-linux-gnu).
 
@@ -153,17 +153,15 @@ I couldn't create a collection of Vec\<dyn IntoNode\> because their size is not 
 
 ## TODO
 
-- Parse Types.
-
 - Parse POUs.
-
-- Reduce indentation in xml_gen.rs
-
-- Support network publish modes for globals. eg: custom token.
 
 - Clean up duplicate symbols of vtable names.
 
+- Support network publish modes for globals. eg: custom token.
+
 - Add conversion support for STRING -> String[1986].
+
+## Nice to have
 
 - Implement Enum Initial Values properly. Auto ascending.
 
