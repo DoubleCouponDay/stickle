@@ -60,6 +60,7 @@ You can perform this compilation procedure by running the Powershell script, ins
 
     ```
     sudo apt update && sudo apt install build-essential
+
     sudo snap install --classic dotnet && sudo snap install dotnet-sdk-100 && sudo snap install dotnet-runtime-100 && sudo snap install aspnetcore-runtime-100
     ```
 
@@ -67,7 +68,9 @@ You can perform this compilation procedure by running the Powershell script, ins
 
     ```
     cd /mnt/c/Users/<USERNAME>
+
     7z e ./Downloads/plc.zip
+    
     sudo cp ./Downloads/plc /usr/bin
     ```
 
