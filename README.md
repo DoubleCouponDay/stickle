@@ -175,3 +175,5 @@ I couldn't create a collection of Vec\<dyn IntoNode\> because their size is not 
 - Support Variable comments.
 
 - Support Unions.
+
+- stdlib bundled inside docker image.
