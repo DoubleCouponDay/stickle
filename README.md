@@ -156,17 +156,17 @@ I couldn't create a collection of Vec\<dyn IntoNode\> because their size is not 
 
 ## TODO
 
-- Double-check docker commands in readme; Both platforms.
-
 - Parse POUs.
+
+- Double-check docker commands in readme; Both platforms.
 
 - Clean up duplicate symbols of vtable names.
 
-- Support network publish modes for globals. eg: custom token.
-
-- Add conversion support for STRING -> String[1986].
-
 ## Nice to have
+
+- Support Unions.
+
+- Support network publish modes for globals. eg: custom token..
 
 - Global pattern input files for xml conversion.
 
@@ -174,6 +174,8 @@ I couldn't create a collection of Vec\<dyn IntoNode\> because their size is not 
 
 - Support Variable comments.
 
-- Support Unions.
-
 - stdlib bundled inside docker image.
+
+- fixed length strings.
+
+- actions, classes, methods, init functions, project init functions.

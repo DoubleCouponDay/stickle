@@ -12,6 +12,7 @@ TYPE State : (
 END_TYPE
 
 VAR_GLOBAL
+    test1: STRING;
     THNTD: BOOL := FALSE;
     stateMachine : StateMachine;
     threeseconds: TON;
