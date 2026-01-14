@@ -1,4 +1,5 @@
 EXPORTS
-    main
+    PRG_ClampAndSaw
+    GetState
     SetThntd
     ResetState

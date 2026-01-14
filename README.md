@@ -158,11 +158,7 @@ I couldn't create a collection of Vec\<dyn IntoNode\> because their size is not 
 
 - Double-check docker commands in readme; Both platforms.
 
-- Fix Function Return Types should default to BOOL.
-
 - Fix no External References created in Functions.
-
-- Somehow get Sysmac to accept a Global Function Block.
 
 ## Nice to have
 

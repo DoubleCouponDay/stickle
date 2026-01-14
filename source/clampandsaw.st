@@ -24,14 +24,29 @@ VAR_GLOBAL
     testString: STRING[256];
 END_VAR
 
-PROGRAM clampandsaw
+PROGRAM PRG_ClampAndSaw
     VAR
-        threeseconds: TON;
+        stateMachine : FB_ClampAndSaw;
+    END_VAR
+
+    stateMachine(THNTD := THNTD, reset := reset);
+END_PROGRAM
+
+FUNCTION_BLOCK FB_ClampAndSaw
+    VAR_INPUT
+        THNTD : BOOL;
+        reset : BOOL;
+    END_VAR
+    VAR_OUTPUT
+        currentState : State;
+    END_VAR
+    VAR
+        threeseconds : TON;
     END_VAR
 
     IF reset THEN
-        reset := FALSE;
         currentState := AllStopped;
+        threeseconds(IN := FALSE, PT := T#3s);
         RETURN;
     END_IF;
 
@@ -43,7 +58,7 @@ PROGRAM clampandsaw
 
         ClampsExtending:
             currentState := ClampsExtended;
-            
+
         ClampsExtended:
             currentState := SawExtending;
 
@@ -51,10 +66,9 @@ PROGRAM clampandsaw
             currentState := SawExtended;
 
         SawExtended:
-            threeseconds(IN:=TRUE, PT:=T#3s);
-
+            threeseconds(IN := TRUE, PT := T#3s);
             IF threeseconds.Q THEN
-                threeseconds(IN:=FALSE, PT:=T#3s); //reset the timer
+                threeseconds(IN := FALSE, PT := T#3s);
                 currentState := SawRetracting;
             END_IF;
 
@@ -69,23 +83,20 @@ PROGRAM clampandsaw
 
         ClampsRetracted:
             currentState := AllStopped;
-            THNTD := FALSE;
-
     END_CASE;
-END_PROGRAM
+END_FUNCTION_BLOCK
 
-FUNCTION main : DINT
-    clampandsaw();
-    main := currentState;
+FUNCTION GetState : DINT
+    GetState := currentState;
 END_FUNCTION
 
-PROGRAM SetThntd
+FUNCTION SetThntd
     VAR_INPUT
         input: BOOL;
     END_VAR
 
     THNTD := input;
-END_PROGRAM
+END_FUNCTION
 
 FUNCTION ResetState
     reset:=TRUE;
