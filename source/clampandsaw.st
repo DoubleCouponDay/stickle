@@ -12,44 +12,20 @@ TYPE State : (
 END_TYPE
 
 VAR_GLOBAL
-    testString: STRING;
+    currentState: State;
     THNTD: BOOL := FALSE;
-    stateMachine : StateMachine;
-    threeseconds: TON;
+    reset: BOOL := FALSE;
+    testString: STRING[256];
 END_VAR
 
-FUNCTION main : DINT
-    stateMachine(reset:=FALSE);
-    main := stateMachine.output;
-END_FUNCTION
-
-FUNCTION SetThntd
-    VAR_INPUT
-        input: BOOL;
-    END_VAR
-    THNTD := input;
-END_FUNCTION
-
-FUNCTION ResetState
-    stateMachine(reset:=TRUE);
-END_FUNCTION
-
-FUNCTION_BLOCK StateMachine
-    VAR_INPUT 
-        reset: BOOL;
-    END_VAR
-
+PROGRAM clampandsaw
     VAR
-        currentState: State := AllStopped;
-    END_VAR
-
-    VAR_OUTPUT
-        output: State;
+        threeseconds: TON;
     END_VAR
 
     IF reset THEN
+        reset := FALSE;
         currentState := AllStopped;
-        output := currentState;
         RETURN;
     END_IF;
 
@@ -90,6 +66,21 @@ FUNCTION_BLOCK StateMachine
             THNTD := FALSE;
 
     END_CASE;
-    
-    output := currentState;
-END_FUNCTION_BLOCK
+END_PROGRAM
+
+FUNCTION main : DINT
+    clampandsaw();
+    main := currentState;
+END_FUNCTION
+
+PROGRAM SetThntd
+    VAR_INPUT
+        input: BOOL;
+    END_VAR
+
+    THNTD := input;
+END_PROGRAM
+
+FUNCTION ResetState
+    reset:=TRUE;
+END_FUNCTION

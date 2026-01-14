@@ -156,8 +156,6 @@ I couldn't create a collection of Vec\<dyn IntoNode\> because their size is not 
 
 ## TODO
 
-- sync with upstream.
-
 - Double-check docker commands in readme; Both platforms.
 
 - Fix Function Return Types should default to BOOL.
@@ -199,3 +197,7 @@ I couldn't create a collection of Vec\<dyn IntoNode\> because their size is not 
 - add lit tests for Windows.
 
 - Bring DLLs up to feature parity with LIBs.
+
+- Remove the tabs in the first indentation column.
+
+    This is due to copying from source code which has an indentation on the first column.
