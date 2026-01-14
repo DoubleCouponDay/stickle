@@ -13,7 +13,6 @@ public class ClampAndSaw : Feature
     {
         ClampAndSawFFI.ResetState();
         ClampAndSawFFI.SetThntd(false);
-        ClampAndSawFFI.PRG_ClampAndSaw();
     }
 
     //Scenario: 1: Clamps Extend
@@ -21,6 +20,7 @@ public class ClampAndSaw : Feature
     [Given("all the Actuators are retracted")]
     public void GivenAllTheActuatorsAreRetracted()
     {
+        Console.WriteLine(nameof(GivenAllTheActuatorsAreRetracted));
         ClampAndSawFFI.PRG_ClampAndSaw();
         currentState = ClampAndSawFFI.GetState().ParseState();
         Assert.Equal(States.AllStopped, currentState);
@@ -29,12 +29,14 @@ public class ClampAndSaw : Feature
     [When("the Operator holds the THNTD buttons")]
     public void WhenTheOperatorHoldsTheTHNTDButtons()
     {
+        Console.WriteLine(nameof(WhenTheOperatorHoldsTheTHNTDButtons));
         ClampAndSawFFI.SetThntd(true);
     }
 
     [Then("the Clamps will extend")]
     public void ThenTheClampsWillExtend()
     {
+        Console.WriteLine(nameof(ThenTheClampsWillExtend));
         ClampAndSawFFI.PRG_ClampAndSaw();
         currentState = ClampAndSawFFI.GetState().ParseState();
         Assert.Equal(States.ClampsExtending, currentState);
@@ -49,6 +51,7 @@ public class ClampAndSaw : Feature
     [Given("the Clamps extended")]
     public void GivenTheClampsExtended()
     {
+        Console.WriteLine(nameof(GivenTheClampsExtended));
         GivenAllTheActuatorsAreRetracted();
         WhenTheOperatorHoldsTheTHNTDButtons();
         ThenTheClampsWillExtend();
@@ -57,6 +60,7 @@ public class ClampAndSaw : Feature
     [Then("the Saw will extend")]
     public void ThenTheSawWillExtend()
     {
+        Console.WriteLine(nameof(ThenTheSawWillExtend));
         ClampAndSawFFI.PRG_ClampAndSaw();
         currentState = ClampAndSawFFI.GetState().ParseState();
         Assert.Equal(States.SawExtending, currentState);
@@ -71,6 +75,7 @@ public class ClampAndSaw : Feature
     [Given("the Saw extended")]
     public void GivenTheSawExtended()
     {
+        Console.WriteLine(nameof(GivenTheSawExtended));
         GivenTheClampsExtended();
         ThenTheSawWillExtend();
     }
@@ -78,6 +83,7 @@ public class ClampAndSaw : Feature
     [When("3 seconds have elapsed")]
     public void When3SecondsHaveElapsed()
     {
+        Console.WriteLine(nameof(When3SecondsHaveElapsed));
         var counter = new Stopwatch();
         counter.Start();
         Assert.Equal(States.SawExtended, currentState);
@@ -96,6 +102,7 @@ public class ClampAndSaw : Feature
     [Then("the Saw will retract")]
     public void ThenTheSawWillRetract()
     {
+        Console.WriteLine(nameof(ThenTheSawWillRetract));
         Assert.Equal(States.SawRetracting, currentState);
         ClampAndSawFFI.PRG_ClampAndSaw();
         currentState = ClampAndSawFFI.GetState().ParseState();
@@ -105,6 +112,7 @@ public class ClampAndSaw : Feature
     [And("the Clamps will retract")]
     public void AndTheClampsWillRetract()
     {
+        Console.WriteLine(nameof(AndTheClampsWillRetract));
         ClampAndSawFFI.PRG_ClampAndSaw();
         currentState = ClampAndSawFFI.GetState().ParseState();
         Assert.Equal(States.ClampsRetracting, currentState);
