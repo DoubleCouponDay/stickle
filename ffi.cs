@@ -16,7 +16,4 @@ public partial class ClampAndSawFFI
 
     [DllImport("../../../compiled/lib_structured_text", EntryPoint = "ResetState", CallingConvention = CallingConvention.Cdecl)]
     public static extern int ResetState();
-
-    [DllImport("../../../compiled/lib_structured_text", EntryPoint = "test1", CallingConvention = CallingConvention.Cdecl)]
-    public static extern int test1(bool input);
 }
