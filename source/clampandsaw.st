@@ -11,6 +11,12 @@ TYPE State : (
 );
 END_TYPE
 
+TYPE TestStruct : 
+    STRUCT
+        testString: String[512];
+    END_STRUCT
+END_TYPE
+
 VAR_GLOBAL
     currentState: State;
     THNTD: BOOL := FALSE;

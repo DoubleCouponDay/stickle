@@ -166,8 +166,6 @@ I couldn't create a collection of Vec\<dyn IntoNode\> because their size is not 
 
 ## Nice to have
 
-- deduplicate <Variable> generation using generate_variable_element.
-
 - clean up all .is_none() calls and bubble up Err results to the closure, without escaping the for loop.
 
     should try to minimize unwrap calls.
