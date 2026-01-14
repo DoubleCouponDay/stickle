@@ -50,14 +50,14 @@ FUNCTION_BLOCK StateMachine
     IF reset THEN
         currentState := AllStopped;
         output := currentState;
-        RETURN
-    END_IF
+        RETURN;
+    END_IF;
 
     CASE currentState OF
         AllStopped:
             IF THNTD THEN
                 currentState := ClampsExtending;
-            END_IF
+            END_IF;
 
         ClampsExtending:
             currentState := ClampsExtended;
@@ -74,7 +74,7 @@ FUNCTION_BLOCK StateMachine
             IF threeseconds.Q THEN
                 threeseconds(IN:=FALSE, PT:=T#3s); //reset the timer
                 currentState := SawRetracting;
-            END_IF
+            END_IF;
 
         SawRetracting:
             currentState := SawRetracted;
