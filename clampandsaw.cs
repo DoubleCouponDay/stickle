@@ -13,6 +13,7 @@ public class ClampAndSaw : Feature
     {
         ClampAndSawFFI.ResetState();
         ClampAndSawFFI.SetThntd(false);
+        ClampAndSawFFI.PRG_ClampAndSaw();
     }
 
     //Scenario: 1: Clamps Extend
@@ -20,7 +21,7 @@ public class ClampAndSaw : Feature
     [Given("all the Actuators are retracted")]
     public void GivenAllTheActuatorsAreRetracted()
     {
-        ClampAndSawFFI.ExecuteStateMachine();
+        ClampAndSawFFI.PRG_ClampAndSaw();
         currentState = ClampAndSawFFI.GetState().ParseState();
         Assert.Equal(States.AllStopped, currentState);
     }
@@ -34,10 +35,10 @@ public class ClampAndSaw : Feature
     [Then("the Clamps will extend")]
     public void ThenTheClampsWillExtend()
     {
-        ClampAndSawFFI.ExecuteStateMachine();
+        ClampAndSawFFI.PRG_ClampAndSaw();
         currentState = ClampAndSawFFI.GetState().ParseState();
         Assert.Equal(States.ClampsExtending, currentState);
-        ClampAndSawFFI.ExecuteStateMachine();
+        ClampAndSawFFI.PRG_ClampAndSaw();
         currentState = ClampAndSawFFI.GetState().ParseState();
         Assert.Equal(States.ClampsExtended, currentState);
     }
@@ -50,16 +51,16 @@ public class ClampAndSaw : Feature
     {
         GivenAllTheActuatorsAreRetracted();
         WhenTheOperatorHoldsTheTHNTDButtons();
-        ThenTheClampsWillExtend();        
+        ThenTheClampsWillExtend();
     }
 
     [Then("the Saw will extend")]
     public void ThenTheSawWillExtend()
     {
-        ClampAndSawFFI.ExecuteStateMachine();
+        ClampAndSawFFI.PRG_ClampAndSaw();
         currentState = ClampAndSawFFI.GetState().ParseState();
         Assert.Equal(States.SawExtending, currentState);
-        ClampAndSawFFI.ExecuteStateMachine();
+        ClampAndSawFFI.PRG_ClampAndSaw();
         currentState = ClampAndSawFFI.GetState().ParseState();
         Assert.Equal(States.SawExtended, currentState);
     }
@@ -83,7 +84,7 @@ public class ClampAndSaw : Feature
 
         do //stop iterating the moment the state changes or the limit of 4 seconds is reached
         {
-            ClampAndSawFFI.ExecuteStateMachine();
+            ClampAndSawFFI.PRG_ClampAndSaw();
             currentState = ClampAndSawFFI.GetState().ParseState();
         }
 
@@ -96,24 +97,24 @@ public class ClampAndSaw : Feature
     public void ThenTheSawWillRetract()
     {
         Assert.Equal(States.SawRetracting, currentState);
-        ClampAndSawFFI.ExecuteStateMachine();
+        ClampAndSawFFI.PRG_ClampAndSaw();
         currentState = ClampAndSawFFI.GetState().ParseState();
-        Assert.Equal(States.SawRetracted, currentState);        
+        Assert.Equal(States.SawRetracted, currentState);
     }
 
     [And("the Clamps will retract")]
     public void AndTheClampsWillRetract()
     {
-        ClampAndSawFFI.ExecuteStateMachine();
+        ClampAndSawFFI.PRG_ClampAndSaw();
         currentState = ClampAndSawFFI.GetState().ParseState();
         Assert.Equal(States.ClampsRetracting, currentState);
 
-        ClampAndSawFFI.ExecuteStateMachine();
+        ClampAndSawFFI.PRG_ClampAndSaw();
         currentState = ClampAndSawFFI.GetState().ParseState();
         Assert.Equal(States.ClampsRetracted, currentState);
 
-        ClampAndSawFFI.ExecuteStateMachine();
+        ClampAndSawFFI.PRG_ClampAndSaw();
         currentState = ClampAndSawFFI.GetState().ParseState();
-        Assert.Equal(States.AllStopped, currentState);        
+        Assert.Equal(States.AllStopped, currentState);
     }
 }

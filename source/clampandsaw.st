@@ -18,7 +18,7 @@ TYPE TestStruct :
 END_TYPE
 
 VAR_GLOBAL
-    currentState: State;
+    currentState: State := AllStopped;
     THNTD: BOOL := FALSE;
     reset: BOOL := FALSE;
     testString: STRING[256];
@@ -37,16 +37,13 @@ FUNCTION_BLOCK FB_ClampAndSaw
         THNTD : BOOL;
         reset : BOOL;
     END_VAR
-    VAR_OUTPUT
-        currentState : State;
-    END_VAR
     VAR
         threeseconds : TON;
     END_VAR
 
     IF reset THEN
+        reset := false;
         currentState := AllStopped;
-        threeseconds(IN := FALSE, PT := T#3s);
         RETURN;
     END_IF;
 
@@ -67,6 +64,7 @@ FUNCTION_BLOCK FB_ClampAndSaw
 
         SawExtended:
             threeseconds(IN := TRUE, PT := T#3s);
+
             IF threeseconds.Q THEN
                 threeseconds(IN := FALSE, PT := T#3s);
                 currentState := SawRetracting;
