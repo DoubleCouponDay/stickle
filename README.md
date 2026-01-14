@@ -160,8 +160,6 @@ I couldn't create a collection of Vec\<dyn IntoNode\> because their size is not 
 
 - Double-check docker commands in readme; Both platforms.
 
-- Clean up duplicate symbols of vtable names.
-
 ## Nice to have
 
 - Support Unions.
