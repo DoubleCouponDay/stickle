@@ -29,14 +29,10 @@ PROGRAM PRG_ClampAndSaw
         stateMachine : FB_ClampAndSaw;
     END_VAR
 
-    stateMachine(THNTD := THNTD, reset := reset);
+    stateMachine();
 END_PROGRAM
 
 FUNCTION_BLOCK FB_ClampAndSaw
-    VAR_INPUT
-        THNTD : BOOL;
-        reset : BOOL;
-    END_VAR
     VAR
         threeseconds : TON;
     END_VAR
