@@ -156,13 +156,29 @@ I couldn't create a collection of Vec\<dyn IntoNode\> because their size is not 
 
 ## TODO
 
-- Parse POUs.
-
 - Double-check docker commands in readme; Both platforms.
+
+- Fix Function Return Types should default to BOOL.
+
+- Fix no External References created in Functions.
+
+- Somehow get Sysmac to accept a Global Function Block.
 
 ## Nice to have
 
+- deduplicate <Variable> generation using generate_variable_element.
+
+- clean up all .is_none() calls and bubble up Err results to the closure, without escaping the for loop.
+
+    should try to minimize unwrap calls.
+
+- see if HashSets can be cleaned up by using &String instead of String.
+
 - Support Unions.
+
+- Somehow add semicolons to the end of every statement block? Rusty doesn't validate that.
+
+- Somehow filter Function Block instances as function internal or as global. They should be TODO
 
 - Support network publish modes for globals. eg: custom token..
 
@@ -177,3 +193,7 @@ I couldn't create a collection of Vec\<dyn IntoNode\> because their size is not 
 - fixed length strings.
 
 - actions, classes, methods, init functions, project init functions.
+
+- add lit tests for Windows.
+
+- Bring DLLs up to feature parity with LIBs.
