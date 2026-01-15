@@ -13,7 +13,7 @@ END_TYPE
 
 TYPE TestStruct : 
     STRUCT
-        testString: String[512];
+        testString: STRING;
     END_STRUCT
 END_TYPE
 
