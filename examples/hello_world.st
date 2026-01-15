@@ -6,6 +6,7 @@ END_VAR
 END_FUNCTION
 
 FUNCTION main : DINT
-    puts('hello, world!$N');
-    main := 5;
+    WHILE TRUE DO
+        puts('hello, world!$N');
+    END_WHILE;
 END_FUNCTION
