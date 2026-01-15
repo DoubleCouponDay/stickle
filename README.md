@@ -79,7 +79,7 @@ plc ./source/clampandsaw.st --xml-omron -i ./lib/externals.st -l iec61131std -l 
     Ensure you take the `libiec61131std.so` file that corresponds with your microprocessor architecture (most likely x86_64-linux-gnu).
 
     ```
-    sudo cp ~/Downloads/stdlib/x86_64-linux-gnu/libiec61131std.so /usr/lib
+    sudo cp ~/Downloads/stdlib/x86_64-linux-gnu/libiec61131std.so /lib
     ```
     
 - Run the compilation:
@@ -102,33 +102,40 @@ dotnet test
 
 ## Compiling with Docker
 
-- Install Docker Desktop using the WSL2 backend.
+- Install Docker Desktop using the WSL2 backend and ensure it is running.
 
-- Download the compiler image:
+- On Windows, run this:
 
-    ```
-    docker pull ghcr.io/doublecouponday/rusty:master
-    ```
+```
+docker run --rm --mount type=bind,src=./source,dst=/source --mount type=bind,src=./compiled,dst=/compiled --mount type=bind,src=C:/Users/Sam/AppData/Local/rustycompiler,dst=/copiedlibs  ghcr.io/doublecouponday/rusty:master "plc /source/* --linker=cc --target=x86_64 -L /copiedlibs -l iec61131std --shared -o /compiled/lib_structured_text.dll"
+```
 
-- Run the following command from the root directory:
+- On Linux, run this: 
 
-    ```
-    docker run --rm --mount type=bind,src=./source,dst=/source --mount type=bind,src=./compiled,dst=/compiled --mount type=bind,src=/lib,dst=/copiedlibs ghcr.io/doublecouponday/rusty:master "plc /source/clampandsaw.st --linker=cc --target=x86_64 -L /copiedlibs -l iec61131std --shared -o /compiled/lib_structured_text.so"
-    ```
+```
+docker run --rm --mount type=bind,src=./source,dst=/source --mount type=bind,src=./compiled,dst=/compiled --mount type=bind,src=/lib,dst=/copiedlibs  ghcr.io/doublecouponday/rusty:master "plc /source/* --linker=cc --target=x86_64 -L /copiedlibs -l iec61131std --shared -o /compiled/l
+ib_structured_text.so"
+```
 
 ## Compiling as a standalone executable
 
 This can be useful if you need to debug a ST file and log directly to console using the `puts` or `printf` function. Please note that for whatever reason, `printf` does not accept CRLF or LF as newline sequences. Use `printf` to append to the current line and `puts` to write a new line.
 
-    ```
-    plc /source/clampandsaw.st --linker=cc --target=x86_64 -l iec61131std -o /compiled/clampandsaw
-    ```
+Windows:
+```
+plc ./source/clampandsaw.st -l iec61131std -l ws2_32 -l ntdll -l userenv -o ./compiled/clampandsaw
+```
+
+Linux:
+```
+plc /source/clampandsaw.st --linker=cc --target=x86_64 -l iec61131std -o /compiled/clampandsaw
+```
 
 To execute the standalone program:
 
-    ```
-    ./clampandsaw
-    ```
+```
+./clampandsaw
+```
 
 ## Further Reading
 
@@ -156,8 +163,6 @@ I couldn't create a collection of Vec\<dyn IntoNode\> because their size is not 
 
 ## TODO
 
-- Double-check docker commands in readme; Both platforms.
-
 - Fix no External References created in Functions.
 
 ## Nice to have
@@ -184,8 +189,6 @@ I couldn't create a collection of Vec\<dyn IntoNode\> because their size is not 
 
 - stdlib bundled inside docker image.
 
-- fixed length strings.
-
 - actions, classes, methods, init functions, project init functions.
 
 - add lit tests for Windows.
@@ -195,3 +198,7 @@ I couldn't create a collection of Vec\<dyn IntoNode\> because their size is not 
 - Remove the tabs in the first indentation column.
 
     This is due to copying from source code which has an indentation on the first column.
+
+- Support Omron Builtin Global Variables.
+
+- Print a warning on missing semicolons?
