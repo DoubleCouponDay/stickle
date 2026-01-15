@@ -126,18 +126,16 @@ This can be useful if you need to debug a ST file and log directly to console us
 
 Windows:
 ```
-plc ./source/clampandsaw.st -l iec61131std -l ws2_32 -l ntdll -l userenv -o ./compiled/clampandsaw
+plc ./examples/hello_world.st -l iec61131std -l ws2_32 -l ntdll -l userenv -o ./compiled/hello_world.exe
+
+./compiled/hello_world.exe
 ```
 
 Linux:
 ```
-plc /source/clampandsaw.st --linker=cc --target=x86_64 -l iec61131std -o /compiled/clampandsaw
-```
+plc ./examples/hello_world.st -L /lib -l iec61131std --linker=cc -o ./compiled/hello_world
 
-To execute the standalone program:
-
-```
-./clampandsaw
+./compiled/hello_world
 ```
 
 ## Further Reading
