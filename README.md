@@ -31,7 +31,7 @@ Example Structured Text project for plain-text source control and CICD developme
 - Proceed with compilation:
     
     ```
-    plc ./source/* -c -i ./lib/externals.st -l iec61131std -l ws2_32 -l ntdll -l userenv -o ./compiled/lib_structured_text.o
+    plc ./source/* -c -l iec61131std -l ws2_32 -l ntdll -l userenv -o ./compiled/lib_structured_text.o
 
     clang ./compiled/lib_structured_text.o --shared -l iec61131std -l ws2_32 -l ntdll -l userenv -fuse-ld=lld-link "-Wl,/DEF:exports.def" -o ./compiled/lib_structured_text.dll
     ```
@@ -51,7 +51,7 @@ You can perform this compilation procedure by running the Powershell script, ins
 Structured Text can also be compiled to IEC 61131-10 XML, which imports into Omron Sysmac Studio.
 
 ```
-plc ./source/clampandsaw.st --xml-omron -i ./lib/externals.st -l iec61131std -l ws2_32 -l ntdll -l userenv -o ./compiled/lib_structured_text.xml
+plc ./source/clampandsaw.st --xml-omron -i ./source/externals.st -l iec61131std -l ws2_32 -l ntdll -l userenv -o ./compiled/lib_structured_text.xml
 ```
 
 ### Compiling on Linux

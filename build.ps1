@@ -1,5 +1,5 @@
 
-plc ./source/* -c -i ./lib/externals.st -l iec61131std -l ws2_32 -l ntdll -l userenv -o ./compiled/lib_structured_text.o
+plc ./source/* -c -l iec61131std -l ws2_32 -l ntdll -l userenv -o ./compiled/lib_structured_text.o
 
 if($LASTEXITCODE -ne 0) {
     exit
@@ -11,4 +11,4 @@ if($LASTEXITCODE -ne 0) {
     exit
 }
 
-plc ./source/clampandsaw.st --xml-omron -i ./lib/externals.st -l iec61131std -l ws2_32 -l ntdll -l userenv -o ./compiled/lib_structured_text.xml
+plc ./source/clampandsaw.st --xml-omron -i ./source/externals.st -l iec61131std -l ws2_32 -l ntdll -l userenv -o ./compiled/lib_structured_text.xml
