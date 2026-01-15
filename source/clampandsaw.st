@@ -59,12 +59,13 @@ FUNCTION_BLOCK FB_ClampAndSaw
             currentState := SawExtended;
 
         SawExtended:
-            threeseconds(IN := TRUE, PT := T#3s);
+            currentState := SawRetracting;
+            // threeseconds(IN := TRUE, PT := T#3s);
 
-            IF threeseconds.Q THEN
-                threeseconds(IN := FALSE, PT := T#3s);
-                currentState := SawRetracting;
-            END_IF;
+            // IF threeseconds.Q THEN
+            //     threeseconds(IN := FALSE, PT := T#3s);
+            //     currentState := SawRetracting;
+            // END_IF;
 
         SawRetracting:
             currentState := SawRetracted;
