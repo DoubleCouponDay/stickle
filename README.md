@@ -1,6 +1,6 @@
 # Stickle
 
-Example Structured Text project for plain-text source control and CICD development using the [Rusty Compiler](https://github.com/doublecouponday/rusty-fork).
+Example Structured Text project with plain-text Source Control and Unit Testing using the [Rusty Compiler](https://github.com/doublecouponday/rusty-fork).
 
 Develop and troubleshoot your Automation projects while decoupling from any manufacturers ecosystem.
 
