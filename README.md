@@ -172,8 +172,6 @@ I couldn't create a collection of Vec\<dyn IntoNode\> because their size is not 
 
     should try to minimize unwrap calls.
 
-- see if HashSets can be cleaned up by using &String instead of String.
-
 - Support Unions.
 
 - Somehow add semicolons to the end of every statement block? Rusty doesn't validate that.
@@ -185,8 +183,6 @@ I couldn't create a collection of Vec\<dyn IntoNode\> because their size is not 
 - Global pattern input files for xml conversion.
 
     This works for `-c` so why not other compilation modes?
-
-- Support Variable comments.
 
 - stdlib bundled inside docker image.
 
