@@ -8,7 +8,7 @@ Develop and troubleshoot your Automation projects while decoupling from any manu
 
 ### Compiling on Windows
 
-- Install [`LLVM 14.0.6`](https://github.com/PLC-lang/llvm-package-windows/releases/tag/v14.0.6) and add it's `bin` folder to your `PATH` environment variable.
+- Install [`LLVM 21.1.7`](https://github.com/PLC-lang/llvm-package-windows/releases/tag/v21.1.7) and add it's `bin` folder to your `PATH` environment variable.
 
 - Install `plc.zip` from the [Windows Build Pipeline](https://github.com/doublecouponday/rusty-fork/actions/workflows/windows.yml).
 
