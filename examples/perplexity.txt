@@ -1,0 +1,20 @@
+The segfault occurs because the `threeseconds` field (a `%TON` struct) in the `%FB_ClampAndSaw` instance is accessed via getelementptr before being properly initialized, leading to invalid memory access when `call void @TON(ptr %threeseconds)` passes garbage data (especially in the `[24 x i8]` tail padding) to the external `TON` function. [releases.llvm](https://releases.llvm.org/9.0.1/docs/GetElementPtr.html)
+
+## Root Cause
+LLVM IR globals like `@PRG_ClampAndSaw_instance` are zero-initialized, but `%TON { ptr, i8, i64, i8, i64, i8, i8, [24 x i8] }` expects a valid `ptr` (vtable/function pointer) in field 0—likely non-zero. The first access in `case7` uses `getelementptr inbounds nuw %TON, ptr %threeseconds, i32 0, i32 1`, skipping this uninit `ptr` and writing to field 1 (`i8`), but `@TON(ptr %threeseconds)` passes the whole invalid struct, crashing on Windows x86_64 due to strict alignment/padding or FFI mismatch. [stackoverflow](https://stackoverflow.com/questions/63369905/when-should-add-padding-to-struct-in-llvm-ir-and-when-shouldnt)
+
+`__user_init_FB_ClampAndSaw` calls `__user_init_TON(ptr %threeseconds)` but does nothing (empty body), so no vtable setup occurs before runtime access. [llvm](https://llvm.org/docs/LangRef.html)
+
+## Control Flow Issue
+Unreachable `buffer_block` (no preds) indicates malformed CFG from codegen; LLVM verifies basic blocks must have preds except entry, and dead code can trigger verifier failures or optimizer crashes during JIT/execution. [stackoverflow](https://stackoverflow.com/questions/21195499/how-to-remove-unused-basicblocks-llvm)
+
+## Fixes
+- **Initialize TON struct**: In `@__user_init_TON`, store valid vtable ptr (e.g., `store ptr @__vtable_TON_instance, ptr %threeseconds`) and zero fields explicitly.
+- **Remove dead block**: Delete `buffer_block: br label %continue`—use `opt -dce` pass or fix frontend CFG.
+- **Verify & optimize**: Run `llvm-as input.ll | llvm-verify | opt -O2 -S` to catch issues; add `inbounds` consistently if safe.  [stackoverflow](https://stackoverflow.com/questions/21195499/how-to-remove-unused-basicblocks-llvm)
+
+| Issue | Symptom | Fix |
+|-------|---------|-----|
+| Uninit TON ptr | Segfault in @TON call | Init vtable in __user_init_TON  [releases.llvm](https://releases.llvm.org/9.0.1/docs/GetElementPtr.html) |
+| GEP skips field 0 | Invalid struct pass | Full struct init before access  [stackoverflow](https://stackoverflow.com/questions/63369905/when-should-add-padding-to-struct-in-llvm-ir-and-when-shouldnt) |
+| Dead buffer_block | CFG invalidity | Remove unreachable BB  [stackoverflow](https://stackoverflow.com/questions/21195499/how-to-remove-unused-basicblocks-llvm)
