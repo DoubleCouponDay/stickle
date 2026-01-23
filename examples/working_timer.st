@@ -16,12 +16,15 @@ END_VAR
 END_FUNCTION_BLOCK
 
 VAR_GLOBAL
-    timer: TON;
     latched: BOOL := FALSE;
     state: DINT := 0;
 END_VAR
 
 FUNCTION_BLOCK main
+    VAR
+        timer: TON;
+    END_VAR
+
     timer(IN:=TRUE, PT:=T#3s);
 
     IF timer.Q THEN
