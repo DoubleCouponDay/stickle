@@ -1,4 +1,4 @@
-; ModuleID = 'C:\Users\charisse\AppData\Local\Temp\.tmpoi8u4P\Users\charisse\Documents\GitHub\stickle\examples\working_timer.st.ll'
+; ModuleID = 'C:\Users\charisse\AppData\Local\Temp\.tmpRPs0IV\Users\charisse\Documents\GitHub\stickle\examples\working_timer.st.ll'
 source_filename = "examples\\working_timer.st"
 target datalayout = "e-m:w-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-pc-windows-msvc"
