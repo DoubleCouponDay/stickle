@@ -7,6 +7,6 @@ END_FUNCTION
 
 FUNCTION main : DINT
     WHILE TRUE DO
-        puts('hello, world!$N');
+        puts('hello, world!');
     END_WHILE;
 END_FUNCTION
