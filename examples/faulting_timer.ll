@@ -1,11 +1,12 @@
-; ModuleID = 'C:\Users\charisse\AppData\Local\Temp\.tmp3zwTfM\Users\charisse\Documents\GitHub\stickle\source\clampandsaw.st.ll'
+; ModuleID = 'C:\Users\charisse\AppData\Local\Temp\.tmphi1TSg\Users\charisse\Documents\GitHub\stickle\source\clampandsaw.st.ll'
 source_filename = "source\\clampandsaw.st"
 target datalayout = "e-m:w-p270:32:32-p271:32:32-p272:64:64-i64:64-i128:128-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-pc-windows-msvc"
 
+%__vtable_TON = type { ptr }
+%TON = type { ptr, i8, i64, i8, i64, i8, i8, [24 x i8] }
 %__vtable_FB_ClampAndSaw = type { ptr }
 %FB_ClampAndSaw = type { ptr, %TON }
-%TON = type { ptr, i8, i64, i8, i64, i8, i8, [24 x i8] }
 %TestStruct = type { [81 x i8] }
 %PRG_ClampAndSaw = type { %FB_ClampAndSaw }
 
@@ -23,14 +24,16 @@ target triple = "x86_64-pc-windows-msvc"
 @State.ClampsRetracting = unnamed_addr constant i32 7
 @State.ClampsRetracted = unnamed_addr constant i32 8
 @llvm.global_ctors = appending global [1 x { i32, ptr, ptr }] [{ i32, ptr, ptr } { i32 0, ptr @__init___clampandsaw_st, ptr null }]
-@__vtable_TON_instance = global %__vtable_FB_ClampAndSaw zeroinitializer
+@__vtable_TON_instance = global %__vtable_TON zeroinitializer
+@____vtable_TON__init = unnamed_addr constant %__vtable_TON zeroinitializer
+@__TON__init = external unnamed_addr constant %TON
 @____vtable_FB_ClampAndSaw__init = unnamed_addr constant %__vtable_FB_ClampAndSaw zeroinitializer
 @__FB_ClampAndSaw__init = unnamed_addr constant %FB_ClampAndSaw zeroinitializer
-@__TON__init = external unnamed_addr constant %TON
-@____vtable_TON__init = unnamed_addr constant %__vtable_FB_ClampAndSaw zeroinitializer
 @__TestStruct__init = unnamed_addr constant %TestStruct zeroinitializer
 @PRG_ClampAndSaw_instance = global %PRG_ClampAndSaw zeroinitializer
 @__vtable_FB_ClampAndSaw_instance = global %__vtable_FB_ClampAndSaw zeroinitializer
+
+declare void @TON(ptr)
 
 define void @FB_ClampAndSaw(ptr %0) {
 entry:
@@ -134,7 +137,11 @@ continue8:                                        ; preds = %condition_body9, %c
   br label %continue1
 }
 
-declare void @TON(ptr)
+declare void @puts(ptr)
+
+declare i32 @REAL_TO_DINT(float)
+
+declare void @DINT_TO_STRING(ptr, i32)
 
 define void @PRG_ClampAndSaw(ptr %0) {
 entry:
@@ -171,21 +178,11 @@ entry:
 define void @__init___clampandsaw_st() {
 entry:
   call void @__init_prg_clampandsaw(ptr @PRG_ClampAndSaw_instance)
-  call void @__init___vtable_fb_clampandsaw(ptr @__vtable_FB_ClampAndSaw_instance)
   call void @__init___vtable_ton(ptr @__vtable_TON_instance)
+  call void @__init___vtable_fb_clampandsaw(ptr @__vtable_FB_ClampAndSaw_instance)
   call void @__user_init_PRG_ClampAndSaw(ptr @PRG_ClampAndSaw_instance)
-  call void @__user_init___vtable_FB_ClampAndSaw(ptr @__vtable_FB_ClampAndSaw_instance)
   call void @__user_init___vtable_TON(ptr @__vtable_TON_instance)
-  ret void
-}
-
-define void @__init___vtable_fb_clampandsaw(ptr %0) {
-entry:
-  %self = alloca ptr, align 8
-  store ptr %0, ptr %self, align 8
-  %deref = load ptr, ptr %self, align 8
-  %__body = getelementptr inbounds nuw %__vtable_FB_ClampAndSaw, ptr %deref, i32 0, i32 0
-  store ptr @FB_ClampAndSaw, ptr %__body, align 8
+  call void @__user_init___vtable_FB_ClampAndSaw(ptr @__vtable_FB_ClampAndSaw_instance)
   ret void
 }
 
@@ -194,8 +191,18 @@ entry:
   %self = alloca ptr, align 8
   store ptr %0, ptr %self, align 8
   %deref = load ptr, ptr %self, align 8
-  %__body = getelementptr inbounds nuw %__vtable_FB_ClampAndSaw, ptr %deref, i32 0, i32 0
+  %__body = getelementptr inbounds nuw %__vtable_TON, ptr %deref, i32 0, i32 0
   store ptr @TON, ptr %__body, align 8
+  ret void
+}
+
+define void @__init___vtable_fb_clampandsaw(ptr %0) {
+entry:
+  %self = alloca ptr, align 8
+  store ptr %0, ptr %self, align 8
+  %deref = load ptr, ptr %self, align 8
+  %__body = getelementptr inbounds nuw %__vtable_TON, ptr %deref, i32 0, i32 0
+  store ptr @FB_ClampAndSaw, ptr %__body, align 8
   ret void
 }
 
@@ -226,14 +233,14 @@ entry:
   ret void
 }
 
-define void @__user_init___vtable_FB_ClampAndSaw(ptr %0) {
+define void @__user_init_TestStruct(ptr %0) {
 entry:
   %self = alloca ptr, align 8
   store ptr %0, ptr %self, align 8
   ret void
 }
 
-define void @__user_init_TON(ptr %0) {
+define void @__user_init___vtable_TON(ptr %0) {
 entry:
   %self = alloca ptr, align 8
   store ptr %0, ptr %self, align 8
@@ -260,14 +267,14 @@ entry:
   ret void
 }
 
-define void @__user_init___vtable_TON(ptr %0) {
+define void @__user_init_TON(ptr %0) {
 entry:
   %self = alloca ptr, align 8
   store ptr %0, ptr %self, align 8
   ret void
 }
 
-define void @__user_init_TestStruct(ptr %0) {
+define void @__user_init___vtable_FB_ClampAndSaw(ptr %0) {
 entry:
   %self = alloca ptr, align 8
   store ptr %0, ptr %self, align 8
