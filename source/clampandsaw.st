@@ -25,17 +25,22 @@ VAR_GLOBAL
     testString: STRING[256];
 END_VAR
 
-FUNCTION PRG_ClampAndSaw : DINT
+FUNCTION main : DINT //the main entrypoint must be a function, not a program. Otherwise, timers will cause segfaults
+    PRG_ClampAndSaw();
+END_FUNCTION
+
+PROGRAM PRG_ClampAndSaw
     VAR
-        stateMachine : FB_ClampAndSaw;
+        stateMachine: FB_ClampAndSaw;
     END_VAR
 
     stateMachine();
-END_FUNCTION
+END_PROGRAM
+
 
 FUNCTION_BLOCK FB_ClampAndSaw
     VAR
-        threeseconds: TON;
+        threeseconds: TON; //timers can only be referenced by Programs or other Function Blocks
     END_VAR
 
     IF reset THEN
