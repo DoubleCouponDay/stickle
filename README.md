@@ -166,27 +166,29 @@ I couldn't create a collection of Vec\<dyn IntoNode\> because their size is not 
 
 - Fix no External References created in POUs.
 
+- Support Omron Builtin Global Variables.
+
 ## Nice to have
 
+- Request toggling off autocomplete in the Structured Text Syntax Highlighting extension for VSC.
+
 - clean up all .is_none() calls and bubble up Err results to the closure, without escaping the for loop.
-
-    should try to minimize unwrap calls.
-
-- Support Unions.
-
-- Somehow add semicolons to the end of every statement block? Rusty doesn't validate that.
-
-- Somehow filter Function Block instances as function internal or as global. They should be TODO
-
-- Support network publish modes for globals. eg: custom token..
 
 - Global pattern input files for xml conversion.
 
     This works for `-c` so why not other compilation modes?
 
+- Support Unions.
+
+- Print a warning on missing semicolons?
+
+- Print a warning on Function Blocks instanced in function vars or global vars.
+
+- Support network publish modes for globals.
+
 - stdlib bundled inside docker image.
 
-- actions, classes, methods, init functions, project init functions.
+- actions, classes, methods, init functions, project init functions included in the generated xml.
 
 - add lit tests for Windows.
 
@@ -195,7 +197,3 @@ I couldn't create a collection of Vec\<dyn IntoNode\> because their size is not 
 - Remove the tabs in the first indentation column.
 
     This is due to copying from source code which has an indentation on the first column.
-
-- Support Omron Builtin Global Variables.
-
-- Print a warning on missing semicolons?
