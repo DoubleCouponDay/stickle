@@ -164,8 +164,6 @@ I couldn't create a collection of Vec\<dyn IntoNode\> because their size is not 
 
 ## TODO
 
-- Fix no External References created in POUs.
-
 - Support Omron Builtin Global Variables.
 
 ## Nice to have
