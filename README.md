@@ -142,7 +142,7 @@ plc ./examples/hello_world.st -L /lib -l iec61131std --linker=cc -o ./compiled/h
 
 [Rusty Compiler - Documentation](https://plc-lang.github.io/rusty/intro_1.html)
 
-[Rusty Compiler - Community](https://github.com/doublecouponday/rusty-fork)
+[Rusty Compiler - Community](https://github.com/plc-lang/rusty)
 
 [Foreign Function Invocations](https://learn.microsoft.com/en-us/dotnet/standard/native-interop/pinvoke)
 
