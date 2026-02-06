@@ -43,6 +43,12 @@ FUNCTION_BLOCK FB_ClampAndSaw
         threeseconds: TON; //timers can only be referenced by Programs or other Function Blocks
     END_VAR
 
+    VAR_EXTERNAL
+        currentState: State;
+        THNTD: BOOL;
+        reset: BOOL;
+    END_VAR
+
     IF reset THEN
         reset := false;
         currentState := AllStopped;
@@ -87,6 +93,10 @@ FUNCTION_BLOCK FB_ClampAndSaw
 END_FUNCTION_BLOCK
 
 FUNCTION GetState : DINT
+    VAR_EXTERNAL
+        currentState: State;
+    END_VAR
+
     GetState := currentState;
 END_FUNCTION
 
@@ -95,9 +105,17 @@ FUNCTION SetThntd
         input: BOOL;
     END_VAR
 
+    VAR_EXTERNAL
+        THNTD: BOOL;
+    END_VAR
+
     THNTD := input;
 END_FUNCTION
 
 FUNCTION ResetState
+    VAR_EXTERNAL
+        reset: BOOL;
+    END_VAR
+
     reset:=TRUE;
 END_FUNCTION
