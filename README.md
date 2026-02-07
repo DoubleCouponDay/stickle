@@ -186,17 +186,15 @@ add this to your settings.json:
 
     This works for `-c` so why not other compilation modes?
 
-- Support Unions.
-
-- Print a warning on missing semicolons?
-
-- Print a warning on Function Blocks instanced in function vars or global vars.
-
 - Support network publish modes for globals.
+
+- Support Unions.
 
 - stdlib bundled inside docker image.
 
-- actions, classes, methods, init functions, project init functions included in the generated xml.
+- Explore XML Generation for Sysmac Safety PLCs.
+
+- Explore XML Generation for Codesys.
 
 - add lit tests for Windows.
 
