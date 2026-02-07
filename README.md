@@ -162,13 +162,23 @@ InitialValue AstNodes needed to be converted to Strings at runtime. Those string
 
 I couldn't create a collection of Vec\<dyn IntoNode\> because their size is not known at compile time. This prevented me from iteratively adding to a Vec of child nodes, then using the .children() function.
 
+### The Structured Text Intellisense for VS Code has annoying autocomplete for POU end braces. How can I disable it?
+
+Assuming use of the "Structured Text language Support" extension for vscode
+
+CTRL + SHIFT + P > open user settings (json)
+
+add this to your settings.json:
+
+    "[st]": {
+        "editor.autoClosingBrackets": "never"
+    }
+
 ## TODO
 
 - Support Omron Builtin Global Variables.
 
 ## Nice to have
-
-- Request toggling off autocomplete in the Structured Text Syntax Highlighting extension for VSC.
 
 - clean up all .is_none() calls and bubble up Err results to the closure, without escaping the for loop.
 
