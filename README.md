@@ -162,31 +162,49 @@ InitialValue AstNodes needed to be converted to Strings at runtime. Those string
 
 I couldn't create a collection of Vec\<dyn IntoNode\> because their size is not known at compile time. This prevented me from iteratively adding to a Vec of child nodes, then using the .children() function.
 
+### The Structured Text Intellisense for VS Code has annoying autocomplete for POU end braces. How can I disable it?
+
+Assuming use of the "Structured Text language Support" extension for vscode
+
+CTRL + SHIFT + P > open user settings (json)
+
+add this to your settings.json:
+
+    "[st]": {
+        "editor.autoClosingBrackets": "never"
+    }
+
+### Why does the compiler say "LLVM ERROR: Invalid size request on a scalable vector." when my first enum option does not have a value of 0?
+
+This is a known bug in the compiler as it is crashing with the following error message:
+
+```
+error: process didn't exit successfully: `target\debug\plc.exe ./examples/source/clampandsaw.st ./examples/source/externals.st -ir -l iec61131std -l ws2_32 -l ntdll -l userenv` (exit code: 0xc0000409, STATUS_STACK_BUFFER_OVERRUN)
+```
+
 ## TODO
 
 - Support Omron Builtin Global Variables.
 
+- Write XML generator tests.
+
+- Begin the Upstream Merge Request process.
+
 ## Nice to have
-
-- Request toggling off autocomplete in the Structured Text Syntax Highlighting extension for VSC.
-
-- clean up all .is_none() calls and bubble up Err results to the closure, without escaping the for loop.
 
 - Global pattern input files for xml conversion.
 
     This works for `-c` so why not other compilation modes?
 
-- Support Unions.
-
-- Print a warning on missing semicolons?
-
-- Print a warning on Function Blocks instanced in function vars or global vars.
-
 - Support network publish modes for globals.
+
+- Support Unions.
 
 - stdlib bundled inside docker image.
 
-- actions, classes, methods, init functions, project init functions included in the generated xml.
+- Explore XML Generation for Sysmac Safety PLCs.
+
+- Explore XML Generation for Codesys.
 
 - add lit tests for Windows.
 
