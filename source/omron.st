@@ -66,7 +66,7 @@ PROGRAM TestAllBuiltins
         _EC_StatisticsLogBusy: BOOL;
         _EC_StatisticsLogErr: BOOL;
         _EIP_BootpErr: BOOL;
-        _EIP_CIPErr: WORD;
+        _EIP_CipErr: WORD;
         _EIP_DNSCfgErr: BOOL;
         _EIP_DNSSrvErr: BOOL;
         _EIP_ErrSta: WORD;
@@ -135,7 +135,6 @@ PROGRAM TestAllBuiltins
         _NXB_UnitRegTbl: ARRAY[0..8] OF BOOL;
         _PLC_ErrSta: WORD;
         _PLC_OptBoardSta: ARRAY[1..2] OF _sOPTBOARD_STA;
-        _PLC_TraceSta: ARRAY[0..3] OF _sTRACE_STA;
         _RetainFail: BOOL;
         _SelfTest_HighTemperature: BOOL;
         _SelfTest_LowBattery: BOOL;
@@ -157,6 +156,23 @@ PROGRAM TestAllBuiltins
         udint1: UDINT;
     END_VAR
 
+    //builtin types
+    _Card1PrgTransferCmd.DirName := '';
+    _Card1PrgTransferCmd.Exec := TRUE;
+    _Card1PrgTransferCmd.Password := '';
+    _Card1PrgTransferCmd.TargetIPAdr := TRUE;
+    _Card1PrgTransferCmd.TargetMemory := TRUE;
+    _Card1PrgTransferCmd.TargetUserProgram := TRUE;
+    _Card1PrgTransferCmd.TargetVariable := TRUE;
+
+    _PLC_OptSerialErrSta[0].Error := TRUE;
+    _PLC_OptSerialErrSta[0].FramingErr := TRUE;
+    _PLC_OptSerialErrSta[0].OverrunErr := TRUE;
+    _PLC_OptSerialErrSta[0].ParityErr := TRUE;
+    _PLC_OptSerialErrSta[0].Reserve1 := TRUE;
+    _PLC_OptSerialErrSta[0].Reserve2 := TRUE;
+
+    //builtin functions
     TraceSamp(usint1, usint1);
     TraceTrig(usint1);
     GetTraceStatus(usint1, bool1, bool1, bool1, bool1);
@@ -187,36 +203,137 @@ END_PROGRAM
 
 {external}
 TYPE _SPRGTRANSFER_CMD
-
+    : STRUCT
+        DirName: STRING[64];
+        Exec: BOOL;
+        Password: STRING[33];
+        TargetIPAdr: BOOL;
+        TargetMemory: BOOL;
+        TargetUserProgram: BOOL;
+        TargetVariable: BOOL;
+    END_STRUCT
 END_TYPE
 
 {external}
 TYPE _sPRGTRANSFER_STA
+    : STRUCT
+        Active: BOOL;
+        Done: BOOL;
+        Err: BOOL;
+    END_STRUCT
 END_TYPE
 
 {external}
 TYPE _sNTP_RESULT
+    : STRUCT
+        ExecNormal: BOOL;
+        ExecTime: BOOL;
+    END_STRUCT
 END_TYPE
 
 {external}
 TYPE _sAXIS_REF
+    : STRUCT
+        Act: _sAXIS_REF_ACT_DATA;
+        Cfg: _sAXIS_REF_CFG;
+        Cmd: _sAXIS_REF_CMD_DATA;
+        Details: _sAXIS_REF_DET;
+        Dir: _sAXIS_REF_DIR;
+        DrvStatus: _sAxis_REF_STA_DRV;
+        MFaultLvl: _sMC_REF_EVENT;
+        Obsr: _sMC_REF_EVENT;
+        Reserved: ARRAY[0..31] OF BYTE;
+        Scale: _sAXIS_REF_SCALE;
+        Status: _sAXIS_REF_STA;
+    END_STRUCT
 END_TYPE
 
 {external}
+TYPE _sAXIS_REF_ACT_DATA
+    : STRUCT
+        Pos: LREAL;
+        TimeStamp: ULINT;
+        Trq: LREAL;
+        Vel: LREAL;
+    END_STRUCT
+END_TYPE
+
+{external}
+TYPE _sAXIS_REF_CFG
+    : STRUCT
+        AxEnable: _eMC_AXIS_USE;
+        AxNo: UINT;
+        AxType: _eMC_AXIS_TYPE;
+        ExecID: UINT;
+        NodeAddress: UINT;
+        Reserved: ARRAY[0..7] OF BYTE;
+    END_STRUCT
+END_TYPE
+
+{external}
+TYPE _eMC_AXIS_USE : UINT
+    ( _mcNoneAxis, _mcUnusedAxis, _mcUsedAxis );
+END_TYPE
+
+{external}
+TYPE _eMC_AXIS_TYPE 
+
+
+{external}
+TYPE _sAXIS_REF_CMD_DATA
+    : STRUCT
+    END_STRUCT
+END_TYPE
+
+{external}
+TYPE _sAXIS_REF_DET
+    : STRUCT
+    END_STRUCT
+END_TYPE
+
+{external}
+TYPE _sAXIS_REF_DIR
+    : STRUCT
+    END_STRUCT
+END_TYPE
+
+{external}
+TYPE _sAXIS_REF_STA_DRV
+    : STRUCT
+    END_STRUCT
+END_TYPE
+
+{external}
+TYPE _sMC_REF_EVENT
+    : STRUCT
+    END_STRUCT
+END_TYPE
+
+{external}
+TYPE _sAXIS_REF_SCALE
+    : STRUCT
+    END_STRUCT
+END_TYPE
+
+{external}
+TYPE _sAXIS_REF_STA
+    : STRUCT
+    END_STRUCT
+END_TYPE
+
+
+{external}
 TYPE _sCOMMON_REF
+
 END_TYPE
 
 {external}
 TYPE _sGROUP_REF
+
 END_TYPE
 
 {external}
 TYPE _sOPTBOARD_STA
-
-END_TYPE
-
-{external}
-TYPE _sTRACE_STA
 
 END_TYPE
 
@@ -236,8 +353,8 @@ TYPE _ePLC_UNIT_TYPE : UINT
 END_TYPE
 
 {external}
-TYPE _sNXUNIT_ID : 
-    STRUCT
+TYPE _sNXUNIT_ID 
+    : STRUCT
         NodeAdr: UINT;
         IPAdr: ARRAY[0.55] OF BYTE;
         UnitNo: UDINT;
