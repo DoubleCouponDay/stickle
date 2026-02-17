@@ -1,4 +1,3 @@
-
 VAR_GLOBAL
     _PLC_OptSerialErrSta: ARRAY[1..2] OF _sOPTSERIALERR_STA;
     _PowerOnCount: UDINT;

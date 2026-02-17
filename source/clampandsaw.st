@@ -37,7 +37,6 @@ PROGRAM PRG_ClampAndSaw
     stateMachine();
 END_PROGRAM
 
-
 FUNCTION_BLOCK FB_ClampAndSaw
     VAR
         threeseconds: TON; //timers can only be referenced by Programs or other Function Blocks

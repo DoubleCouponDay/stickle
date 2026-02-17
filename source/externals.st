@@ -1,3 +1,5 @@
+
+
 {external}
 FUNCTION puts
     VAR_INPUT
