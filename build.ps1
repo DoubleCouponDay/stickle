@@ -1,4 +1,17 @@
+#libomron
+plc ./libomron/libomron.st -c -l iec61131std -l ws2_32 -l ntdll -l userenv -o ./compiled/libomron.o
 
+if($LASTEXITCODE -ne 0) {
+    exit
+}
+
+clang ./compiled/libomron.o --shared -l iec61131std -l ws2_32 -l ntdll -l userenv -o ./compiled/libomron.dll  
+
+if($LASTEXITCODE -ne 0) {
+    exit
+}
+
+# clampandsaw
 plc ./source/* -c -l iec61131std -l ws2_32 -l ntdll -l userenv -o ./compiled/lib_structured_text.o
 
 if($LASTEXITCODE -ne 0) {
