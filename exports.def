@@ -3,25 +3,5 @@ EXPORTS
     GetState
     SetThntd
     ResetState
-
-    GetMyTaskStatus
     TraceSamp
-    TraceTrig
-    GetTraceStatus
-    SetAlarm
-    ResetAlarm
-    GetAlarm
-    GetPLCError
-    GetEIPError
-    GetMCError
-    GetECError
-    GetNXBError
-    SetInfo
-    GetNTPStatus
-    PLC_ReadTotalPowerOnTime
-    GetMyTaskInterval
-    Task_IsActive
-    Lock
-    Unlock
-    ActEventTask
-    Get10msClk    
+    

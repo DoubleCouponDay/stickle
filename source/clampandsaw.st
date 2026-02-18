@@ -1,4 +1,3 @@
-
 TYPE State : (
     AllStopped,
     ClampsExtending,
