@@ -1,0 +1,23 @@
+EXPORTS
+    TraceSamp
+    TraceTrig
+    GetTraceStatus
+    SetAlarm
+    ResetAlarm
+    GetAlarm
+    GetPLCError
+    GetEIPError
+    GetMCError
+    GetECError
+    SetInfo
+    GetNTPStatus
+    GetMyTaskStatus
+    GetMyTaskInterval
+    Task_IsActive
+    Lock
+    Unlock
+    ActEventTask
+    Get10msClk
+    Get10msCnt
+    GetPrgHashCode
+    

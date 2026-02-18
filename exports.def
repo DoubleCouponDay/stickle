@@ -3,5 +3,4 @@ EXPORTS
     GetState
     SetThntd
     ResetState
-    TraceSamp
     

@@ -184,11 +184,11 @@ error: process didn't exit successfully: `target\debug\plc.exe ./examples/source
 
 ## TODO
 
-- Support Omron Builtin Global Variables.
-
 - Write XML generator tests.
 
 - Begin the Upstream Merge Request process.
+
+- Create feature that allows {external} global vars and types.
 
 ## Nice to have
 
