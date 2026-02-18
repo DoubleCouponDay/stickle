@@ -5,7 +5,7 @@ if($LASTEXITCODE -ne 0) {
     exit
 }
 
-clang ./compiled/libomron.o --shared -l iec61131std -l ws2_32 -l ntdll -l userenv -o ./compiled/libomron.dll  
+clang ./compiled/libomron.o --shared -l iec61131std -l ws2_32 -l ntdll -l userenv -fuse-ld=lld-link "-Wl,/DEF:libomron/exports.def" -o ./compiled/libomron.dll
 
 if($LASTEXITCODE -ne 0) {
     exit

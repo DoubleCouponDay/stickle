@@ -1,9 +1,9 @@
 VAR_GLOBAL
-    _PLC_OptSerialErrSta: ARRAY[1..2] OF _sOPTSERIALERR_STA;
+    // _PLC_OptSerialErrSta: ARRAY[1..2] OF _sOPTSERIALERR_STA;
     _PowerOnCount: UDINT;
     _PowerOnHour: UDINT;
     _Card1PowerFail: BOOL;
-    _Card1PrgTransferCmd: _SPRGTRANSFER_CMD;
+    _Card1PrgTransferCmd: _sPRGTRANSFER_CMD;
     _DeviceOutHoldCfg: WORD;
     _EC_StatisticsLogCycleSec: UINT;
     _EC_StatisticsLogEnable: BOOL;
@@ -118,17 +118,17 @@ VAR_GLOBAL CONSTANT
     _ErrSta: WORD;
     _HardwareRevision: STRING[2] := '';
 
-    _MC_AX: ARRAY[0..15] OF _sAXIS_REF := [(
-        Reserved:= [0(32)]
-    )];
+    // _MC_AX: ARRAY[0..15] OF _sAXIS_REF := [(
+    //     Reserved:= [0(32)]
+    // )];
     _MC_AX_ErrSta: ARRAY[0..15] OF WORD := [0(16)];
     _MC_COM: _sCOMMON_REF;
     _MC_ComErrSta: WORD;
     _MC_ErrSta: WORD;
 
-    _MC_GRP: ARRAY[0..7] OF _sGROUP_REF := [(
-        Reserved:= [0(32)]
-    )];
+    // _MC_GRP: ARRAY[0..7] OF _sGROUP_REF := [(
+    //     Reserved:= [0(32)]
+    // )];
     _MC_GRP_ErrSta: ARRAY[0..7] OF WORD := [0(8)];
     _NXB_ErrSta: WORD;
     _NXB_MaxUnitNo: UINT;
@@ -140,9 +140,9 @@ VAR_GLOBAL CONSTANT
     _NXB_UnitRegTbl: ARRAY[0..8] OF BOOL := [0(7)];
     _PLC_ErrSta: WORD;
 
-    _PLC_OptBoardSta: ARRAY[1..2] OF _sOPTBOARD_STA := [(
-        Run:= FALSE
-    )];
+    // _PLC_OptBoardSta: ARRAY[1..2] OF _sOPTBOARD_STA := [(
+    //     Run:= FALSE
+    // )];
     _RetainFail: BOOL;
     _SelfTest_HighTemperature: BOOL;
     _SelfTest_LowBattery: BOOL;
@@ -164,7 +164,7 @@ TYPE _sOPTSERIALERR_STA
     END_STRUCT
 END_TYPE
 
-TYPE _SPRGTRANSFER_CMD
+TYPE _sPRGTRANSFER_CMD
     : STRUCT
         DirName: STRING[64];
         Exec: BOOL;
@@ -227,11 +227,11 @@ TYPE _sAXIS_REF_CFG
     END_STRUCT
 END_TYPE
 
-TYPE _eMC_AXIS_USE : UINT
+TYPE _eMC_AXIS_USE : 
     ( _mcNoneAxis, _mcUnusedAxis, _mcUsedAxis );
 END_TYPE
 
-TYPE _eMC_AXIS_TYPE : UINT
+TYPE _eMC_AXIS_TYPE : 
     (_mcServo, _mcEncdr, _mcVSrv, _mcVEnc);
 END_TYPE
 
@@ -304,11 +304,11 @@ TYPE _sAXIS_REF_SCALE
     END_STRUCT
 END_TYPE
 
-TYPE _eMC_COUNT_MODE : UINT
+TYPE _eMC_COUNT_MODE : 
     (_mcCountModeLinear, _mcCountModeRotary);
 END_TYPE
 
-TYPE _eMC_UNITS : UINT
+TYPE _eMC_UNITS : 
     (_mcPls, _mcMm, _mcUm, _mcNm, _mcDeg, _mcInch);
 END_TYPE
 
@@ -377,7 +377,7 @@ TYPE _sGROUP_REF_CFG
     END_STRUCT
 END_TYPE
 
-TYPE _eMC_GROUP_USE : UINT
+TYPE _eMC_GROUP_USE : 
     (_mcNoneGroup, _mcUnusedGroup, _mcUsedGroup);
 END_TYPE
 
@@ -404,7 +404,7 @@ TYPE _sGROUP_REF_KIM
     END_STRUCT
 END_TYPE
 
-TYPE _eMC_GROUP_TYPE : UINT
+TYPE _eMC_GROUP_TYPE :
     (_mcXY, _mcXYZ, _mcXYZU);
 END_TYPE
 
@@ -428,7 +428,7 @@ TYPE _sOPTBOARD_STA
     END_STRUCT
 END_TYPE
 
-TYPE _ePLC_UNIT_TYPE : UINT
+TYPE _ePLC_UNIT_TYPE : 
     ( _CPU_UNIT );
 END_TYPE
 
@@ -470,11 +470,11 @@ FUNCTION GetTraceStatus : BOOL
     END_VAR
 END_FUNCTION
 
-FUNCTION SetAlarm<T : ANY_ELEMENTARY> : BOOL
+FUNCTION SetAlarm : BOOL
     VAR_INPUT
         Code: UINT;
-        Info1: T;
-        Info2: T;
+        Info1: UINT;
+        Info2: UINT;
     END_VAR
 END_FUNCTION
 
@@ -519,18 +519,18 @@ FUNCTION GetECError : BOOL
     END_VAR
 END_FUNCTION
 
-FUNCTION GetNXBerror : BOOL
+FUNCTION GetNXBError : BOOL
     VAR_INPUT
         UnitProxy: _sNXUNIT_ID;
         Level: UINT;
     END_VAR
 END_FUNCTION
 
-FUNCTION SetInfo<T : ANY_ELEMENTARY> : BOOL
+FUNCTION SetInfo : BOOL
     VAR_INPUT
         Code: UINT;
-        Info1: T;
-        Info2: T;
+        Info1: UINT;
+        Info2: UINT;
     END_VAR
 END_FUNCTION
 
