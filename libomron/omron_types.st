@@ -1,6 +1,7 @@
 
 //Built In Types
 
+
 TYPE _sOPTSERIALERR_STA
     : STRUCT
         Error: BOOL;
@@ -11,6 +12,7 @@ TYPE _sOPTSERIALERR_STA
         Reserve2: BOOL;
     END_STRUCT
 END_TYPE
+
 
 TYPE _sPRGTRANSFER_CMD
     : STRUCT
@@ -24,6 +26,7 @@ TYPE _sPRGTRANSFER_CMD
     END_STRUCT
 END_TYPE
 
+
 TYPE _sPRGTRANSFER_STA
     : STRUCT
         Active: BOOL;
@@ -32,12 +35,14 @@ TYPE _sPRGTRANSFER_STA
     END_STRUCT
 END_TYPE
 
+
 TYPE _sNTP_RESULT
     : STRUCT
         ExecNormal: BOOL;
         ExecTime: BOOL;
     END_STRUCT
 END_TYPE
+
 
 TYPE _sAXIS_REF
     : STRUCT
@@ -55,6 +60,7 @@ TYPE _sAXIS_REF
     END_STRUCT
 END_TYPE
 
+
 TYPE _sAXIS_REF_ACT_DATA
     : STRUCT
         Pos: LREAL;
@@ -63,6 +69,7 @@ TYPE _sAXIS_REF_ACT_DATA
         Vel: LREAL;
     END_STRUCT
 END_TYPE
+
 
 TYPE _sAXIS_REF_CFG
     : STRUCT
@@ -75,13 +82,16 @@ TYPE _sAXIS_REF_CFG
     END_STRUCT
 END_TYPE
 
+
 TYPE _eMC_AXIS_USE : 
     ( _mcNoneAxis, _mcUnusedAxis, _mcUsedAxis );
 END_TYPE
 
+
 TYPE _eMC_AXIS_TYPE : 
     (_mcServo, _mcEncdr, _mcVSrv, _mcVEnc);
 END_TYPE
+
 
 TYPE _sAXIS_REF_CMD_DATA
     : STRUCT
@@ -92,6 +102,7 @@ TYPE _sAXIS_REF_CMD_DATA
         Vel: LREAL;
     END_STRUCT
 END_TYPE
+
 
 TYPE _sAXIS_REF_DET
     : STRUCT
@@ -104,12 +115,14 @@ TYPE _sAXIS_REF_DET
     END_STRUCT
 END_TYPE
 
+
 TYPE _sAXIS_REF_DIR
     : STRUCT
         Posi: BOOL;
         Nega: BOOL;
     END_STRUCT
 END_TYPE
+
 
 TYPE _sAXIS_REF_STA_DRV
     : STRUCT
@@ -133,12 +146,14 @@ TYPE _sAXIS_REF_STA_DRV
     END_STRUCT
 END_TYPE
 
+
 TYPE _sMC_REF_EVENT
     : STRUCT
         Active: BOOL;
         Code: WORD;        
     END_STRUCT
 END_TYPE
+
 
 TYPE _sAXIS_REF_SCALE
     : STRUCT
@@ -151,13 +166,16 @@ TYPE _sAXIS_REF_SCALE
     END_STRUCT
 END_TYPE
 
+
 TYPE _eMC_COUNT_MODE : 
     (_mcCountModeLinear, _mcCountModeRotary);
 END_TYPE
 
+
 TYPE _eMC_UNITS : 
     (_mcPls, _mcMm, _mcUm, _mcNm, _mcDeg, _mcInch);
 END_TYPE
+
 
 TYPE _sAXIS_REF_STA
     : STRUCT
@@ -175,6 +193,7 @@ TYPE _sAXIS_REF_STA
     END_STRUCT
 END_TYPE
 
+
 TYPE _sCOMMON_REF
     : STRUCT
         Cfg: _sCOMMON_REF_CFG;
@@ -186,11 +205,13 @@ TYPE _sCOMMON_REF
     END_STRUCT
 END_TYPE
 
+
 TYPE _sCOMMON_REF_CFG
     : STRUCT
         Reserved: ARRAY[0..31] OF BYTE;
     END_STRUCT
 END_TYPE
+
 
 TYPE _sCOMMON_REF_STA
     : STRUCT
@@ -201,6 +222,7 @@ TYPE _sCOMMON_REF_STA
         TestMode: BOOL;
     END_STRUCT
 END_TYPE
+
 
 TYPE _sGROUP_REF
     : STRUCT
@@ -215,6 +237,7 @@ TYPE _sGROUP_REF
     END_STRUCT
 END_TYPE
 
+
 TYPE _sGROUP_REF_CFG
     : STRUCT
         ExecId: UINT;
@@ -224,9 +247,11 @@ TYPE _sGROUP_REF_CFG
     END_STRUCT
 END_TYPE
 
+
 TYPE _eMC_GROUP_USE : 
     (_mcNoneGroup, _mcUnusedGroup, _mcUsedGroup);
 END_TYPE
+
 
 TYPE _sGROUP_REF_CMD_DATA
     : STRUCT
@@ -234,6 +259,7 @@ TYPE _sGROUP_REF_CMD_DATA
         Vel: LREAL;
     END_STRUCT
 END_TYPE
+
 
 TYPE _sGROUP_REF_DET
     : STRUCT
@@ -243,6 +269,7 @@ TYPE _sGROUP_REF_DET
     END_STRUCT
 END_TYPE
 
+
 TYPE _sGROUP_REF_KIM
     : STRUCT
         Axis: ARRAY[0..31] OF UINT;
@@ -251,9 +278,11 @@ TYPE _sGROUP_REF_KIM
     END_STRUCT
 END_TYPE
 
+
 TYPE _eMC_GROUP_TYPE :
     (_mcXY, _mcXYZ, _mcXYZU);
 END_TYPE
+
 
 TYPE _sGROUP_REF_STA
     : STRUCT
@@ -267,6 +296,7 @@ TYPE _sGROUP_REF_STA
     END_STRUCT
 END_TYPE
 
+
 TYPE _sOPTBOARD_STA
     : STRUCT
         Error: BOOL;
@@ -275,11 +305,11 @@ TYPE _sOPTBOARD_STA
     END_STRUCT
 END_TYPE
 
-TYPE _ePLC_UNIT_TYPE : 
+TYPE _ePLC_UNIT_TYPE :
     ( _CPU_UNIT );
 END_TYPE
 
-TYPE _sNXUNIT_ID 
+TYPE _sNXUNIT_ID
     : STRUCT
         NodeAdr: UINT;
         IPAdr: ARRAY[0..55] OF BYTE;

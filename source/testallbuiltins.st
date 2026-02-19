@@ -18,7 +18,6 @@ PROGRAM TestAllBuiltins
     VAR
         time1: TIME;
         usint1: USINT;
-        type1: _ePLC_UNIT_TYPE;
         info1: UINT;
         dateandtime1: DATE_AND_TIME;
         bool1: BOOL;
@@ -33,7 +32,6 @@ PROGRAM TestAllBuiltins
     TraceSamp(usint1, usint1);
     TraceTrig(usint1);
     GetTraceStatus(usint1, bool1, bool1, bool1, bool1);
-    type1 := _CPU_UNIT;
     SetAlarm(5, info1, info1);
     ResetAlarm(5);
     GetAlarm(uint1, uint1);

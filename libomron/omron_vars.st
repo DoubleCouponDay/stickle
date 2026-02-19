@@ -1,5 +1,6 @@
 //builtin variables
 
+
 VAR_GLOBAL
     _PLC_OptSerialErrSta: ARRAY[1..2] OF _sOPTSERIALERR_STA;
     _PowerOnCount: UDINT;
@@ -14,6 +15,7 @@ VAR_GLOBAL
     _EIP1_TDLinkStartCmd: BOOL;
     _EIP1_TDLinkStopCmd: BOOL;
 END_VAR
+
 
 VAR_GLOBAL CONSTANT
     _AlarmFlag: WORD := 0;

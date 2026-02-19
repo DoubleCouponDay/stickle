@@ -142,3 +142,9 @@ FUNCTION GetPrgHashCode : BOOL
         Code4: DWORD;
     END_VAR
 END_FUNCTION
+
+FUNCTION PLC_ReadTotalPowerOnTime : TIME
+    VAR_INPUT
+        UnitType: _ePLC_UNIT_TYPE;
+    END_VAR
+END_FUNCTION

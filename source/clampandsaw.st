@@ -11,12 +11,6 @@ TYPE State : (
 );
 END_TYPE
 
-TYPE TestStruct 
-    : STRUCT
-        testString: STRING;
-    END_STRUCT
-END_TYPE
-
 VAR_GLOBAL
     currentState: State := AllStopped;
     THNTD: BOOL := FALSE;

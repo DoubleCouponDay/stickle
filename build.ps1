@@ -1,5 +1,5 @@
 # libomron
-plc ./libomron/libomron.st -c -l iec61131std -l ws2_32 -l ntdll -l userenv -o ./compiled/libomron.o
+plc ./libomron/*.st -c -l iec61131std -l ws2_32 -l ntdll -l userenv -o ./compiled/libomron.o
 
 if($LASTEXITCODE -ne 0) {
     exit
@@ -12,7 +12,7 @@ if($LASTEXITCODE -ne 0) {
 }
 
 # clampandsaw
-plc ./source/* -c -l iec61131std -l libomron -l ws2_32 -l ntdll -l userenv -o ./compiled/lib_structured_text.o
+plc ./source/*.st -c -l iec61131std -l libomron -l ws2_32 -l ntdll -l userenv -o ./compiled/lib_structured_text.o
 
 if($LASTEXITCODE -ne 0) {
     exit
@@ -24,4 +24,4 @@ if($LASTEXITCODE -ne 0) {
     exit
 }
 
-plc ./source/clampandsaw.st ./source/builtins_test.st --xml-omron -i ./source/externals.st -i ./source/omron_functions.st -i ./source/omron_types.st -i ./source/omron_vars.st -l iec61131std -l ws2_32 -l ntdll -l userenv -o ./compiled/lib_structured_text.xml
+plc ./source/clampandsaw.st ./source/testallbuiltins.st --xml-omron -i ./externals/stdlib_externals.st -i ./externals/omron_externals.st -l iec61131std -l libomron -l ws2_32 -l ntdll -l userenv -o ./compiled/lib_structured_text.xml
