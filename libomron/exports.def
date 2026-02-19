@@ -139,39 +139,6 @@ EXPORTS
     _SystemSWVersion
     _Unitversion
 
-    _sOPTSERIALERR_STA
-    _sPRGTRANSFER_CMD
-    _sPRGTRANSFER_STA
-    _sNTP_RESULT
-    _sAXIS_REF
-    _sAXIS_REF_ACT_DATA
-    _sAXIS_REF_CFG
-    _eMC_AXIS_USE
-    _eMC_AXIS_TYPE
-    _sAXIS_REF_CMD_DATA
-    _sAXIS_REF_DET
-    _sAXIS_REF_DIR
-    _sAXIS_REF_STA_DRV
-    _sMC_REF_EVENT
-    _sAXIS_REF_SCALE
-    _eMC_COUNT_MODE
-    _eMC_UNITS
-    _sAXIS_REF_STA
-    _sCOMMON_REF
-    _sCOMMON_REF_CFG
-    _sCOMMON_REF_STA
-    _sGROUP_REF
-    _sGROUP_REF_CFG
-    _eMC_GROUP_USE
-    _sGROUP_REF_CMD_DATA
-    _sGROUP_REF_DET
-    _sGROUP_REF_KIM
-    _eMC_GROUP_TYPE
-    _sGROUP_REF_STA
-    _sOPTBOARD_STA
-    _ePLC_UNIT_TYPE
-    _sNXUNIT_ID
-
     TraceSamp
     TraceTrig
     GetTraceStatus

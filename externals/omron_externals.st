@@ -463,9 +463,9 @@ TYPE _sOPTBOARD_STA
 END_TYPE
 
 {external}
--TYPE _ePLC_UNIT_TYPE :
--    ( _CPU_UNIT );
--END_TYPE
+TYPE _ePLC_UNIT_TYPE :
+    ( _CPU_UNIT );
+END_TYPE
 
 {external}
 TYPE _sNXUNIT_ID
@@ -646,8 +646,8 @@ FUNCTION GetPrgHashCode : BOOL
 END_FUNCTION
 
 {external}
--FUNCTION PLC_ReadTotalPowerOnTime : TIME
--    VAR_INPUT
--        UnitType: _ePLC_UNIT_TYPE;
--    END_VAR
--END_FUNCTION
+FUNCTION PLC_ReadTotalPowerOnTime : TIME
+    VAR_INPUT
+        UnitType: _ePLC_UNIT_TYPE;
+    END_VAR
+END_FUNCTION
