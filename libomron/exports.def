@@ -1,3 +1,4 @@
+LIBRARY libomron
 EXPORTS
     _PLC_OptSerialErrSta
     _PowerOnCount
@@ -11,7 +12,6 @@ EXPORTS
     _EIP_TDLinkStopCmd
     _EIP1_TDLinkStartCmd
     _EIP1_TDLinkStopCmd
-
     _AlarmFlag
     _BackupBusy
     _Card1Access
@@ -138,7 +138,6 @@ EXPORTS
     _SelfTest_LowFanRevolution
     _SystemSWVersion
     _Unitversion
-
     TraceSamp
     TraceTrig
     GetTraceStatus
@@ -161,4 +160,3 @@ EXPORTS
     Get10msCnt
     GetPrgHashCode
     PLC_ReadTotalPowerOnTime
-    
