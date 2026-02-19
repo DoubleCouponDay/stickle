@@ -1,5 +1,3 @@
-//libbug.lib : fatal error LNK1107: invalid or corrupt file: cannot read at 0x298
-
 {external}
 TYPE Type1
     : STRUCT
@@ -13,8 +11,8 @@ VAR_GLOBAL
 END_VAR
 
 PROGRAM BugRecreation
-    // VAR_EXTERNAL
-    //     test1: Type1; //Could not resolve reference to BugRecreation.test1 at: :.
-    // END_VAR
+    VAR_EXTERNAL
+        test1: Type1; //Could not resolve reference to BugRecreation.test1 at: :.
+    END_VAR
     test1.field1 := TRUE; 
 END_PROGRAM
