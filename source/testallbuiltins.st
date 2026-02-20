@@ -1,19 +1,19 @@
 
 PROGRAM TestAllBuiltins
-    // VAR_EXTERNAL
-    //     _PLC_OptSerialErrSta: ARRAY[1..2] OF _sOPTSERIALERR_STA;
-    //     _PowerOnCount: UDINT;
-    //     _PowerOnHour: UDINT;
-    //     _Card1PowerFail: BOOL;
-    //     _Card1PrgTransferCmd: _sPRGTRANSFER_CMD;
-    //     _DeviceOutHoldCfg: WORD;
-    //     _EC_StatisticsLogCycleSec: UINT;
-    //     _EC_StatisticsLogEnable: BOOL;
-    //     _EIP_TDLinkStartCmd: BOOL;
-    //     _EIP_TDLinkStopCmd: BOOL;
-    //     _EIP1_TDLinkStartCmd: BOOL;
-    //     _EIP1_TDLinkStopCmd: BOOL;
-    // END_VAR
+    VAR_EXTERNAL
+        _PLC_OptSerialErrSta: ARRAY[1..2] OF _sOPTSERIALERR_STA;
+        _PowerOnCount: UDINT;
+        _PowerOnHour: UDINT;
+        _Card1PowerFail: BOOL;
+        _Card1PrgTransferCmd: _sPRGTRANSFER_CMD;
+        _DeviceOutHoldCfg: WORD;
+        _EC_StatisticsLogCycleSec: UINT;
+        _EC_StatisticsLogEnable: BOOL;
+        _EIP_TDLinkStartCmd: BOOL;
+        _EIP_TDLinkStopCmd: BOOL;
+        _EIP1_TDLinkStartCmd: BOOL;
+        _EIP1_TDLinkStopCmd: BOOL;
+    END_VAR
 
     VAR
         time1: TIME;
