@@ -229,3 +229,8 @@ error: process didn't exit successfully: `target\debug\plc.exe ./examples/source
 - Remove the tabs in the first indentation column.
 
     This is due to copying from source code which has an indentation on the first column.
+
+- What libs are required to link with in order to fully pass the Windows Workspace unit tests in Rusty-Fork?
+
+    kernel32.lib ntdll.lib userenv.lib ws2_32.lib dbghelp.lib
+    
