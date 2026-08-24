@@ -1,4 +1,4 @@
-LIBRARY libomron
+LIBRARY libNX1P2
 EXPORTS
     _PLC_OptSerialErrSta
     _PowerOnCount
