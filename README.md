@@ -198,14 +198,6 @@ This is a known bug in the compiler as it is crashing with the following error m
 error: process didn't exit successfully: `target\debug\plc.exe ./examples/source/clampandsaw.st ./examples/source/externals.st -ir -l iec61131std -l ws2_32 -l ntdll -l userenv` (exit code: 0xc0000409, STATUS_STACK_BUFFER_OVERRUN)
 ```
 
-## TODO
-
-- Write XML generator tests.
-
-- Begin the Upstream Merge Request process.
-
-- Create feature that allows {external} global vars and types.
-
 ## Nice to have
 
 - Global pattern input files for xml conversion.
