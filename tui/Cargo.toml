@@ -2,6 +2,10 @@
 name = "stickle"
 version = "0.1.0"
 edition = "2024"
+description = "TUI for a streamlined Rusty PLC Compiler workflow"
+license-file = "../LICENSE"
+readme = "../README.md"
+repository = "https://github.com/doublecouponday/stickle.git"
 
 [[bin]]
 name = "stickle"
