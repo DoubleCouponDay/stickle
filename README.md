@@ -2,7 +2,7 @@
 
 The Stickle Workflow has a streamlined Terminal User Interface (TUI) and example code for using the [Rusty Compiler](https://github.com/doublecouponday/rusty-fork).
 
-![tui demo](./tui_demo.webp)
+![tui demo](https://raw.githubusercontent.com/DoubleCouponDay/stickle/refs/heads/main2/tui_demo.webp)
 
 The example Structured Text project unlocks plain-text Source Control and Unit Testing.
 
