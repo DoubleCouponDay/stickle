@@ -404,10 +404,14 @@ fn draw_detail(frame: &mut Frame, area: Rect, app: &mut App, theme: Theme) {
         }
     };
 
+    app.detail_thumb = thumb_length(bar.height, inner.height, rows);
+
     let over = app.hovered == Some(Button::Scrollbar);
     let held = app.pressed == Some(Button::Scrollbar);
 
-    let thumb = if held {
+    let thumb = if limit == 0 {
+        theme.dim
+    } else if held {
         theme.press(theme.accent)
     } else if over {
         theme.hover(theme.accent)
@@ -415,7 +419,7 @@ fn draw_detail(frame: &mut Frame, area: Rect, app: &mut App, theme: Theme) {
         theme.accent
     };
 
-    let mut state = ScrollbarState::new(rows)
+    let mut state = ScrollbarState::new(limit as usize + 1)
         .viewport_content_length(inner.height as usize)
         .position(app.detail_scroll as usize);
 
@@ -437,6 +441,18 @@ fn draw_detail(frame: &mut Frame, area: Rect, app: &mut App, theme: Theme) {
     app.detail_rows = snapshot(frame, inner);
 
     paint_selection(frame, app, theme);
+}
+
+fn thumb_length(track: u16, viewport: u16, rows: usize) -> u16 {
+    if track == 0 || rows == 0 {
+        return track;
+    }
+
+    let track = u32::from(track);
+    let span = rows.max(viewport as usize) as u32;
+    let length = (u32::from(viewport) * track + span / 2) / span;
+
+    (length as u16).clamp(1, track as u16)
 }
 
 fn output_lines(app: &App, theme: Theme) -> Vec<Line<'static>> {

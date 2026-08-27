@@ -114,6 +114,7 @@ pub struct App {
     pub detail_area: Rect,
     pub detail_track: Rect,
     pub detail_limit: u16,
+    pub detail_thumb: u16,
     pub detail_rows: Vec<String>,
     pub selection: Option<Selection>,
     pub notice: Option<(String, Instant)>,
@@ -152,6 +153,7 @@ impl App {
             detail_area: Rect::ZERO,
             detail_track: Rect::ZERO,
             detail_limit: 0,
+            detail_thumb: 1,
             detail_rows: Vec::new(),
             selection: None,
             notice: None,
@@ -257,11 +259,22 @@ impl App {
             return;
         }
 
-        let offset = u32::from(row.saturating_sub(track.y).min(track.height - 1));
-        let span = u32::from((track.height - 1).max(1));
+        let thumb = self.detail_thumb.clamp(1, track.height);
+        let travel = track.height.saturating_sub(thumb);
+
+        if travel == 0 {
+            self.detail_scroll = self.detail_limit;
+            self.selection = None;
+            self.follow = false;
+            return;
+        }
+
+        let offset = row.saturating_sub(track.y).min(track.height - 1);
+        let top = u32::from(offset.saturating_sub(thumb / 2).min(travel));
+        let span = u32::from(travel);
         let limit = u32::from(self.detail_limit);
 
-        self.detail_scroll = ((offset * limit + span / 2) / span).min(limit) as u16;
+        self.detail_scroll = ((top * limit + span / 2) / span).min(limit) as u16;
         self.selection = None;
         self.follow = false;
     }
