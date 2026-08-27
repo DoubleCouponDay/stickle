@@ -1,5 +1,6 @@
 use std::path::{Path, PathBuf};
 
+use crate::builds::{OMRON_ARTIFACT, OMRON_CHECK};
 use crate::env::EnvSnapshot;
 use crate::probe::Probes;
 
@@ -27,7 +28,32 @@ pub fn groups(env: &EnvSnapshot, probes: &mut Probes, root: &Path) -> Vec<Group>
         lib_group(env),
         runtime_group(env),
         exports_group(root),
+        artifact_group(root),
     ]
+}
+
+fn artifact_group(root: &Path) -> Group {
+    let check = file_check(
+        root,
+        OMRON_ARTIFACT,
+        OMRON_CHECK,
+        "the Omron library that the lib_structured_text builds link against with -l libNX1P2",
+        vec![
+            "lib_structured_text.dll and lib_structured_text.xml cannot be built until it exists."
+                .into(),
+            "It is produced from the libomron sources, so build libNX1P2.dll first:".into(),
+            "plc ./libomron/*.st -c -l iec61131std -l ws2_32 -l ntdll -l userenv -o ./compiled/libNX1P2.o"
+                .into(),
+            "clang ./compiled/libNX1P2.o --shared -l iec61131std -l ws2_32 -l ntdll -l userenv -fuse-ld=lld-link \"-Wl,/DEF:libomron/exports.def\" -o ./compiled/libNX1P2.dll"
+                .into(),
+            "The Build pane runs both steps for you.".into(),
+        ],
+    );
+
+    Group {
+        title: "Build artifacts".into(),
+        checks: vec![check],
+    }
 }
 
 fn toolchain_group(env: &EnvSnapshot, probes: &mut Probes) -> Group {

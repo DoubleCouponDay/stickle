@@ -1,10 +1,11 @@
 use std::env;
 use std::path::{Path, PathBuf};
 
+use crate::builds::{OMRON_ARTIFACT, OMRON_CHECK};
 use crate::env::EnvSnapshot;
 use crate::probe::Probes;
 
-use super::{Check, Group, Status, find_in, which};
+use super::{Check, Group, Status, file_check, find_in, which};
 
 pub const NAME: &str = "Linux";
 pub const DOTNET_REMEDY: &str =
@@ -17,8 +18,34 @@ pub fn candidates(dir: &Path, name: &str) -> Vec<PathBuf> {
     vec![dir.join(name)]
 }
 
-pub fn groups(env: &EnvSnapshot, probes: &mut Probes, _root: &Path) -> Vec<Group> {
-    vec![toolchain_group(env, probes), shared_object_group(env)]
+pub fn groups(env: &EnvSnapshot, probes: &mut Probes, root: &Path) -> Vec<Group> {
+    vec![
+        toolchain_group(env, probes),
+        shared_object_group(env),
+        artifact_group(root),
+    ]
+}
+
+fn artifact_group(root: &Path) -> Group {
+    let check = file_check(
+        root,
+        OMRON_ARTIFACT,
+        OMRON_CHECK,
+        "the Omron library that the lib_structured_text builds link against with -l NX1P2",
+        vec![
+            "lib_structured_text.so and lib_structured_text.xml cannot be built until it exists."
+                .into(),
+            "It is produced from the libomron sources, so build libNX1P2.so first:".into(),
+            "plc ./libomron/*.st --shared --linker=cc --target=x86_64 -l iec61131std -o ./compiled/libNX1P2.so"
+                .into(),
+            "The Build pane runs that for you.".into(),
+        ],
+    );
+
+    Group {
+        title: "Build artifacts".into(),
+        checks: vec![check],
+    }
 }
 
 fn toolchain_group(env: &EnvSnapshot, probes: &mut Probes) -> Group {

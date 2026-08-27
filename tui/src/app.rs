@@ -330,30 +330,31 @@ impl App {
     }
 
     pub fn build_hint(&self) -> Option<String> {
-        let (total, _, _, fail) = self.report.totals();
+        let (total, ..) = self.report.totals();
 
         if total == 0 {
             return Some("scanning the environment".into());
         }
 
-        if fail > 0 {
-            return Some(format!("{fail} requirement(s) not met"));
+        let blocking = self
+            .report
+            .groups
+            .iter()
+            .flat_map(|group| &group.checks)
+            .filter(|check| check.status == Status::Fail && check.name != builds::OMRON_CHECK)
+            .count();
+
+        if blocking > 0 {
+            return Some(format!("{blocking} requirement(s) not met"));
         }
 
-        let missing = self
-            .targets
-            .iter()
-            .find(|target| {
-                target
-                    .requires
-                    .is_some_and(|relative| !self.report.root.join(relative).is_file())
-            })
-            .and_then(|target| target.requires);
+        let missing = self.targets.iter().any(|target| {
+            target
+                .requires
+                .is_some_and(|relative| !self.report.root.join(relative).is_file())
+        });
 
-        missing.map(|relative| {
-            let artifact = relative.rsplit('/').next().unwrap_or(relative);
-            format!("build {artifact} first")
-        })
+        missing.then(|| format!("build {} first", builds::OMRON_CHECK))
     }
 
     pub fn building(&self) -> Option<usize> {
