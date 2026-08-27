@@ -21,6 +21,8 @@ pub struct Theme {
     pub fail: Color,
     pub change: Color,
     pub met_name: Color,
+    pub selection_bg: Color,
+    pub selection_fg: Color,
 }
 
 impl Theme {
@@ -37,6 +39,8 @@ impl Theme {
             fail: Color::Rgb(240, 116, 116),
             change: Color::Rgb(222, 152, 236),
             met_name: Color::Rgb(196, 208, 208),
+            selection_bg: Color::Rgb(122, 168, 168),
+            selection_fg: Color::Rgb(12, 22, 22),
         }
     }
 
@@ -53,6 +57,8 @@ impl Theme {
             fail: Color::Rgb(176, 34, 52),
             change: Color::Rgb(132, 30, 148),
             met_name: Color::Rgb(74, 78, 88),
+            selection_bg: Color::Rgb(186, 208, 236),
+            selection_fg: Color::Rgb(14, 18, 24),
         }
     }
 
@@ -91,6 +97,10 @@ impl Theme {
             .fg(self.badge_fg)
             .bg(self.status(status))
             .add_modifier(Modifier::BOLD)
+    }
+
+    pub fn selection(self) -> Style {
+        Style::new().fg(self.selection_fg).bg(self.selection_bg)
     }
 
     pub fn heading(self) -> Style {

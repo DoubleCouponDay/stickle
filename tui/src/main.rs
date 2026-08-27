@@ -1,5 +1,6 @@
 mod app;
 mod checks;
+mod clipboard;
 mod env;
 mod probe;
 mod scanner;
@@ -64,14 +65,16 @@ fn handle_key(app: &mut App, key: KeyEvent) {
         KeyCode::Up | KeyCode::Char('k') => app.move_selection(false),
         KeyCode::PageDown => app.scroll_detail(5),
         KeyCode::PageUp => app.scroll_detail(-5),
-        KeyCode::Home => app.detail_scroll = 0,
+        KeyCode::Home => app.reset_detail_scroll(),
         _ => {}
     }
 }
 
 fn handle_mouse(app: &mut App, mouse: MouseEvent) {
     match mouse.kind {
-        MouseEventKind::Down(MouseButton::Left) => app.click(mouse.column, mouse.row),
+        MouseEventKind::Down(MouseButton::Left) => app.mouse_down(mouse.column, mouse.row),
+        MouseEventKind::Drag(MouseButton::Left) => app.mouse_drag(mouse.column, mouse.row),
+        MouseEventKind::Up(MouseButton::Left) => app.mouse_up(),
         MouseEventKind::ScrollDown => app.scroll_detail(1),
         MouseEventKind::ScrollUp => app.scroll_detail(-1),
         _ => {}

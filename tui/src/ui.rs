@@ -151,6 +151,14 @@ fn activity(app: &App, theme: Theme) -> Line<'static> {
         ),
     ];
 
+    if let Some((notice, _)) = app.notice.as_ref() {
+        spans.push(Span::raw("   "));
+        spans.push(Span::styled(
+            notice.clone(),
+            Style::new().fg(theme.accent).add_modifier(Modifier::BOLD),
+        ));
+    }
+
     if let Some(change) = app.changes.last() {
         spans.push(Span::raw("   "));
         spans.push(Span::styled(
@@ -229,6 +237,8 @@ fn draw_list(frame: &mut Frame, area: Rect, app: &mut App, theme: Theme) {
             Style::new().fg(theme.fg).add_modifier(Modifier::BOLD),
         ));
 
+    app.list_area = block.inner(area);
+
     if app.rows.is_empty() {
         let waiting = Paragraph::new(vec![
             Line::raw(""),
@@ -272,7 +282,7 @@ fn draw_list(frame: &mut Frame, area: Rect, app: &mut App, theme: Theme) {
     frame.render_stateful_widget(list, area, &mut app.list);
 }
 
-fn draw_detail(frame: &mut Frame, area: Rect, app: &App, theme: Theme) {
+fn draw_detail(frame: &mut Frame, area: Rect, app: &mut App, theme: Theme) {
     let block = Block::bordered()
         .border_type(BorderType::Rounded)
         .border_style(theme.dimmed())
@@ -281,6 +291,8 @@ fn draw_detail(frame: &mut Frame, area: Rect, app: &App, theme: Theme) {
             " Detail ",
             Style::new().fg(theme.fg).add_modifier(Modifier::BOLD),
         ));
+
+    let inner = block.inner(area);
 
     let lines = match app.selected_check() {
         Some(check) => detail_lines(check, theme),
@@ -297,6 +309,37 @@ fn draw_detail(frame: &mut Frame, area: Rect, app: &App, theme: Theme) {
         .alignment(Alignment::Left);
 
     frame.render_widget(paragraph, area);
+
+    app.detail_area = inner;
+    app.detail_rows = snapshot(frame, inner);
+
+    paint_selection(frame, app, theme);
+}
+
+fn snapshot(frame: &mut Frame, area: Rect) -> Vec<String> {
+    let buffer = frame.buffer_mut();
+
+    (area.y..area.bottom())
+        .map(|y| {
+            (area.x..area.right())
+                .map(|x| buffer[(x, y)].symbol())
+                .collect()
+        })
+        .collect()
+}
+
+fn paint_selection(frame: &mut Frame, app: &App, theme: Theme) {
+    let Some(selection) = app.selection.as_ref() else {
+        return;
+    };
+
+    let buffer = frame.buffer_mut();
+
+    for (y, from, to) in selection.spans(app.detail_area) {
+        for x in from..to {
+            buffer[(x, y)].set_style(theme.selection());
+        }
+    }
 }
 
 fn detail_lines(check: &Check, theme: Theme) -> Vec<Line<'static>> {
@@ -356,6 +399,8 @@ fn draw_footer(frame: &mut Frame, area: Rect, theme: Theme) {
         Span::raw(" re-check now  "),
         key("t", theme),
         Span::raw(" theme  "),
+        key("drag detail", theme),
+        Span::raw(" copy  "),
         key("q", theme),
         Span::raw(" quit"),
     ]);
