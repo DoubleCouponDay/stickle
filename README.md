@@ -1,6 +1,8 @@
 # Stickle
 
-Example Structured Text project with plain-text Source Control and Unit Testing using the [Rusty Compiler](https://github.com/doublecouponday/rusty-fork).
+The Stickle Workflow has a streamlined Terminal User Interface (TUI) and example code for using the [Rusty Compiler](https://github.com/doublecouponday/rusty-fork).
+
+The example Structured Text project unlocks plain-text Source Control and Unit Testing.
 
 Develop and troubleshoot your Automation projects while decoupling from any manufacturers ecosystem.
 
@@ -153,6 +155,11 @@ plc ./examples/hello_world.st -L /lib -l iec61131std --linker=cc -o ./compiled/h
 
 ./compiled/hello_world
 ```
+
+## Compiling the TUI
+
+Literally just `cargo build`.
+
 
 ## Further Reading
 
