@@ -242,9 +242,7 @@ where
                 Ok(_) => {}
             }
 
-            let text = String::from_utf8_lossy(&raw)
-                .trim_end_matches(['\r', '\n'])
-                .to_string();
+            let text = plain(String::from_utf8_lossy(&raw).trim_end_matches(['\r', '\n']));
 
             if !text.trim().is_empty() {
                 last = Some(text.clone());
@@ -255,6 +253,46 @@ where
             }
         }
     })
+}
+
+fn plain(text: &str) -> String {
+    let mut stripped = String::with_capacity(text.len());
+    let mut characters = text.chars();
+
+    while let Some(character) = characters.next() {
+        if character != '\u{1b}' {
+            if !character.is_control() || character == '\t' {
+                stripped.push(character);
+            }
+
+            continue;
+        }
+
+        match characters.next() {
+            Some('[') => {
+                for next in characters.by_ref() {
+                    if ('\u{40}'..='\u{7e}').contains(&next) {
+                        break;
+                    }
+                }
+            }
+            Some(']') => {
+                while let Some(next) = characters.next() {
+                    if next == '\u{7}' {
+                        break;
+                    }
+
+                    if next == '\u{1b}' {
+                        characters.next();
+                        break;
+                    }
+                }
+            }
+            _ => {}
+        }
+    }
+
+    stripped
 }
 
 fn join(dirs: &[PathBuf]) -> Option<OsString> {
