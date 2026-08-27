@@ -59,7 +59,10 @@ fn draw_summary(frame: &mut Frame, area: Rect, app: &App, theme: Theme) {
         .border_style(theme.dimmed())
         .style(theme.base())
         .title(Span::styled(
-            format!(" Stickle build requirements - {} ", app.report.platform),
+            format!(
+                " Structured Text build requirements - {} ",
+                app.report.platform
+            ),
             Style::new().fg(theme.fg).add_modifier(Modifier::BOLD),
         ))
         .title_bottom(

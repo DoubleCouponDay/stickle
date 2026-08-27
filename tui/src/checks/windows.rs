@@ -37,7 +37,7 @@ fn artifact_group(root: &Path) -> Group {
         root,
         OMRON_ARTIFACT,
         OMRON_CHECK,
-        "the Omron library that the lib_structured_text builds link against with -l libNX1P2",
+        "the library that the lib_structured_text builds link against with -l libNX1P2",
         vec![
             "lib_structured_text.dll and lib_structured_text.xml cannot be built until it exists."
                 .into(),

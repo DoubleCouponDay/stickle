@@ -1,9 +1,9 @@
-use std::env;
 use std::fs;
 use std::path::{Path, PathBuf};
 
 use crate::env::EnvSnapshot;
 use crate::probe::Probes;
+use crate::project::Project;
 
 #[cfg(windows)]
 mod windows;
@@ -14,8 +14,6 @@ use windows as platform;
 mod unix;
 #[cfg(not(windows))]
 use unix as platform;
-
-pub const REQUIRED_DOTNET_MAJOR: u32 = 10;
 
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub enum Status {
@@ -59,6 +57,7 @@ pub struct Group {
 
 pub struct Report {
     pub root: PathBuf,
+    pub test_project: Option<PathBuf>,
     pub platform: &'static str,
     pub env: EnvSnapshot,
     pub groups: Vec<Group>,
@@ -66,8 +65,11 @@ pub struct Report {
 
 impl Report {
     pub fn pending() -> Self {
+        let project = Project::discover();
+
         Report {
-            root: find_root(),
+            root: project.root,
+            test_project: project.test_project,
             platform: platform::NAME,
             env: EnvSnapshot::empty(),
             groups: Vec::new(),
@@ -75,14 +77,15 @@ impl Report {
     }
 
     pub fn run(env: &EnvSnapshot, probes: &mut Probes) -> Self {
-        let root = find_root();
+        let project = Project::discover();
 
-        let mut groups = platform::groups(env, probes, &root);
-        groups.push(dotnet_group(env, probes, &root));
-        groups.push(sources_group(&root));
+        let mut groups = platform::groups(env, probes, &project.root);
+        groups.push(dotnet_group(env, probes, &project));
+        groups.push(sources_group(&project.root));
 
         Report {
-            root,
+            root: project.root,
+            test_project: project.test_project,
             platform: platform::NAME,
             env: env.clone(),
             groups,
@@ -108,8 +111,21 @@ impl Report {
     }
 }
 
-fn dotnet_group(env: &EnvSnapshot, probes: &mut Probes, root: &Path) -> Group {
+fn dotnet_group(env: &EnvSnapshot, probes: &mut Probes, project: &Project) -> Group {
     let mut checks = Vec::new();
+    let wanted = project.framework;
+
+    let name = match wanted {
+        Some(major) => format!(".NET SDK {major} or newer"),
+        None => ".NET SDK".to_string(),
+    };
+
+    let expected = match wanted {
+        Some(major) => format!(
+            ".NET SDK {major}.x, the target framework declared by the test project is net{major}.0"
+        ),
+        None => ".NET SDK, needed to build and run the test project".to_string(),
+    };
 
     match which(env, "dotnet") {
         Some(path) => {
@@ -125,42 +141,38 @@ fn dotnet_group(env: &EnvSnapshot, probes: &mut Probes, root: &Path) -> Group {
             let sdks = probes.lines(&path, &["--list-sdks"]);
             let newest = sdks.iter().filter_map(|sdk| sdk_major(sdk)).max();
 
-            checks.push(match newest {
-                Some(major) if major >= REQUIRED_DOTNET_MAJOR => Check {
-                    name: format!(".NET SDK {REQUIRED_DOTNET_MAJOR} or newer"),
-                    status: Status::Pass,
-                    summary: format!("SDK {major}.x installed"),
-                    expected: format!(
-                        ".NET SDK {REQUIRED_DOTNET_MAJOR}.x, stickle.csproj targets net{REQUIRED_DOTNET_MAJOR}.0"
-                    ),
-                    found: sdks.join("\n"),
-                    remedy: Vec::new(),
-                },
-                Some(major) => Check {
-                    name: format!(".NET SDK {REQUIRED_DOTNET_MAJOR} or newer"),
+            checks.push(match (newest, wanted) {
+                (Some(major), Some(required)) if major < required => Check {
+                    name,
                     status: Status::Fail,
                     summary: format!("newest SDK is {major}.x"),
-                    expected: format!(
-                        ".NET SDK {REQUIRED_DOTNET_MAJOR}.x, stickle.csproj targets net{REQUIRED_DOTNET_MAJOR}.0"
-                    ),
+                    expected,
                     found: sdks.join("\n"),
                     remedy: vec![
                         format!(
-                            "stickle.csproj targets net{REQUIRED_DOTNET_MAJOR}.0, which SDK {major}.x cannot build."
+                            "The test project targets net{required}.0, which SDK {major}.x cannot build."
                         ),
-                        format!("Install the .NET {REQUIRED_DOTNET_MAJOR} SDK:"),
+                        format!("Install the .NET {required} SDK:"),
                         platform::DOTNET_REMEDY.into(),
                     ],
                 },
-                None => Check {
-                    name: format!(".NET SDK {REQUIRED_DOTNET_MAJOR} or newer"),
+                (Some(major), _) => Check {
+                    name,
+                    status: Status::Pass,
+                    summary: format!("SDK {major}.x installed"),
+                    expected,
+                    found: sdks.join("\n"),
+                    remedy: Vec::new(),
+                },
+                (None, _) => Check {
+                    name,
                     status: Status::Fail,
                     summary: "no SDK installed".into(),
-                    expected: format!(".NET SDK {REQUIRED_DOTNET_MAJOR}.x"),
+                    expected,
                     found: "dotnet --list-sdks returned nothing".into(),
                     remedy: vec![
-                        format!("Only a runtime is installed, dotnet test needs the SDK."),
-                        format!("Install the .NET {REQUIRED_DOTNET_MAJOR} SDK:"),
+                        "Only a runtime is installed, dotnet test needs the SDK.".into(),
+                        "Install the .NET SDK:".into(),
                         platform::DOTNET_REMEDY.into(),
                     ],
                 },
@@ -173,34 +185,63 @@ fn dotnet_group(env: &EnvSnapshot, probes: &mut Probes, root: &Path) -> Group {
                 summary: "not found on PATH".into(),
                 expected: "the dotnet driver resolvable through PATH, used by dotnet test".into(),
                 found: format!("no dotnet in any of the {} PATH folder(s)", env.path.len()),
-                remedy: vec![
-                    format!("Install the .NET {REQUIRED_DOTNET_MAJOR} SDK:"),
-                    platform::DOTNET_REMEDY.into(),
-                ],
+                remedy: vec!["Install the .NET SDK:".into(), platform::DOTNET_REMEDY.into()],
             });
 
             checks.push(Check {
-                name: format!(".NET SDK {REQUIRED_DOTNET_MAJOR} or newer"),
+                name,
                 status: Status::Fail,
                 summary: "cannot be queried".into(),
-                expected: format!(".NET SDK {REQUIRED_DOTNET_MAJOR}.x"),
+                expected,
                 found: "dotnet is not installed".into(),
                 remedy: vec!["Install the .NET SDK first.".into()],
             });
         }
     }
 
-    checks.push(file_check(
-        root,
-        "stickle.csproj",
-        "stickle.csproj",
-        "the test project consumed by dotnet test",
-        vec!["Run this app from inside a stickle checkout.".into()],
-    ));
+    checks.push(test_project_check(project));
 
     Group {
         title: ".NET test host".into(),
         checks,
+    }
+}
+
+fn test_project_check(project: &Project) -> Check {
+    let expected =
+        "a .csproj in the project root or in a tests folder, the project dotnet test runs".into();
+
+    match &project.test_project {
+        Some(relative) => {
+            let framework = match project.framework {
+                Some(major) => format!("target framework: net{major}.0"),
+                None => "target framework could not be read".into(),
+            };
+
+            Check {
+                name: "tests folder with .csproj".into(),
+                status: Status::Pass,
+                summary: relative.display().to_string(),
+                expected,
+                found: format!("{}\n{framework}", project.root.join(relative).display()),
+                remedy: Vec::new(),
+            }
+        }
+        None => Check {
+            name: "tests folder with .csproj".into(),
+            status: Status::Fail,
+            summary: "no .csproj found".into(),
+            expected,
+            found: format!(
+                "searched {} and its immediate subfolders",
+                project.root.display()
+            ),
+            remedy: vec![
+                "dotnet test needs a project file to run.".into(),
+                "Put the test .csproj in the project root or in a tests folder.".into(),
+                "Start this app from inside the checkout that holds it.".into(),
+            ],
+        },
     }
 }
 
@@ -210,27 +251,19 @@ fn sources_group(root: &Path) -> Group {
             root,
             "source",
             "source .st files",
-            "the Structured Text sources compiled into the lib_structured_text library",
+            "the Structured Text sources plc compiles into the shared library",
         ),
         st_dir_check(
             root,
             "libomron",
             "libomron .st files",
-            "the Omron library sources compiled into the NX1P2 library",
+            "the library sources plc compiles into libNX1P2, which the shared library links against",
         ),
-        file_check(
+        st_dir_check(
             root,
-            "externals/stdlib_externals.st",
-            "externals/stdlib_externals.st",
-            "the stdlib function block declarations passed with -i, without which source will not compile",
-            vec!["Restore the file from source control.".into()],
-        ),
-        file_check(
-            root,
-            "externals/omron_externals.st",
-            "externals/omron_externals.st",
-            "the Omron system variable declarations passed with -i, without which source will not compile",
-            vec!["Restore the file from source control.".into()],
+            "externals",
+            "externals .st files",
+            "the declaration files passed to plc with -i, without which the sources will not compile",
         ),
     ];
 
@@ -339,22 +372,6 @@ fn st_files(dir: &Path) -> Vec<String> {
 
     found.sort();
     found
-}
-
-fn find_root() -> PathBuf {
-    let start = env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
-    let mut cursor = start.as_path();
-
-    loop {
-        if cursor.join("stickle.csproj").is_file() {
-            return cursor.to_path_buf();
-        }
-
-        match cursor.parent() {
-            Some(parent) => cursor = parent,
-            None => return start,
-        }
-    }
 }
 
 pub fn which(env: &EnvSnapshot, name: &str) -> Option<PathBuf> {

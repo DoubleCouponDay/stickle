@@ -31,7 +31,7 @@ fn artifact_group(root: &Path) -> Group {
         root,
         OMRON_ARTIFACT,
         OMRON_CHECK,
-        "the Omron library that the lib_structured_text builds link against with -l NX1P2",
+        "the library that the lib_structured_text builds link against with -l NX1P2",
         vec![
             "lib_structured_text.so and lib_structured_text.xml cannot be built until it exists."
                 .into(),
@@ -191,7 +191,7 @@ fn shared_object_group(env: &EnvSnapshot) -> Group {
                 .into(),
             found: format!("searched:\n{listing}"),
             remedy: vec![
-                "The Omron library is built from libomron before the sources are compiled:".into(),
+                "It is built from the libomron sources before the main sources are compiled:".into(),
                 "plc ./libomron/*.st --shared --linker=cc --target=x86_64 -l iec61131std -o ./compiled/libNX1P2.so"
                     .into(),
                 "Install it where the dynamic loader can find it:".into(),

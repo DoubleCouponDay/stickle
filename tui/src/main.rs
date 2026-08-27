@@ -4,6 +4,7 @@ mod checks;
 mod clipboard;
 mod env;
 mod probe;
+mod project;
 mod scanner;
 mod theme;
 mod ui;

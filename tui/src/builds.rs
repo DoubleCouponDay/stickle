@@ -1,7 +1,7 @@
 use std::env;
 use std::ffi::OsString;
 use std::io::{BufRead, BufReader, Read};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 use std::sync::mpsc::{self, Receiver, Sender};
 use std::thread::{self, JoinHandle};
@@ -25,6 +25,29 @@ pub struct Target {
 }
 
 pub const SOURCE_CHECK: &str = "source .st files";
+pub const PROJECT_TOKEN: &str = "{project}";
+
+impl Target {
+    pub fn resolved(&self, project: Option<&Path>) -> Target {
+        let mut copy = self.clone();
+
+        for step in &mut copy.steps {
+            step.args = step
+                .args
+                .iter()
+                .filter_map(|arg| {
+                    if arg == PROJECT_TOKEN {
+                        project.map(|path| path.display().to_string())
+                    } else {
+                        Some(arg.clone())
+                    }
+                })
+                .collect();
+        }
+
+        copy
+    }
+}
 
 #[cfg(windows)]
 pub const OMRON_CHECK: &str = "libNX1P2.dll";
@@ -379,7 +402,12 @@ fn test_target() -> Target {
         requires: Some(LIBRARY_ARTIFACT),
         steps: vec![Step {
             program: "dotnet",
-            args: args(&["test", "--logger", "console;verbosity=detailed"]),
+            args: args(&[
+                "test",
+                PROJECT_TOKEN,
+                "--logger",
+                "console;verbosity=detailed",
+            ]),
         }],
     }
 }
