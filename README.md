@@ -88,7 +88,7 @@ plc ./source/clampandsaw.st --xml-omron -i ./source/externals.st -l iec61131std 
 - Build the Omron library, then compile the project against it:
     
     ```
-    plc ./libomron/*.st --shared --linker=cc --target=x86_64 -l iec61131std -o ./compiled/libNX1P2.so
+    plc ./libNX1P2/*.st --shared --linker=cc --target=x86_64 -l iec61131std -o ./compiled/libNX1P2.so
 
     plc ./source/*.st --shared --linker=cc --target=x86_64 -i ./externals/stdlib_externals.st -i ./externals/omron_externals.st -L ./compiled -l iec61131std -l NX1P2 -o ./compiled/lib_structured_text.so
     ```

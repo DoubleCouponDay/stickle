@@ -1,11 +1,11 @@
-# libomron
-plc ./libomron/*.st -c -l iec61131std -l ws2_32 -l ntdll -l userenv -o ./compiled/libNX1P2.o
+# libNX1P2
+plc ./libNX1P2/*.st -c -l iec61131std -l ws2_32 -l ntdll -l userenv -o ./compiled/libNX1P2.o
 
 if($LASTEXITCODE -ne 0) {
     exit
 }
 
-clang ./compiled/libNX1P2.o --shared -l iec61131std -l ws2_32 -l ntdll -l userenv -fuse-ld=lld-link "-Wl,/DEF:libomron/exports.def" -o ./compiled/libNX1P2.dll
+clang ./compiled/libNX1P2.o --shared -l iec61131std -l ws2_32 -l ntdll -l userenv -fuse-ld=lld-link "-Wl,/DEF:libNX1P2/exports.def" -o ./compiled/libNX1P2.dll
 
 if($LASTEXITCODE -ne 0) {
     exit

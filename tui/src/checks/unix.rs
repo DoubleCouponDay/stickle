@@ -35,8 +35,8 @@ fn artifact_group(root: &Path) -> Group {
         vec![
             "lib_structured_text.so and lib_structured_text.xml cannot be built until it exists."
                 .into(),
-            "It is produced from the libomron sources, so build libNX1P2.so first:".into(),
-            "plc ./libomron/*.st --shared --linker=cc --target=x86_64 -l iec61131std -o ./compiled/libNX1P2.so"
+            "It is produced from the libNX1P2 sources, so build libNX1P2.so first:".into(),
+            "plc ./libNX1P2/*.st --shared --linker=cc --target=x86_64 -l iec61131std -o ./compiled/libNX1P2.so"
                 .into(),
             "The Build pane runs that for you.".into(),
         ],
@@ -191,8 +191,8 @@ fn shared_object_group(env: &EnvSnapshot) -> Group {
                 .into(),
             found: format!("searched:\n{listing}"),
             remedy: vec![
-                "It is built from the libomron sources before the main sources are compiled:".into(),
-                "plc ./libomron/*.st --shared --linker=cc --target=x86_64 -l iec61131std -o ./compiled/libNX1P2.so"
+                "It is built from the libNX1P2 sources before the main sources are compiled:".into(),
+                "plc ./libNX1P2/*.st --shared --linker=cc --target=x86_64 -l iec61131std -o ./compiled/libNX1P2.so"
                     .into(),
                 "Install it where the dynamic loader can find it:".into(),
                 "sudo cp ./compiled/libNX1P2.so /lib".into(),

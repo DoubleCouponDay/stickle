@@ -69,6 +69,12 @@ pub enum View {
 }
 
 #[derive(Clone, Copy, PartialEq)]
+pub enum Focus {
+    Requirements,
+    Detail,
+}
+
+#[derive(Clone, Copy, PartialEq)]
 pub enum Kind {
     Information,
     Pass,
@@ -125,6 +131,7 @@ pub struct App {
     pub pressed: Option<Button>,
     pub hovered: Option<Button>,
     pub view: View,
+    pub focus: Focus,
     pub output: Vec<Printed>,
     pub output_label: String,
     pub follow: bool,
@@ -163,6 +170,7 @@ impl App {
             pressed: None,
             hovered: None,
             view: View::Requirement,
+            focus: Focus::Requirements,
             output: Vec::new(),
             output_label: String::new(),
             follow: true,
@@ -286,6 +294,7 @@ impl App {
         self.hovered = self.pressed;
 
         if self.pressed == Some(Button::Scrollbar) {
+            self.focus = Focus::Detail;
             self.scroll_to(row);
             return;
         }
@@ -295,12 +304,15 @@ impl App {
         }
 
         if self.list_area.contains(position) {
+            self.focus = Focus::Requirements;
             self.selection = None;
             self.select_row_at(row);
             return;
         }
 
         if self.detail_area.contains(position) {
+            self.focus = Focus::Detail;
+
             self.selection = Some(Selection {
                 anchor: (column, row),
                 cursor: (column, row),
@@ -391,6 +403,13 @@ impl App {
                 self.start_build(index)
             }
             _ => {}
+        }
+    }
+
+    pub fn arrow(&mut self, forward: bool) {
+        match self.focus {
+            Focus::Requirements => self.move_selection(forward),
+            Focus::Detail => self.scroll_detail(if forward { 1 } else { -1 }),
         }
     }
 

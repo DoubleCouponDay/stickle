@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-# libomron
-plc ./libomron/*.st --shared --linker=cc --target=x86_64 -l iec61131std -o ./compiled/libNX1P2.so
+# libNX1P2
+plc ./libNX1P2/*.st --shared --linker=cc --target=x86_64 -l iec61131std -o ./compiled/libNX1P2.so
 
 if [ $? -ne 0 ]; then
     exit 1

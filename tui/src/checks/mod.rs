@@ -255,8 +255,8 @@ fn sources_group(root: &Path) -> Group {
         ),
         st_dir_check(
             root,
-            "libomron",
-            "libomron .st files",
+            "libNX1P2",
+            "libNX1P2 .st files",
             "the library sources plc compiles into libNX1P2, which the shared library links against",
         ),
         st_dir_check(

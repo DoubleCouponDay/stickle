@@ -276,7 +276,7 @@ pub fn targets() -> Vec<Target> {
                 Step {
                     program: "plc",
                     args: args(&[
-                        "./libomron/*.st",
+                        "./libNX1P2/*.st",
                         "-c",
                         "-l",
                         "iec61131std",
@@ -304,7 +304,7 @@ pub fn targets() -> Vec<Target> {
                         "-l",
                         "userenv",
                         "-fuse-ld=lld-link",
-                        "-Wl,/DEF:libomron/exports.def",
+                        "-Wl,/DEF:libNX1P2/exports.def",
                         "-o",
                         "./compiled/libNX1P2.dll",
                     ]),
@@ -422,7 +422,7 @@ pub fn targets() -> Vec<Target> {
             steps: vec![Step {
                 program: "plc",
                 args: args(&[
-                    "./libomron/*.st",
+                    "./libNX1P2/*.st",
                     "--shared",
                     "--linker=cc",
                     "--target=x86_64",

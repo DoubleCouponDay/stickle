@@ -41,10 +41,10 @@ fn artifact_group(root: &Path) -> Group {
         vec![
             "lib_structured_text.dll and lib_structured_text.xml cannot be built until it exists."
                 .into(),
-            "It is produced from the libomron sources, so build libNX1P2.dll first:".into(),
-            "plc ./libomron/*.st -c -l iec61131std -l ws2_32 -l ntdll -l userenv -o ./compiled/libNX1P2.o"
+            "It is produced from the libNX1P2 sources, so build libNX1P2.dll first:".into(),
+            "plc ./libNX1P2/*.st -c -l iec61131std -l ws2_32 -l ntdll -l userenv -o ./compiled/libNX1P2.o"
                 .into(),
-            "clang ./compiled/libNX1P2.o --shared -l iec61131std -l ws2_32 -l ntdll -l userenv -fuse-ld=lld-link \"-Wl,/DEF:libomron/exports.def\" -o ./compiled/libNX1P2.dll"
+            "clang ./compiled/libNX1P2.o --shared -l iec61131std -l ws2_32 -l ntdll -l userenv -fuse-ld=lld-link \"-Wl,/DEF:libNX1P2/exports.def\" -o ./compiled/libNX1P2.dll"
                 .into(),
             "The Build pane runs both steps for you.".into(),
         ],
@@ -361,8 +361,8 @@ fn exports_group(root: &Path) -> Group {
         ),
         file_check(
             root,
-            "libomron/exports.def",
-            "libomron/exports.def",
+            "libNX1P2/exports.def",
+            "libNX1P2/exports.def",
             "the export list handed to lld-link for libNX1P2.dll",
             vec!["Restore the file from source control.".into()],
         ),

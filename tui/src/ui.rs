@@ -7,7 +7,7 @@ use ratatui::widgets::{
     ScrollbarState, Wrap,
 };
 
-use crate::app::{App, Button, Kind, Row, View};
+use crate::app::{App, Button, Focus, Kind, Row, View};
 use crate::builds::State;
 use crate::checks::{Check, Status};
 use crate::theme::{Mode, Theme};
@@ -281,7 +281,7 @@ fn segment_style(
 fn draw_list(frame: &mut Frame, area: Rect, app: &mut App, theme: Theme) {
     let block = Block::bordered()
         .border_type(BorderType::Rounded)
-        .border_style(theme.dimmed())
+        .border_style(border_style(app.focus == Focus::Requirements, theme))
         .style(theme.base())
         .title(Span::styled(
             " Requirements ",
@@ -344,7 +344,7 @@ fn draw_detail(frame: &mut Frame, area: Rect, app: &mut App, theme: Theme) {
 
     let block = Block::bordered()
         .border_type(BorderType::Rounded)
-        .border_style(theme.dimmed())
+        .border_style(border_style(app.focus == Focus::Detail, theme))
         .style(theme.base())
         .title(Span::styled(
             title,
@@ -444,6 +444,14 @@ fn draw_detail(frame: &mut Frame, area: Rect, app: &mut App, theme: Theme) {
     app.detail_rows = snapshot(frame, inner);
 
     paint_selection(frame, app, theme);
+}
+
+fn border_style(focused: bool, theme: Theme) -> Style {
+    if focused {
+        Style::new().fg(theme.accent)
+    } else {
+        theme.dimmed()
+    }
 }
 
 fn thumb_length(track: u16, viewport: u16, rows: usize) -> u16 {
@@ -723,7 +731,7 @@ fn detail_lines(check: &Check, theme: Theme) -> Vec<Line<'static>> {
         Line::from(Span::styled("Expected", theme.heading())),
     ];
 
-    lines.extend(body(&check.expected));
+    lines.extend(body(&sentence(&check.expected)));
     lines.push(Line::raw(""));
     lines.push(Line::from(Span::styled("Found", theme.heading())));
     lines.extend(body(&check.found));
@@ -743,6 +751,16 @@ fn detail_lines(check: &Check, theme: Theme) -> Vec<Line<'static>> {
     lines
 }
 
+fn sentence(text: &str) -> String {
+    let trimmed = text.trim_end();
+
+    if trimmed.is_empty() || trimmed.ends_with(['.', '!', '?', ':']) {
+        return trimmed.to_string();
+    }
+
+    format!("{trimmed}.")
+}
+
 fn body(text: &str) -> Vec<Line<'static>> {
     text.lines()
         .map(|line| Line::from(format!("  {line}")))
@@ -755,7 +773,9 @@ fn draw_footer(frame: &mut Frame, area: Rect, theme: Theme) {
         Span::raw(" move  "),
         key("n", theme),
         Span::raw(" next unmet  "),
-        key("up/down pgup/pgdn", theme),
+        key("up/down", theme),
+        Span::raw(" focused pane  "),
+        key("pgup/pgdn", theme),
         Span::raw(" scroll  "),
         key("r", theme),
         Span::raw(" re-check now  "),
