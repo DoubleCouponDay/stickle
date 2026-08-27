@@ -1,9 +1,10 @@
 use std::env;
 use std::ffi::OsString;
+use std::io::{BufRead, BufReader, Read};
 use std::path::PathBuf;
-use std::process::{Command, Output};
+use std::process::{Command, Stdio};
 use std::sync::mpsc::{self, Receiver, Sender};
-use std::thread;
+use std::thread::{self, JoinHandle};
 use std::time::Instant;
 
 use crate::checks::which;
@@ -29,11 +30,15 @@ pub const SOURCE_CHECK: &str = "source .st files";
 pub const OMRON_CHECK: &str = "libNX1P2.dll";
 #[cfg(windows)]
 pub const OMRON_ARTIFACT: &str = "compiled/libNX1P2.dll";
+#[cfg(windows)]
+pub const LIBRARY_ARTIFACT: &str = "compiled/lib_structured_text.dll";
 
 #[cfg(not(windows))]
 pub const OMRON_CHECK: &str = "libNX1P2.so";
 #[cfg(not(windows))]
 pub const OMRON_ARTIFACT: &str = "compiled/libNX1P2.so";
+#[cfg(not(windows))]
+pub const LIBRARY_ARTIFACT: &str = "compiled/lib_structured_text.so";
 
 #[derive(Clone, Copy)]
 pub enum State {
@@ -56,17 +61,22 @@ pub struct Outcome {
 
 pub struct Runner {
     outcomes: Receiver<Outcome>,
-    sender: Sender<Outcome>,
+    finished: Sender<Outcome>,
+    printed: Receiver<String>,
+    prints: Sender<String>,
     pub running: Option<usize>,
 }
 
 impl Runner {
     pub fn new() -> Self {
-        let (sender, outcomes) = mpsc::channel();
+        let (finished, outcomes) = mpsc::channel();
+        let (prints, printed) = mpsc::channel();
 
         Runner {
             outcomes,
-            sender,
+            finished,
+            printed,
+            prints,
             running: None,
         }
     }
@@ -74,7 +84,8 @@ impl Runner {
     pub fn start(&mut self, index: usize, target: &Target, root: PathBuf, snapshot: EnvSnapshot) {
         let label = target.label;
         let steps = target.steps.clone();
-        let sender = self.sender.clone();
+        let finished = self.finished.clone();
+        let prints = self.prints.clone();
 
         self.running = Some(index);
 
@@ -88,11 +99,17 @@ impl Runner {
                 let Some(program) = which(&snapshot, step.program) else {
                     ok = false;
                     message = format!("{} was not found on PATH", step.program);
+                    let _ = prints.send(message.clone());
                     break;
                 };
 
                 let mut command = Command::new(&program);
-                command.args(&step.args).current_dir(&root);
+                command
+                    .args(&step.args)
+                    .current_dir(&root)
+                    .stdin(Stdio::null())
+                    .stdout(Stdio::piped())
+                    .stderr(Stdio::piped());
 
                 if let Some(value) = join(&snapshot.path) {
                     command.env("PATH", value);
@@ -102,36 +119,56 @@ impl Runner {
                     command.env("LIB", value);
                 }
 
-                match command.output() {
-                    Ok(output) => {
-                        if let Some(line) = last_line(&output) {
-                            message = line;
+                let _ = prints.send(format!("$ {} {}", step.program, step.args.join(" ")));
+
+                let mut child = match command.spawn() {
+                    Ok(child) => child,
+                    Err(error) => {
+                        ok = false;
+                        message = format!("{}: {error}", step.program);
+                        let _ = prints.send(message.clone());
+                        break;
+                    }
+                };
+
+                let out = child.stdout.take().map(|pipe| pump(pipe, prints.clone()));
+                let err = child.stderr.take().map(|pipe| pump(pipe, prints.clone()));
+
+                let status = child.wait();
+
+                let stdout_tail = out.and_then(|handle| handle.join().ok()).flatten();
+                let stderr_tail = err.and_then(|handle| handle.join().ok()).flatten();
+
+                if let Some(line) = stderr_tail.or(stdout_tail) {
+                    message = line;
+                }
+
+                match status {
+                    Ok(status) if status.success() => {}
+                    Ok(status) => {
+                        ok = false;
+                        code = status.code();
+
+                        if message.is_empty() {
+                            message = format!("{} failed", step.program);
                         }
 
-                        if !output.status.success() {
-                            ok = false;
-                            code = output.status.code();
-
-                            if message.is_empty() {
-                                message = format!("{} failed", step.program);
-                            }
-
-                            break;
-                        }
+                        break;
                     }
                     Err(error) => {
                         ok = false;
                         message = format!("{}: {error}", step.program);
+                        let _ = prints.send(message.clone());
                         break;
                     }
                 }
             }
 
             if ok && message.is_empty() {
-                message = format!("{label} written to compiled");
+                message = format!("{label} finished");
             }
 
-            let _ = sender.send(Outcome {
+            let _ = finished.send(Outcome {
                 index,
                 ok,
                 code,
@@ -150,6 +187,51 @@ impl Runner {
 
         Some(outcome)
     }
+
+    pub fn drain(&mut self, limit: usize) -> Vec<String> {
+        let mut batch = Vec::new();
+
+        while batch.len() < limit {
+            match self.printed.try_recv() {
+                Ok(line) => batch.push(line),
+                Err(_) => break,
+            }
+        }
+
+        batch
+    }
+}
+
+fn pump<R>(reader: R, prints: Sender<String>) -> JoinHandle<Option<String>>
+where
+    R: Read + Send + 'static,
+{
+    thread::spawn(move || {
+        let mut buffered = BufReader::new(reader);
+        let mut raw = Vec::new();
+        let mut last = None;
+
+        loop {
+            raw.clear();
+
+            match buffered.read_until(b'\n', &mut raw) {
+                Ok(0) | Err(_) => return last,
+                Ok(_) => {}
+            }
+
+            let text = String::from_utf8_lossy(&raw)
+                .trim_end_matches(['\r', '\n'])
+                .to_string();
+
+            if !text.trim().is_empty() {
+                last = Some(text.clone());
+            }
+
+            if prints.send(text).is_err() {
+                return last;
+            }
+        }
+    })
 }
 
 fn join(dirs: &[PathBuf]) -> Option<OsString> {
@@ -158,20 +240,6 @@ fn join(dirs: &[PathBuf]) -> Option<OsString> {
     }
 
     env::join_paths(dirs).ok()
-}
-
-fn last_line(output: &Output) -> Option<String> {
-    let mut text = String::from_utf8_lossy(&output.stderr).to_string();
-
-    if text.trim().is_empty() {
-        text = String::from_utf8_lossy(&output.stdout).to_string();
-    }
-
-    text.lines()
-        .map(str::trim)
-        .filter(|line| !line.is_empty())
-        .next_back()
-        .map(str::to_string)
 }
 
 #[cfg(windows)]
@@ -300,7 +368,20 @@ pub fn targets() -> Vec<Target> {
                 ]),
             }],
         },
+        test_target(),
     ]
+}
+
+fn test_target() -> Target {
+    Target {
+        label: "dotnet test",
+        ignores: &[],
+        requires: Some(LIBRARY_ARTIFACT),
+        steps: vec![Step {
+            program: "dotnet",
+            args: args(&["test", "--logger", "console;verbosity=detailed"]),
+        }],
+    }
 }
 
 #[cfg(not(windows))]
@@ -375,6 +456,7 @@ pub fn targets() -> Vec<Target> {
                 ]),
             }],
         },
+        test_target(),
     ]
 }
 

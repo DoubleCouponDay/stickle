@@ -68,10 +68,12 @@ fn handle_key(app: &mut App, key: KeyEvent) {
         KeyCode::Char('r') => app.rescan(),
         KeyCode::Char('t') => app.toggle_theme(),
         KeyCode::Char('n') => app.jump_to_next_unmet(),
-        KeyCode::Down | KeyCode::Char('j') => app.move_selection(true),
-        KeyCode::Up | KeyCode::Char('k') => app.move_selection(false),
-        KeyCode::PageDown => app.scroll_detail(5),
-        KeyCode::PageUp => app.scroll_detail(-5),
+        KeyCode::Char('j') => app.move_selection(true),
+        KeyCode::Char('k') => app.move_selection(false),
+        KeyCode::Down => app.scroll_detail(1),
+        KeyCode::Up => app.scroll_detail(-1),
+        KeyCode::PageDown => app.scroll_page(true),
+        KeyCode::PageUp => app.scroll_page(false),
         KeyCode::Home => app.reset_detail_scroll(),
         _ => {}
     }

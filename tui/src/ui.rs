@@ -1,16 +1,19 @@
 use ratatui::Frame;
-use ratatui::layout::{Alignment, Constraint, Layout, Rect};
+use ratatui::layout::{Alignment, Constraint, Layout, Margin, Rect};
 use ratatui::style::{Color, Modifier, Style};
 use ratatui::text::{Line, Span};
-use ratatui::widgets::{Block, BorderType, Gauge, List, ListItem, Paragraph, Wrap};
+use ratatui::widgets::{
+    Block, BorderType, Gauge, List, ListItem, Paragraph, Scrollbar, ScrollbarOrientation,
+    ScrollbarState, Wrap,
+};
 
-use crate::app::{App, Button, Row};
+use crate::app::{App, Button, Kind, Row, View};
 use crate::builds::State;
 use crate::checks::{Check, Status};
 use crate::theme::{Mode, Theme};
 
 const SPINNER: [char; 4] = ['|', '/', '-', '\\'];
-const BUILD_MINIMUM: u16 = 6;
+const BUILD_MINIMUM: u16 = 7;
 const DARK_LABEL: &str = " Dark ";
 const LIGHT_LABEL: &str = " Light ";
 
@@ -328,37 +331,181 @@ fn draw_list(frame: &mut Frame, area: Rect, app: &mut App, theme: Theme) {
 }
 
 fn draw_detail(frame: &mut Frame, area: Rect, app: &mut App, theme: Theme) {
+    let output = app.view == View::Output;
+
+    let title = if output {
+        format!(" {} ", app.output_label)
+    } else {
+        " Detail ".to_string()
+    };
+
     let block = Block::bordered()
         .border_type(BorderType::Rounded)
         .border_style(theme.dimmed())
         .style(theme.base())
         .title(Span::styled(
-            " Detail ",
+            title,
             Style::new().fg(theme.fg).add_modifier(Modifier::BOLD),
         ));
 
     let inner = block.inner(area);
 
-    let lines = match app.selected_check() {
-        Some(check) => detail_lines(check, theme),
-        None => vec![Line::from(Span::styled(
-            "Select a requirement.",
-            theme.dimmed(),
-        ))],
+    let lines = if output {
+        output_lines(app, theme)
+    } else {
+        match app.selected_check() {
+            Some(check) => detail_lines(check, theme),
+            None => vec![Line::from(Span::styled(
+                "Select a requirement.",
+                theme.dimmed(),
+            ))],
+        }
     };
 
-    let paragraph = Paragraph::new(lines)
+    let rows = if output {
+        lines.len()
+    } else {
+        wrapped_rows(&lines, inner.width)
+    };
+
+    let limit = rows.saturating_sub(inner.height as usize) as u16;
+
+    if app.follow && output {
+        app.detail_scroll = limit;
+    }
+
+    app.detail_scroll = app.detail_scroll.min(limit);
+
+    let mut paragraph = Paragraph::new(lines)
         .block(block)
-        .wrap(Wrap { trim: false })
         .scroll((app.detail_scroll, 0))
         .alignment(Alignment::Left);
 
+    if !output {
+        paragraph = paragraph.wrap(Wrap { trim: false });
+    }
+
     frame.render_widget(paragraph, area);
+
+    let bar = area.inner(Margin {
+        vertical: 1,
+        horizontal: 0,
+    });
+
+    app.detail_limit = limit;
+    app.detail_track = if limit == 0 || bar.width == 0 {
+        Rect::ZERO
+    } else {
+        Rect {
+            x: bar.right() - 1,
+            y: bar.y,
+            width: 1,
+            height: bar.height,
+        }
+    };
+
+    let over = app.hovered == Some(Button::Scrollbar);
+    let held = app.pressed == Some(Button::Scrollbar);
+
+    let thumb = if held {
+        theme.press(theme.accent)
+    } else if over {
+        theme.hover(theme.accent)
+    } else {
+        theme.accent
+    };
+
+    let mut state = ScrollbarState::new(rows)
+        .viewport_content_length(inner.height as usize)
+        .position(app.detail_scroll as usize);
+
+    frame.render_stateful_widget(
+        Scrollbar::new(ScrollbarOrientation::VerticalRight)
+            .begin_symbol(None)
+            .end_symbol(None)
+            .track_style(if over || held {
+                Style::new().fg(theme.surface(0.45))
+            } else {
+                theme.dimmed()
+            })
+            .thumb_style(Style::new().fg(thumb)),
+        bar,
+        &mut state,
+    );
 
     app.detail_area = inner;
     app.detail_rows = snapshot(frame, inner);
 
     paint_selection(frame, app, theme);
+}
+
+fn output_lines(app: &App, theme: Theme) -> Vec<Line<'static>> {
+    if app.output.is_empty() {
+        return vec![Line::from(Span::styled("Waiting for output...", theme.dimmed()))];
+    }
+
+    app.output
+        .iter()
+        .map(|printed| {
+            Line::from(Span::styled(
+                printed.text.clone(),
+                kind_style(printed.kind, theme),
+            ))
+        })
+        .collect()
+}
+
+fn kind_style(kind: Kind, theme: Theme) -> Style {
+    match kind {
+        Kind::Information => Style::new().fg(theme.fg),
+        Kind::Pass => Style::new().fg(theme.pass),
+        Kind::Warning => Style::new().fg(theme.warn),
+        Kind::BuildError => Style::new().fg(theme.fail).add_modifier(Modifier::BOLD),
+        Kind::RuntimeError => Style::new().fg(theme.runtime).add_modifier(Modifier::BOLD),
+    }
+}
+
+fn wrapped_rows(lines: &[Line], width: u16) -> usize {
+    if width == 0 {
+        return lines.len();
+    }
+
+    lines
+        .iter()
+        .map(|line| {
+            let text: String = line
+                .spans
+                .iter()
+                .map(|span| span.content.as_ref())
+                .collect();
+
+            wrap_count(&text, width as usize)
+        })
+        .sum()
+}
+
+fn wrap_count(text: &str, width: usize) -> usize {
+    let mut rows = 1;
+    let mut used = 0;
+
+    for word in text.split_inclusive(' ') {
+        let length = word.chars().count();
+
+        if used + length > width && used > 0 {
+            rows += 1;
+            used = 0;
+        }
+
+        if length > width {
+            let extra = (length - 1) / width;
+            rows += extra;
+            used = length - extra * width;
+        } else {
+            used += length;
+        }
+    }
+
+    rows
 }
 
 fn draw_builds(frame: &mut Frame, area: Rect, app: &mut App, theme: Theme) {
@@ -585,12 +732,12 @@ fn body(text: &str) -> Vec<Line<'static>> {
 
 fn draw_footer(frame: &mut Frame, area: Rect, theme: Theme) {
     let keys = Line::from(vec![
-        key("up/down", theme),
+        key("j/k", theme),
         Span::raw(" move  "),
         key("n", theme),
         Span::raw(" next unmet  "),
-        key("pgup/pgdn", theme),
-        Span::raw(" scroll detail  "),
+        key("up/down pgup/pgdn", theme),
+        Span::raw(" scroll  "),
         key("r", theme),
         Span::raw(" re-check now  "),
         key("t", theme),

@@ -59,11 +59,35 @@ pub enum Row {
     Item { group: usize, check: usize },
 }
 
+pub const OUTPUT_LIMIT: usize = 4000;
+pub const DRAIN_LIMIT: usize = 500;
+
+#[derive(Clone, Copy, PartialEq)]
+pub enum View {
+    Requirement,
+    Output,
+}
+
+#[derive(Clone, Copy, PartialEq)]
+pub enum Kind {
+    Information,
+    Pass,
+    Warning,
+    BuildError,
+    RuntimeError,
+}
+
+pub struct Printed {
+    pub text: String,
+    pub kind: Kind,
+}
+
 #[derive(Clone, Copy, PartialEq)]
 pub enum Button {
     Dark,
     Light,
     Build(usize),
+    Scrollbar,
 }
 
 pub struct Change {
@@ -88,6 +112,8 @@ pub struct App {
     pub light_button: Rect,
     pub list_area: Rect,
     pub detail_area: Rect,
+    pub detail_track: Rect,
+    pub detail_limit: u16,
     pub detail_rows: Vec<String>,
     pub selection: Option<Selection>,
     pub notice: Option<(String, Instant)>,
@@ -97,6 +123,10 @@ pub struct App {
     pub build_message: String,
     pub pressed: Option<Button>,
     pub hovered: Option<Button>,
+    pub view: View,
+    pub output: Vec<Printed>,
+    pub output_label: String,
+    pub follow: bool,
     runner: Runner,
     scanner: Scanner,
     statuses: HashMap<String, Status>,
@@ -120,6 +150,8 @@ impl App {
             light_button: Rect::ZERO,
             list_area: Rect::ZERO,
             detail_area: Rect::ZERO,
+            detail_track: Rect::ZERO,
+            detail_limit: 0,
             detail_rows: Vec::new(),
             selection: None,
             notice: None,
@@ -128,6 +160,10 @@ impl App {
             build_message: String::new(),
             pressed: None,
             hovered: None,
+            view: View::Requirement,
+            output: Vec::new(),
+            output_label: String::new(),
+            follow: true,
             targets: builds::targets(),
             runner: Runner::new(),
             scanner: Scanner::spawn(SCAN_INTERVAL),
@@ -147,6 +183,10 @@ impl App {
             .is_some_and(|(_, at)| at.elapsed() >= NOTICE_LIFETIME)
         {
             self.notice = None;
+        }
+
+        for line in self.runner.drain(DRAIN_LIMIT) {
+            self.print(line);
         }
 
         while let Some(outcome) = self.runner.poll() {
@@ -175,6 +215,18 @@ impl App {
         self.theme = self.theme.flipped();
     }
 
+    fn print(&mut self, text: String) {
+        self.output.push(Printed {
+            kind: classify(&text),
+            text,
+        });
+
+        if self.output.len() > OUTPUT_LIMIT {
+            let excess = self.output.len() - OUTPUT_LIMIT;
+            self.output.drain(..excess);
+        }
+    }
+
     pub fn mouse_move(&mut self, column: u16, row: u16) {
         self.hovered = self.button_at(Position::new(column, row));
     }
@@ -188,10 +240,30 @@ impl App {
             return Some(Button::Light);
         }
 
+        if self.detail_track.contains(position) {
+            return Some(Button::Scrollbar);
+        }
+
         self.build_buttons
             .iter()
             .position(|button| button.contains(position))
             .map(Button::Build)
+    }
+
+    pub fn scroll_to(&mut self, row: u16) {
+        let track = self.detail_track;
+
+        if track.height == 0 || self.detail_limit == 0 {
+            return;
+        }
+
+        let offset = u32::from(row.saturating_sub(track.y).min(track.height - 1));
+        let span = u32::from((track.height - 1).max(1));
+        let limit = u32::from(self.detail_limit);
+
+        self.detail_scroll = ((offset * limit + span / 2) / span).min(limit) as u16;
+        self.selection = None;
+        self.follow = false;
     }
 
     pub fn mouse_down(&mut self, column: u16, row: u16) {
@@ -199,6 +271,11 @@ impl App {
 
         self.pressed = self.button_at(position);
         self.hovered = self.pressed;
+
+        if self.pressed == Some(Button::Scrollbar) {
+            self.scroll_to(row);
+            return;
+        }
 
         if self.pressed.is_some() {
             return;
@@ -223,6 +300,11 @@ impl App {
         let area = self.detail_area;
 
         self.hovered = self.button_at(Position::new(column, row));
+
+        if self.pressed == Some(Button::Scrollbar) {
+            self.scroll_to(row);
+            return;
+        }
 
         let Some(selection) = self.selection.as_mut() else {
             return;
@@ -299,6 +381,12 @@ impl App {
         }
     }
 
+    pub fn scroll_page(&mut self, forward: bool) {
+        let page = self.detail_area.height.max(2) as i16 - 1;
+
+        self.scroll_detail(if forward { page } else { -page });
+    }
+
     pub fn build_enabled(&self, index: usize) -> bool {
         let Some(target) = self.targets.get(index) else {
             return false;
@@ -371,7 +459,13 @@ impl App {
         };
 
         self.build_states[index] = State::Running;
-        self.build_message = format!("{} building", target.label);
+        self.build_message = format!("{} running", target.label);
+        self.output_label = format!("{} output", target.label);
+        self.output.clear();
+        self.view = View::Output;
+        self.follow = true;
+        self.detail_scroll = 0;
+        self.selection = None;
 
         let root = self.report.root.clone();
         let snapshot = self.report.env.clone();
@@ -385,9 +479,16 @@ impl App {
 
         if matches!(self.rows.get(offset), Some(Row::Item { .. })) {
             self.list.select(Some(offset));
-            self.detail_scroll = 0;
+            self.show_requirement();
             self.remember_selection();
         }
+    }
+
+    fn show_requirement(&mut self) {
+        self.view = View::Requirement;
+        self.detail_scroll = 0;
+        self.selection = None;
+        self.follow = false;
     }
 
     fn selected_text(&self) -> String {
@@ -527,8 +628,7 @@ impl App {
 
             if matches!(self.rows[index], Row::Item { .. }) {
                 self.list.select(Some(index));
-                self.detail_scroll = 0;
-                self.selection = None;
+                self.show_requirement();
                 self.remember_selection();
                 return;
             }
@@ -547,8 +647,7 @@ impl App {
 
             if self.is_unmet(&self.rows[index]) {
                 self.list.select(Some(index));
-                self.detail_scroll = 0;
-                self.selection = None;
+                self.show_requirement();
                 self.remember_selection();
                 return;
             }
@@ -558,11 +657,13 @@ impl App {
     pub fn scroll_detail(&mut self, delta: i16) {
         self.detail_scroll = self.detail_scroll.saturating_add_signed(delta);
         self.selection = None;
+        self.follow = false;
     }
 
     pub fn reset_detail_scroll(&mut self) {
         self.detail_scroll = 0;
         self.selection = None;
+        self.follow = false;
     }
 
     fn is_unmet(&self, row: &Row) -> bool {
@@ -573,6 +674,46 @@ impl App {
             Row::Header { .. } => false,
         }
     }
+}
+
+fn classify(line: &str) -> Kind {
+    let lower = line.to_ascii_lowercase();
+
+    if lower.contains(": error ")
+        || lower.contains("error cs")
+        || lower.contains("error msb")
+        || lower.contains("error nu")
+        || lower.contains("error:")
+    {
+        return Kind::BuildError;
+    }
+
+    if lower.contains(": warning ")
+        || lower.contains("warning cs")
+        || lower.contains("warning msb")
+        || lower.contains("warning nu")
+        || lower.contains("warning:")
+    {
+        return Kind::Warning;
+    }
+
+    if lower.contains("exception")
+        || lower.contains("stack trace")
+        || lower.contains("failure")
+        || lower.trim_start().starts_with("at ")
+    {
+        return Kind::RuntimeError;
+    }
+
+    if lower.contains("passed!") || lower.contains("passed ") {
+        return Kind::Pass;
+    }
+
+    if lower.contains("failed") {
+        return Kind::RuntimeError;
+    }
+
+    Kind::Information
 }
 
 fn collect_statuses(report: &Report) -> HashMap<String, Status> {
