@@ -27,16 +27,16 @@ impl Theme {
     pub fn dark() -> Self {
         Theme {
             mode: Mode::Dark,
-            bg: Color::Reset,
-            fg: Color::Reset,
-            dim: Color::DarkGray,
-            accent: Color::Cyan,
-            badge_fg: Color::Black,
-            pass: Color::Green,
-            warn: Color::Yellow,
-            fail: Color::Red,
-            change: Color::Magenta,
-            met_name: Color::Gray,
+            bg: Color::Rgb(47, 79, 79),
+            fg: Color::Rgb(232, 238, 238),
+            dim: Color::Rgb(158, 178, 178),
+            accent: Color::Rgb(126, 214, 222),
+            badge_fg: Color::Rgb(18, 30, 30),
+            pass: Color::Rgb(102, 204, 128),
+            warn: Color::Rgb(232, 182, 84),
+            fail: Color::Rgb(240, 116, 116),
+            change: Color::Rgb(222, 152, 236),
+            met_name: Color::Rgb(196, 208, 208),
         }
     }
 

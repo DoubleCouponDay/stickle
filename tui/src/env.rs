@@ -11,20 +11,11 @@ pub struct EnvSnapshot {
     #[cfg_attr(windows, allow(dead_code))]
     pub library_path: Vec<PathBuf>,
     pub source: &'static str,
-    #[cfg_attr(not(windows), allow(dead_code))]
-    pub missing_here: Vec<String>,
-    #[cfg_attr(not(windows), allow(dead_code))]
-    pub session_only: Vec<String>,
 }
 
 impl EnvSnapshot {
     pub fn read() -> Self {
         platform::read()
-    }
-
-    #[cfg_attr(not(windows), allow(dead_code))]
-    pub fn is_stale(&self) -> bool {
-        !self.missing_here.is_empty()
     }
 }
 
@@ -39,55 +30,6 @@ fn process_var(name: &str) -> Option<Vec<PathBuf>> {
 }
 
 #[cfg(windows)]
-fn normalise(path: &PathBuf) -> String {
-    let text = path.display().to_string();
-    let trimmed = text.trim_end_matches(['/', '\\']).to_string();
-
-    if cfg!(windows) {
-        trimmed.to_ascii_lowercase().replace('/', "\\")
-    } else {
-        trimmed
-    }
-}
-
-#[cfg(windows)]
-fn compare(
-    label: &str,
-    live: &[PathBuf],
-    process: &[PathBuf],
-    missing_here: &mut Vec<String>,
-    session_only: &mut Vec<String>,
-) {
-    let live_keys: Vec<String> = live.iter().map(normalise).collect();
-    let process_keys: Vec<String> = process.iter().map(normalise).collect();
-
-    for (index, key) in live_keys.iter().enumerate() {
-        if !process_keys.contains(key) {
-            push_once(
-                missing_here,
-                format!("{label} {}", live[index].display()),
-            );
-        }
-    }
-
-    for (index, key) in process_keys.iter().enumerate() {
-        if !live_keys.contains(key) {
-            push_once(
-                session_only,
-                format!("{label} {}", process[index].display()),
-            );
-        }
-    }
-}
-
-#[cfg(windows)]
-fn push_once(into: &mut Vec<String>, entry: String) {
-    if !into.contains(&entry) {
-        into.push(entry);
-    }
-}
-
-#[cfg(windows)]
 mod platform {
     use std::collections::HashMap;
     use std::env;
@@ -95,7 +37,7 @@ mod platform {
     use std::path::{Path, PathBuf};
     use std::process::Command;
 
-    use super::{EnvSnapshot, compare, process_var, split};
+    use super::{EnvSnapshot, process_var, split};
 
     const SYSTEM_KEY: &str =
         r"HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment";
@@ -105,46 +47,32 @@ mod platform {
         let system = registry_values(SYSTEM_KEY);
         let user = registry_values(USER_KEY);
 
-        let process_path = process_var("PATH").unwrap_or_default();
-        let process_lib = process_var("LIB");
-
         let registry_path = joined(&system, &user, "PATH");
         let registry_lib = joined(&system, &user, "LIB");
 
-        let mut missing_here = Vec::new();
-        let mut session_only = Vec::new();
-
         let (path, lib, lib_defined, source) = match registry_path {
             Some(value) => {
-                let path = split(&OsString::from(value));
                 let lib_defined = registry_lib.is_some();
-                let lib = registry_lib
-                    .map(|value| split(&OsString::from(value)))
-                    .unwrap_or_default();
 
-                compare(
-                    "PATH",
-                    &path,
-                    &process_path,
-                    &mut missing_here,
-                    &mut session_only,
-                );
-                compare(
-                    "LIB",
-                    &lib,
-                    &process_lib.clone().unwrap_or_default(),
-                    &mut missing_here,
-                    &mut session_only,
-                );
-
-                (path, lib, lib_defined, "machine and user registry")
+                (
+                    split(&OsString::from(value)),
+                    registry_lib
+                        .map(|value| split(&OsString::from(value)))
+                        .unwrap_or_default(),
+                    lib_defined,
+                    "machine and user registry",
+                )
             }
-            None => (
-                process_path.clone(),
-                process_lib.clone().unwrap_or_default(),
-                process_lib.is_some(),
-                "this process, the registry could not be read",
-            ),
+            None => {
+                let process_lib = process_var("LIB");
+
+                (
+                    process_var("PATH").unwrap_or_default(),
+                    process_lib.clone().unwrap_or_default(),
+                    process_lib.is_some(),
+                    "this process, the registry could not be read",
+                )
+            }
         };
 
         EnvSnapshot {
@@ -153,8 +81,6 @@ mod platform {
             lib_defined,
             library_path: Vec::new(),
             source,
-            missing_here,
-            session_only,
         }
     }
 
@@ -273,8 +199,6 @@ mod platform {
             lib: lib.unwrap_or_default(),
             library_path: process_var("LD_LIBRARY_PATH").unwrap_or_default(),
             source: "this process, exported shell changes need a restart",
-            missing_here: Vec::new(),
-            session_only: Vec::new(),
         }
     }
 }

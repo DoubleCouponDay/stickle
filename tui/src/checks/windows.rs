@@ -23,70 +23,11 @@ pub fn candidates(dir: &Path, name: &str) -> Vec<PathBuf> {
 
 pub fn groups(env: &EnvSnapshot, probes: &mut Probes, root: &Path) -> Vec<Group> {
     vec![
-        environment_group(env),
         toolchain_group(env, probes),
         lib_group(env),
         runtime_group(env),
         exports_group(root),
     ]
-}
-
-fn environment_group(env: &EnvSnapshot) -> Group {
-    let mut found = vec![format!(
-        "PATH: {} folder(s)\nLIB: {} folder(s)\nread from {}",
-        env.path.len(),
-        env.lib.len(),
-        env.source
-    )];
-
-    if env.is_stale() {
-        found.push(format!(
-            "\nset in the registry but absent from this terminal:\n{}",
-            env.missing_here.join("\n")
-        ));
-    }
-
-    if !env.session_only.is_empty() {
-        found.push(format!(
-            "\nadded by this terminal only, harmless:\n{}",
-            env.session_only.join("\n")
-        ));
-    }
-
-    let check = Check {
-        name: "this terminal matches the system environment".into(),
-        status: if env.is_stale() {
-            Status::Warn
-        } else {
-            Status::Pass
-        },
-        summary: if env.is_stale() {
-            format!(
-                "{} registry entry(s) missing from this terminal",
-                env.missing_here.len()
-            )
-        } else {
-            "in sync".into()
-        },
-        expected: "PATH and LIB in this terminal holding everything the registry holds".into(),
-        found: found.join("\n"),
-        remedy: if env.is_stale() {
-            vec![
-                "The requirements below are judged against the registry, so they are already live."
-                    .into(),
-                "This terminal started before the change, so it still holds the old values.".into(),
-                "Restart your terminals, and any editor that inherits from them, before compiling."
-                    .into(),
-            ]
-        } else {
-            Vec::new()
-        },
-    };
-
-    Group {
-        title: "Live environment".into(),
-        checks: vec![check],
-    }
 }
 
 fn toolchain_group(env: &EnvSnapshot, probes: &mut Probes) -> Group {
