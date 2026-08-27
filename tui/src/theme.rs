@@ -99,6 +99,18 @@ impl Theme {
             .add_modifier(Modifier::BOLD)
     }
 
+    pub fn surface(self, amount: f32) -> Color {
+        mix(self.bg, self.fg, amount)
+    }
+
+    pub fn hover(self, colour: Color) -> Color {
+        mix(colour, self.fg, 0.22)
+    }
+
+    pub fn press(self, colour: Color) -> Color {
+        mix(colour, self.bg, 0.35)
+    }
+
     pub fn selection(self) -> Style {
         Style::new().fg(self.selection_fg).bg(self.selection_bg)
     }
@@ -108,4 +120,22 @@ impl Theme {
             .fg(self.accent)
             .add_modifier(Modifier::BOLD | Modifier::UNDERLINED)
     }
+}
+
+fn mix(from: Color, to: Color, amount: f32) -> Color {
+    let (Color::Rgb(fr, fg, fb), Color::Rgb(tr, tg, tb)) = (from, to) else {
+        return from;
+    };
+
+    Color::Rgb(
+        blend(fr, tr, amount),
+        blend(fg, tg, amount),
+        blend(fb, tb, amount),
+    )
+}
+
+fn blend(from: u8, to: u8, amount: f32) -> u8 {
+    let value = f32::from(from) + (f32::from(to) - f32::from(from)) * amount;
+
+    value.round().clamp(0.0, 255.0) as u8
 }

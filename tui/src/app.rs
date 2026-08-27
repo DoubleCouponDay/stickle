@@ -4,6 +4,7 @@ use std::time::{Duration, Instant};
 use ratatui::layout::{Position, Rect};
 use ratatui::widgets::ListState;
 
+use crate::builds::{self, Runner, State, Target};
 use crate::checks::{Check, Report, Status};
 use crate::clipboard;
 use crate::scanner::Scanner;
@@ -58,6 +59,13 @@ pub enum Row {
     Item { group: usize, check: usize },
 }
 
+#[derive(Clone, Copy, PartialEq)]
+pub enum Button {
+    Dark,
+    Light,
+    Build(usize),
+}
+
 pub struct Change {
     pub label: String,
     pub from: Status,
@@ -83,6 +91,13 @@ pub struct App {
     pub detail_rows: Vec<String>,
     pub selection: Option<Selection>,
     pub notice: Option<(String, Instant)>,
+    pub targets: Vec<Target>,
+    pub build_states: Vec<State>,
+    pub build_buttons: Vec<Rect>,
+    pub build_message: String,
+    pub pressed: Option<Button>,
+    pub hovered: Option<Button>,
+    runner: Runner,
     scanner: Scanner,
     statuses: HashMap<String, Status>,
     selected: Option<String>,
@@ -108,6 +123,13 @@ impl App {
             detail_rows: Vec::new(),
             selection: None,
             notice: None,
+            build_states: vec![State::Idle; builds::targets().len()],
+            build_buttons: Vec::new(),
+            build_message: String::new(),
+            pressed: None,
+            hovered: None,
+            targets: builds::targets(),
+            runner: Runner::new(),
             scanner: Scanner::spawn(SCAN_INTERVAL),
             statuses: HashMap::new(),
             selected: None,
@@ -127,6 +149,17 @@ impl App {
             self.notice = None;
         }
 
+        while let Some(outcome) = self.runner.poll() {
+            self.build_states[outcome.index] = State::Done {
+                ok: outcome.ok,
+                seconds: outcome.seconds,
+                code: outcome.code,
+            };
+
+            self.build_message = outcome.message;
+            self.rescan();
+        }
+
         let Some(report) = self.scanner.latest() else {
             return;
         };
@@ -142,16 +175,32 @@ impl App {
         self.theme = self.theme.flipped();
     }
 
-    pub fn mouse_down(&mut self, column: u16, row: u16) {
-        let position = Position::new(column, row);
+    pub fn mouse_move(&mut self, column: u16, row: u16) {
+        self.hovered = self.button_at(Position::new(column, row));
+    }
 
+    fn button_at(&self, position: Position) -> Option<Button> {
         if self.dark_button.contains(position) {
-            self.theme = Theme::of(Mode::Dark);
-            return;
+            return Some(Button::Dark);
         }
 
         if self.light_button.contains(position) {
-            self.theme = Theme::of(Mode::Light);
+            return Some(Button::Light);
+        }
+
+        self.build_buttons
+            .iter()
+            .position(|button| button.contains(position))
+            .map(Button::Build)
+    }
+
+    pub fn mouse_down(&mut self, column: u16, row: u16) {
+        let position = Position::new(column, row);
+
+        self.pressed = self.button_at(position);
+        self.hovered = self.pressed;
+
+        if self.pressed.is_some() {
             return;
         }
 
@@ -173,6 +222,8 @@ impl App {
     pub fn mouse_drag(&mut self, column: u16, row: u16) {
         let area = self.detail_area;
 
+        self.hovered = self.button_at(Position::new(column, row));
+
         let Some(selection) = self.selection.as_mut() else {
             return;
         };
@@ -187,7 +238,16 @@ impl App {
         );
     }
 
-    pub fn mouse_up(&mut self) {
+    pub fn mouse_up(&mut self, column: u16, row: u16) {
+        let position = Position::new(column, row);
+
+        self.hovered = self.button_at(position);
+
+        if let Some(press) = self.pressed.take() {
+            self.release(press, position);
+            return;
+        }
+
         let Some(selection) = self.selection.as_mut() else {
             return;
         };
@@ -217,6 +277,106 @@ impl App {
             ),
             Err(reason) => (format!("clipboard failed: {reason}"), Instant::now()),
         });
+    }
+
+    fn release(&mut self, press: Button, position: Position) {
+        match press {
+            Button::Dark if self.dark_button.contains(position) => {
+                self.theme = Theme::of(Mode::Dark)
+            }
+            Button::Light if self.light_button.contains(position) => {
+                self.theme = Theme::of(Mode::Light)
+            }
+            Button::Build(index)
+                if self
+                    .build_buttons
+                    .get(index)
+                    .is_some_and(|button| button.contains(position)) =>
+            {
+                self.start_build(index)
+            }
+            _ => {}
+        }
+    }
+
+    pub fn build_enabled(&self, index: usize) -> bool {
+        let Some(target) = self.targets.get(index) else {
+            return false;
+        };
+
+        let (total, ..) = self.report.totals();
+
+        if total == 0 || self.building().is_some() {
+            return false;
+        }
+
+        let blocked = self
+            .report
+            .groups
+            .iter()
+            .flat_map(|group| &group.checks)
+            .any(|check| {
+                check.status == Status::Fail && !target.ignores.contains(&check.name.as_str())
+            });
+
+        if blocked {
+            return false;
+        }
+
+        match target.requires {
+            Some(relative) => self.report.root.join(relative).is_file(),
+            None => true,
+        }
+    }
+
+    pub fn build_hint(&self) -> Option<String> {
+        let (total, _, _, fail) = self.report.totals();
+
+        if total == 0 {
+            return Some("scanning the environment".into());
+        }
+
+        if fail > 0 {
+            return Some(format!("{fail} requirement(s) not met"));
+        }
+
+        let missing = self
+            .targets
+            .iter()
+            .find(|target| {
+                target
+                    .requires
+                    .is_some_and(|relative| !self.report.root.join(relative).is_file())
+            })
+            .and_then(|target| target.requires);
+
+        missing.map(|relative| {
+            let artifact = relative.rsplit('/').next().unwrap_or(relative);
+            format!("build {artifact} first")
+        })
+    }
+
+    pub fn building(&self) -> Option<usize> {
+        self.runner.running
+    }
+
+    fn start_build(&mut self, index: usize) {
+        if !self.build_enabled(index) {
+            return;
+        }
+
+        let Some(target) = self.targets.get(index) else {
+            return;
+        };
+
+        self.build_states[index] = State::Running;
+        self.build_message = format!("{} building", target.label);
+
+        let root = self.report.root.clone();
+        let snapshot = self.report.env.clone();
+        let target = target.clone();
+
+        self.runner.start(index, &target, root, snapshot);
     }
 
     fn select_row_at(&mut self, row: u16) {

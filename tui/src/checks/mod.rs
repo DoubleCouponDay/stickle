@@ -60,7 +60,7 @@ pub struct Group {
 pub struct Report {
     pub root: PathBuf,
     pub platform: &'static str,
-    pub env_source: String,
+    pub env: EnvSnapshot,
     pub groups: Vec<Group>,
 }
 
@@ -69,7 +69,7 @@ impl Report {
         Report {
             root: find_root(),
             platform: platform::NAME,
-            env_source: "reading".into(),
+            env: EnvSnapshot::empty(),
             groups: Vec::new(),
         }
     }
@@ -84,7 +84,7 @@ impl Report {
         Report {
             root,
             platform: platform::NAME,
-            env_source: env.source.into(),
+            env: env.clone(),
             groups,
         }
     }

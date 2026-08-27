@@ -4,11 +4,13 @@ use ratatui::style::{Color, Modifier, Style};
 use ratatui::text::{Line, Span};
 use ratatui::widgets::{Block, BorderType, Gauge, List, ListItem, Paragraph, Wrap};
 
-use crate::app::{App, Row};
+use crate::app::{App, Button, Row};
+use crate::builds::State;
 use crate::checks::{Check, Status};
 use crate::theme::{Mode, Theme};
 
 const SPINNER: [char; 4] = ['|', '/', '-', '\\'];
+const BUILD_MINIMUM: u16 = 6;
 const DARK_LABEL: &str = " Dark ";
 const LIGHT_LABEL: &str = " Light ";
 
@@ -30,7 +32,18 @@ pub fn draw(frame: &mut Frame, app: &mut App) {
         Layout::horizontal([Constraint::Percentage(45), Constraint::Percentage(55)]).split(areas[1]);
 
     draw_list(frame, panes[0], app, theme);
-    draw_detail(frame, panes[1], app, theme);
+
+    let right =
+        Layout::vertical([Constraint::Ratio(2, 3), Constraint::Ratio(1, 3)]).split(panes[1]);
+
+    if right[1].height >= BUILD_MINIMUM {
+        draw_detail(frame, right[0], app, theme);
+        draw_builds(frame, right[1], app, theme);
+    } else {
+        app.build_buttons.clear();
+        draw_detail(frame, panes[1], app, theme);
+    }
+
     draw_footer(frame, areas[2], theme);
     draw_theme_toggle(frame, areas[0], app, theme);
 }
@@ -145,7 +158,7 @@ fn activity(app: &App, theme: Theme) -> Line<'static> {
         Span::styled(
             format!(
                 "   scan {}   checked {age}   environment from {}",
-                app.scans, app.report.env_source
+                app.scans, app.report.env.source
             ),
             theme.dimmed(),
         ),
@@ -205,26 +218,58 @@ fn draw_theme_toggle(frame: &mut Frame, area: Rect, app: &mut App, theme: Theme)
         height: 1,
     };
 
+    let dark = segment_style(theme, Mode::Dark, app.hovered, app.pressed);
+    let light = segment_style(theme, Mode::Light, app.hovered, app.pressed);
+
     let toggle = Line::from(vec![
         Span::styled("\u{2524}", theme.dimmed()),
-        Span::styled(DARK_LABEL, segment_style(theme, Mode::Dark)),
+        Span::styled(DARK_LABEL, dark),
         Span::styled("\u{2502}", theme.dimmed()),
-        Span::styled(LIGHT_LABEL, segment_style(theme, Mode::Light)),
+        Span::styled(LIGHT_LABEL, light),
         Span::styled("\u{251c}", theme.dimmed()),
     ]);
 
     frame.render_widget(Paragraph::new(toggle), bar);
 }
 
-fn segment_style(theme: Theme, mode: Mode) -> Style {
+fn segment_style(
+    theme: Theme,
+    mode: Mode,
+    hovered: Option<Button>,
+    pressed: Option<Button>,
+) -> Style {
+    let button = match mode {
+        Mode::Dark => Button::Dark,
+        Mode::Light => Button::Light,
+    };
+
+    let over = hovered == Some(button);
+    let held = over && pressed == Some(button);
+
     if theme.mode == mode {
-        Style::new()
+        let fill = if held {
+            theme.press(theme.accent)
+        } else if over {
+            theme.hover(theme.accent)
+        } else {
+            theme.accent
+        };
+
+        return Style::new()
             .fg(theme.badge_fg)
-            .bg(theme.accent)
-            .add_modifier(Modifier::BOLD)
-    } else {
-        theme.dimmed()
+            .bg(fill)
+            .add_modifier(Modifier::BOLD);
     }
+
+    if held {
+        return Style::new().fg(theme.fg).bg(theme.surface(0.30));
+    }
+
+    if over {
+        return Style::new().fg(theme.fg).bg(theme.surface(0.16));
+    }
+
+    theme.dimmed()
 }
 
 fn draw_list(frame: &mut Frame, area: Rect, app: &mut App, theme: Theme) {
@@ -314,6 +359,157 @@ fn draw_detail(frame: &mut Frame, area: Rect, app: &mut App, theme: Theme) {
     app.detail_rows = snapshot(frame, inner);
 
     paint_selection(frame, app, theme);
+}
+
+fn draw_builds(frame: &mut Frame, area: Rect, app: &mut App, theme: Theme) {
+    let block = Block::bordered()
+        .border_type(BorderType::Rounded)
+        .border_style(theme.dimmed())
+        .style(theme.base())
+        .title(Span::styled(
+            " Build ",
+            Style::new().fg(theme.fg).add_modifier(Modifier::BOLD),
+        ));
+
+    let inner = block.inner(area);
+    frame.render_widget(block, area);
+
+    let count = app.targets.len() as u16;
+    let face = app
+        .targets
+        .iter()
+        .map(|target| target.label.len() as u16 + 4)
+        .max()
+        .unwrap_or(0)
+        .min(inner.width);
+
+    let spacing = if inner.height >= count * 2 { 2 } else { 1 };
+    let column = inner.x + (inner.width - face) / 2;
+
+    app.build_buttons.clear();
+
+    for index in 0..app.targets.len() {
+        let y = inner.y + index as u16 * spacing;
+
+        if y >= inner.bottom() {
+            app.build_buttons.push(Rect::ZERO);
+            continue;
+        }
+
+        let enabled = app.build_enabled(index);
+        let state = app.build_states[index];
+
+        let colour = match state {
+            State::Running => theme.warn,
+            State::Done { ok: true, .. } => theme.pass,
+            State::Done { ok: false, .. } => theme.fail,
+            State::Idle if enabled => theme.accent,
+            State::Idle => theme.dim,
+        };
+
+        let lit = enabled || matches!(state, State::Running);
+        let hovered = enabled && app.hovered == Some(Button::Build(index));
+        let held = hovered && app.pressed == Some(Button::Build(index));
+
+        let colour = if held {
+            theme.press(colour)
+        } else if hovered {
+            theme.hover(colour)
+        } else {
+            colour
+        };
+
+        let button = Rect {
+            x: column,
+            y,
+            width: face,
+            height: 1,
+        };
+
+        frame.render_widget(
+            Paragraph::new(Line::from(Span::styled(
+                centred(app.targets[index].label, face),
+                if lit {
+                    Style::new()
+                        .fg(theme.badge_fg)
+                        .bg(colour)
+                        .add_modifier(Modifier::BOLD)
+                } else {
+                    Style::new().fg(theme.dim)
+                },
+            )))
+            .style(theme.base()),
+            button,
+        );
+
+        let status = status_text(state);
+
+        if !status.is_empty() && button.right() < inner.right() {
+            let rest = Rect {
+                x: button.right(),
+                y,
+                width: inner.right() - button.right(),
+                height: 1,
+            };
+
+            frame.render_widget(
+                Paragraph::new(Line::from(Span::styled(
+                    format!("{status} "),
+                    Style::new().fg(if lit { colour } else { theme.dim }),
+                )))
+                .alignment(Alignment::Right)
+                .style(theme.base()),
+                rest,
+            );
+        }
+
+        app.build_buttons
+            .push(if enabled { button } else { Rect::ZERO });
+    }
+
+    let last = inner.y + (count.saturating_sub(1)) * spacing;
+
+    if inner.bottom() > last + 1 {
+        let (text, style) = match app.build_hint() {
+            Some(hint) => (hint, Style::new().fg(theme.fail)),
+            None => (app.build_message.clone(), theme.dimmed()),
+        };
+
+        frame.render_widget(
+            Paragraph::new(Line::from(Span::styled(text, style))).style(theme.base()),
+            Rect {
+                x: inner.x,
+                y: inner.bottom() - 1,
+                width: inner.width,
+                height: 1,
+            },
+        );
+    }
+}
+
+fn centred(label: &str, width: u16) -> String {
+    let padding = (width as usize).saturating_sub(label.len());
+    let left = padding / 2;
+
+    format!(
+        "{}{label}{}",
+        " ".repeat(left),
+        " ".repeat(padding - left)
+    )
+}
+
+fn status_text(state: State) -> String {
+    match state {
+        State::Idle => String::new(),
+        State::Running => "running".into(),
+        State::Done { ok: true, seconds, .. } => format!("built in {seconds:.1}s"),
+        State::Done {
+            ok: false,
+            code: Some(code),
+            ..
+        } => format!("failed, exit {code}"),
+        State::Done { ok: false, .. } => "failed".into(),
+    }
 }
 
 fn snapshot(frame: &mut Frame, area: Rect) -> Vec<String> {

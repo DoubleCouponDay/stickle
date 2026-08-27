@@ -1,4 +1,5 @@
 mod app;
+mod builds;
 mod checks;
 mod clipboard;
 mod env;
@@ -37,10 +38,16 @@ fn run(terminal: &mut ratatui::DefaultTerminal, app: &mut App) -> io::Result<()>
         terminal.draw(|frame| ui::draw(frame, app))?;
 
         if event::poll(POLL)? {
-            match event::read()? {
-                Event::Key(key) if key.kind == KeyEventKind::Press => handle_key(app, key),
-                Event::Mouse(mouse) => handle_mouse(app, mouse),
-                _ => {}
+            loop {
+                match event::read()? {
+                    Event::Key(key) if key.kind == KeyEventKind::Press => handle_key(app, key),
+                    Event::Mouse(mouse) => handle_mouse(app, mouse),
+                    _ => {}
+                }
+
+                if app.quit || !event::poll(Duration::ZERO)? {
+                    break;
+                }
             }
         }
 
@@ -74,7 +81,8 @@ fn handle_mouse(app: &mut App, mouse: MouseEvent) {
     match mouse.kind {
         MouseEventKind::Down(MouseButton::Left) => app.mouse_down(mouse.column, mouse.row),
         MouseEventKind::Drag(MouseButton::Left) => app.mouse_drag(mouse.column, mouse.row),
-        MouseEventKind::Up(MouseButton::Left) => app.mouse_up(),
+        MouseEventKind::Up(MouseButton::Left) => app.mouse_up(mouse.column, mouse.row),
+        MouseEventKind::Moved => app.mouse_move(mouse.column, mouse.row),
         MouseEventKind::ScrollDown => app.scroll_detail(1),
         MouseEventKind::ScrollUp => app.scroll_detail(-1),
         _ => {}

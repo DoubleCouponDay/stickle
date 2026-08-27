@@ -2,6 +2,7 @@ use std::env;
 use std::ffi::OsString;
 use std::path::PathBuf;
 
+#[derive(Clone)]
 pub struct EnvSnapshot {
     pub path: Vec<PathBuf>,
     #[cfg_attr(not(windows), allow(dead_code))]
@@ -16,6 +17,16 @@ pub struct EnvSnapshot {
 impl EnvSnapshot {
     pub fn read() -> Self {
         platform::read()
+    }
+
+    pub fn empty() -> Self {
+        EnvSnapshot {
+            path: Vec::new(),
+            lib: Vec::new(),
+            lib_defined: false,
+            library_path: Vec::new(),
+            source: "reading",
+        }
     }
 }
 
