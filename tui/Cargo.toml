@@ -1,11 +1,9 @@
 [package]
 name = "stickle"
-version = "0.3.2"
+version = "0.3.3"
 edition = "2024"
-rust-version = "1.97.1"
 description = "TUI for a streamlined Rusty PLC Compiler workflow"
 license = "LGPL-3.0-only"
-license-file = "../LICENSE"
 readme = "../README.md"
 repository = "https://github.com/doublecouponday/stickle.git"
 
