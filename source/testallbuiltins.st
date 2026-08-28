@@ -1,4 +1,20 @@
 
+TYPE XmlTestStruct
+    : STRUCT
+        Count: INT;
+        Flag: BOOL;
+        Label: STRING[16];
+        Samples: ARRAY[0..3] OF DINT;
+    END_STRUCT
+END_TYPE
+
+
+TYPE XmlTestGrid : ARRAY[0..1, 1..3] OF INT; END_TYPE
+
+
+TYPE XmlTestAlias : DINT; END_TYPE
+
+
 PROGRAM TestAllBuiltins
     VAR_EXTERNAL
         _PLC_OptSerialErrSta: ARRAY[1..2] OF _sOPTSERIALERR_STA;
@@ -27,6 +43,11 @@ PROGRAM TestAllBuiltins
         string1: STRING;
         sid1: _sNXUNIT_ID;
         test1: _sOPTSERIALERR_STA;
+        sizedString1: STRING[32];
+        wideString1: WSTRING[16];
+        struct1: XmlTestStruct;
+        grid1: XmlTestGrid;
+        alias1: XmlTestAlias;
     END_VAR
 
     //builtin functions
