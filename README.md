@@ -209,6 +209,8 @@ error: process didn't exit successfully: `target\debug\plc.exe ./examples/source
 
 ## Nice to have
 
+- Network Publish Mode parsing to enum.
+
 - Global pattern input files for xml conversion.
 
     This works for `-c` so why not other compilation modes?
