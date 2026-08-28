@@ -44,7 +44,6 @@ PROGRAM TestAllBuiltins
         sid1: _sNXUNIT_ID;
         test1: _sOPTSERIALERR_STA;
         sizedString1: STRING[32];
-        wideString1: WSTRING[16];
         struct1: XmlTestStruct;
         grid1: XmlTestGrid;
         alias1: XmlTestAlias;
