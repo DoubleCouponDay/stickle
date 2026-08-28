@@ -25,6 +25,7 @@ pub struct Target {
 }
 
 pub const SOURCE_CHECK: &str = "source .st files";
+pub const TEST_PROJECT_CHECK: &str = "tests folder with .csproj";
 pub const PROJECT_TOKEN: &str = "{project}";
 
 impl Target {
@@ -308,7 +309,7 @@ pub fn targets() -> Vec<Target> {
     vec![
         Target {
             label: "libNX1P2.dll",
-            ignores: &[SOURCE_CHECK, OMRON_CHECK],
+            ignores: &[SOURCE_CHECK, OMRON_CHECK, TEST_PROJECT_CHECK],
             requires: None,
             steps: vec![
                 Step {
@@ -351,7 +352,7 @@ pub fn targets() -> Vec<Target> {
         },
         Target {
             label: "lib_structured_text.dll",
-            ignores: &[],
+            ignores: &[TEST_PROJECT_CHECK],
             requires: Some(OMRON_ARTIFACT),
             steps: vec![
                 Step {
@@ -402,7 +403,7 @@ pub fn targets() -> Vec<Target> {
         },
         Target {
             label: "lib_structured_text.xml",
-            ignores: &[],
+            ignores: &[TEST_PROJECT_CHECK],
             requires: Some(OMRON_ARTIFACT),
             steps: vec![Step {
                 program: "plc",
@@ -455,7 +456,7 @@ pub fn targets() -> Vec<Target> {
     vec![
         Target {
             label: "libNX1P2.so",
-            ignores: &[SOURCE_CHECK, OMRON_CHECK],
+            ignores: &[SOURCE_CHECK, OMRON_CHECK, TEST_PROJECT_CHECK],
             requires: None,
             steps: vec![Step {
                 program: "plc",
@@ -473,7 +474,7 @@ pub fn targets() -> Vec<Target> {
         },
         Target {
             label: "lib_structured_text.so",
-            ignores: &[],
+            ignores: &[TEST_PROJECT_CHECK],
             requires: Some(OMRON_ARTIFACT),
             steps: vec![Step {
                 program: "plc",
@@ -499,7 +500,7 @@ pub fn targets() -> Vec<Target> {
         },
         Target {
             label: "lib_structured_text.xml",
-            ignores: &[],
+            ignores: &[TEST_PROJECT_CHECK],
             requires: Some(OMRON_ARTIFACT),
             steps: vec![Step {
                 program: "plc",

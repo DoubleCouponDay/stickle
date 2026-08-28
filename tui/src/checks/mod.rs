@@ -1,6 +1,7 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 
+use crate::builds::TEST_PROJECT_CHECK;
 use crate::env::EnvSnapshot;
 use crate::probe::Probes;
 use crate::project::Project;
@@ -219,7 +220,7 @@ fn test_project_check(project: &Project) -> Check {
             };
 
             Check {
-                name: "tests folder with .csproj".into(),
+                name: TEST_PROJECT_CHECK.into(),
                 status: Status::Pass,
                 summary: relative.display().to_string(),
                 expected,
@@ -228,7 +229,7 @@ fn test_project_check(project: &Project) -> Check {
             }
         }
         None => Check {
-            name: "tests folder with .csproj".into(),
+            name: TEST_PROJECT_CHECK.into(),
             status: Status::Fail,
             summary: "no .csproj found".into(),
             expected,
