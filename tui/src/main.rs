@@ -23,6 +23,13 @@ use app::App;
 const POLL: Duration = Duration::from_millis(120);
 
 fn main() -> io::Result<()> {
+    let args: Vec<String> = std::env::args().skip(1).collect();
+
+    if args.iter().any(|arg| arg.to_lowercase() == "-v") {
+        println!("stickle {}", env!("CARGO_PKG_VERSION"));
+        return Ok(());
+    }
+
     let mut terminal = ratatui::init();
     let _ = execute!(io::stdout(), EnableMouseCapture);
 
