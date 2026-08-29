@@ -6,6 +6,7 @@ use ratatui::widgets::{
     Block, BorderType, Gauge, List, ListItem, Paragraph, Scrollbar, ScrollbarOrientation,
     ScrollbarState, Wrap,
 };
+use textwrap::Options;
 
 use crate::app::{App, Button, Focus, Kind, Row, View};
 use crate::builds::State;
@@ -31,8 +32,8 @@ pub fn draw(frame: &mut Frame, app: &mut App) {
 
     draw_summary(frame, areas[0], app, theme);
 
-    let panes =
-        Layout::horizontal([Constraint::Percentage(45), Constraint::Percentage(55)]).split(areas[1]);
+    let panes = Layout::horizontal([Constraint::Percentage(45), Constraint::Percentage(55)])
+        .split(areas[1]);
 
     draw_list(frame, panes[0], app, theme);
 
@@ -135,7 +136,10 @@ fn draw_summary(frame: &mut Frame, area: Rect, app: &App, theme: Theme) {
         .label(format!("{pass}/{total} requirements met"));
 
     frame.render_widget(gauge, rows[1]);
-    frame.render_widget(Paragraph::new(activity(app, theme)).style(theme.base()), rows[2]);
+    frame.render_widget(
+        Paragraph::new(activity(app, theme)).style(theme.base()),
+        rows[2],
+    );
 }
 
 fn banner_span(text: String, colour: Color, theme: Theme) -> Span<'static> {
@@ -293,7 +297,10 @@ fn draw_list(frame: &mut Frame, area: Rect, app: &mut App, theme: Theme) {
     if app.rows.is_empty() {
         let waiting = Paragraph::new(vec![
             Line::raw(""),
-            Line::from(Span::styled("  Scanning the environment...", theme.dimmed())),
+            Line::from(Span::styled(
+                "  Scanning the environment...",
+                theme.dimmed(),
+            )),
         ])
         .block(block);
 
@@ -379,10 +386,16 @@ fn draw_detail(frame: &mut Frame, area: Rect, app: &mut App, theme: Theme) {
 
     app.detail_scroll = app.detail_scroll.min(limit);
 
-    let mut paragraph = Paragraph::new(lines)
+    let options = Options::new(area.width as usize)
+        .break_words(true);
+
+    let wrapped = textwrap::fill(&lines, options);
+
+    let mut paragraph = Paragraph::new(wrapped)
         .block(block)
-        .scroll((app.detail_scroll, 0))
-        .alignment(Alignment::Left);
+        .scroll((0, 0))
+        .alignment(Alignment::Left)
+        .wrap(Wrap { trim: true });
 
     if !output {
         paragraph = paragraph.wrap(Wrap { trim: false });
@@ -468,7 +481,10 @@ fn thumb_length(track: u16, viewport: u16, rows: usize) -> u16 {
 
 fn output_lines(app: &App, theme: Theme) -> Vec<Line<'static>> {
     if app.output.is_empty() {
-        return vec![Line::from(Span::styled("Waiting for output...", theme.dimmed()))];
+        return vec![Line::from(Span::styled(
+            "Waiting for output...",
+            theme.dimmed(),
+        ))];
     }
 
     app.output
@@ -665,18 +681,16 @@ fn centred(label: &str, width: u16) -> String {
     let padding = (width as usize).saturating_sub(label.len());
     let left = padding / 2;
 
-    format!(
-        "{}{label}{}",
-        " ".repeat(left),
-        " ".repeat(padding - left)
-    )
+    format!("{}{label}{}", " ".repeat(left), " ".repeat(padding - left))
 }
 
 fn status_text(state: State) -> String {
     match state {
         State::Idle => String::new(),
         State::Running => "running".into(),
-        State::Done { ok: true, seconds, .. } => format!("built in {seconds:.1}s"),
+        State::Done {
+            ok: true, seconds, ..
+        } => format!("built in {seconds:.1}s"),
         State::Done {
             ok: false,
             code: Some(code),
@@ -717,7 +731,10 @@ fn detail_lines(check: &Check, theme: Theme) -> Vec<Line<'static>> {
         Line::from(vec![
             Span::styled(check.status.badge(), theme.badge(check.status)),
             Span::raw(" "),
-            Span::styled(check.name.clone(), Style::new().add_modifier(Modifier::BOLD)),
+            Span::styled(
+                check.name.clone(),
+                Style::new().add_modifier(Modifier::BOLD),
+            ),
         ]),
         Line::from(vec![
             Span::styled(

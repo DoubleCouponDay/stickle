@@ -13,3 +13,4 @@ path = "src/main.rs"
 
 [dependencies]
 ratatui = "0.30"
+textwrap = "0.16.2"
