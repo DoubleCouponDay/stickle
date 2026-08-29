@@ -121,6 +121,8 @@ fn loader_dirs(env: &EnvSnapshot) -> Vec<PathBuf> {
     let mut dirs = env.library_path.clone();
 
     dirs.extend([
+        PathBuf::from("./compiled"),
+        PathBuf::from("./build"),
         PathBuf::from("/lib"),
         PathBuf::from("/usr/lib"),
         PathBuf::from("/lib").join(&triple),
