@@ -6,7 +6,6 @@ use ratatui::widgets::{
     Block, BorderType, Gauge, List, ListItem, Paragraph, Scrollbar, ScrollbarOrientation,
     ScrollbarState, Wrap,
 };
-use textwrap::Options;
 
 use crate::app::{App, Button, Focus, Kind, Row, View};
 use crate::builds::State;
@@ -372,11 +371,7 @@ fn draw_detail(frame: &mut Frame, area: Rect, app: &mut App, theme: Theme) {
         }
     };
 
-    let rows = if output {
-        lines.len()
-    } else {
-        wrapped_rows(&lines, inner.width)
-    };
+    let rows = wrapped_rows(&lines, inner.width);
 
     let limit = rows.saturating_sub(inner.height as usize) as u16;
 
@@ -386,16 +381,11 @@ fn draw_detail(frame: &mut Frame, area: Rect, app: &mut App, theme: Theme) {
 
     app.detail_scroll = app.detail_scroll.min(limit);
 
-    let options = Options::new(area.width as usize)
-        .break_words(true);
-
-    let wrapped = textwrap::fill(&lines, options);
-
-    let mut paragraph = Paragraph::new(wrapped)
+    let mut paragraph = Paragraph::new(lines)
         .block(block)
-        .scroll((0, 0))
+        .scroll((app.detail_scroll, 0))
         .alignment(Alignment::Left)
-        .wrap(Wrap { trim: true });
+        .wrap(Wrap { trim: false });
 
     if !output {
         paragraph = paragraph.wrap(Wrap { trim: false });
@@ -435,7 +425,7 @@ fn draw_detail(frame: &mut Frame, area: Rect, app: &mut App, theme: Theme) {
         theme.accent
     };
 
-    let mut state = ScrollbarState::new(limit as usize + 1)
+    let mut state = ScrollbarState::new(rows)
         .viewport_content_length(inner.height as usize)
         .position(app.detail_scroll as usize);
 
