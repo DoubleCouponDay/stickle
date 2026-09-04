@@ -180,7 +180,7 @@ fn shared_object_group(env: &EnvSnapshot) -> Group {
             name: "libNX1P2.so".into(),
             status: Status::Pass,
             summary: "found".into(),
-            expected: "libNX1P2.so on the loader search path, lib_structured_text.so records a dependency on it"
+            expected: "libNX1P2.so beside lib_structured_text.so in ./compiled, where its $ORIGIN runpath resolves it"
                 .into(),
             found: path.display().to_string(),
             remedy: Vec::new(),
@@ -188,16 +188,15 @@ fn shared_object_group(env: &EnvSnapshot) -> Group {
         None => Check {
             name: "libNX1P2.so".into(),
             status: Status::Fail,
-            summary: "not on the loader search path".into(),
-            expected: "libNX1P2.so on the loader search path, lib_structured_text.so records a dependency on it"
+            summary: "not built".into(),
+            expected: "libNX1P2.so beside lib_structured_text.so in ./compiled, where its $ORIGIN runpath resolves it"
                 .into(),
             found: format!("searched:\n{listing}"),
             remedy: vec![
                 "It is built from the libNX1P2 sources before the main sources are compiled:".into(),
                 "plc ./libNX1P2/*.st --shared --linker=cc --target=x86_64 -l iec61131std -o ./compiled/libNX1P2.so"
                     .into(),
-                "Install it where the dynamic loader can find it:".into(),
-                "sudo cp ./compiled/libNX1P2.so /lib".into(),
+                "lib_structured_text.so is linked with --linker-arg=--rpath='$ORIGIN', so libNX1P2.so only has to sit next to it in ./compiled. No copy into /lib is needed.".into(),
             ],
         },
     });

@@ -94,16 +94,12 @@ plc ./source/clampandsaw.st --xml-omron -i ./source/externals.st -l iec61131std 
     ```
     plc ./libNX1P2/*.st --shared --linker=cc -l iec61131std -o ./compiled/libNX1P2.so
 
-    plc ./source/*.st --shared --linker=cc -i ./externals/stdlib_externals.st -i ./externals/omron_externals.st -L ./compiled -l iec61131std -l NX1P2 -o ./compiled/lib_structured_text.so
+    plc ./source/*.st --shared --linker=cc -i ./externals/stdlib_externals.st -i ./externals/omron_externals.st -L ./compiled -l iec61131std -l NX1P2 --linker-arg=--rpath='$ORIGIN' -o ./compiled/lib_structured_text.so
     ```
 
     The `-i` includes declare the Omron system variables and the `stdlib` function blocks. Without them the sources will not compile. Note that on Linux the `lib` prefix is implicit, so `libNX1P2.so` is linked with `-l NX1P2`.
 
-- `lib_structured_text.so` records a dependency on `libNX1P2.so`, so the dynamic loader must be able to find it. Install it alongside the stdlib:
-
-    ```
-    sudo cp ./compiled/libNX1P2.so /lib
-    ```
+    `lib_structured_text.so` records a dependency on `libNX1P2.so`, and `-L` is only a link-time search path, so without a runtime search path the dynamic loader cannot find it and `dotnet test` fails with `DllNotFoundException`. `--linker-arg=--rpath='$ORIGIN'` writes a `RUNPATH` of `$ORIGIN` into the library, which resolves relative to the library itself, so `libNX1P2.so` is found next to it regardless of the working directory. Note that `--linker-arg` is passed straight to `ld.lld`, so the `-Wl,` prefixed form is rejected, and `$ORIGIN` must be quoted to survive the shell.
 
 Structured Text can also be compiled to IEC 61131-10 XML, which imports into Omron Sysmac Studio.
 

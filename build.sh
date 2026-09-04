@@ -8,7 +8,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # clampandsaw
-plc ./source/*.st --shared --linker=cc -i ./externals/stdlib_externals.st -i ./externals/omron_externals.st -L ./compiled -l iec61131std -l NX1P2 -o ./compiled/lib_structured_text.so
+plc ./source/*.st --shared --linker=cc -i ./externals/stdlib_externals.st -i ./externals/omron_externals.st -L ./compiled -l iec61131std -l NX1P2 --linker-arg=--rpath='$ORIGIN' -o ./compiled/lib_structured_text.so
 
 if [ $? -ne 0 ]; then
     exit 1

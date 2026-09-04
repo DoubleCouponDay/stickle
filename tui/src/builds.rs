@@ -497,6 +497,7 @@ pub fn targets() -> Vec<Target> {
                     "iec61131std",
                     "-l",
                     "NX1P2",
+                    "--linker-arg=--rpath=$ORIGIN",
                     "-o",
                     "./compiled/lib_structured_text.so",
                 ]),
