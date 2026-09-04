@@ -8,6 +8,7 @@ use crate::builds::{self, Runner, State, Target};
 use crate::checks::{Check, Report, Status};
 use crate::clipboard;
 use crate::scanner::Scanner;
+use crate::sequence::Sequence;
 use crate::theme::{Mode, Theme};
 
 pub const SCAN_INTERVAL: Duration = Duration::from_millis(1500);
@@ -128,6 +129,7 @@ pub struct App {
     pub build_states: Vec<State>,
     pub build_buttons: Vec<Rect>,
     pub build_message: String,
+    pub sequence: Sequence,
     pub pressed: Option<Button>,
     pub hovered: Option<Button>,
     pub view: View,
@@ -167,6 +169,7 @@ impl App {
             build_states: vec![State::Idle; builds::targets().len()],
             build_buttons: Vec::new(),
             build_message: String::new(),
+            sequence: Sequence::new(builds::targets().len()),
             pressed: None,
             hovered: None,
             view: View::Requirement,
@@ -206,6 +209,7 @@ impl App {
                 code: outcome.code,
             };
 
+            self.sequence = self.sequence.finished(outcome.ok);
             self.build_message = outcome.message;
             self.rescan();
         }
@@ -481,6 +485,30 @@ impl App {
         self.runner.running
     }
 
+    pub fn build_next(&mut self) {
+        let (sequence, target) = self.sequence.armed();
+        self.sequence = sequence;
+
+        let Some(index) = target else {
+            return;
+        };
+
+        if self.build_enabled(index) {
+            self.start_build(index);
+            return;
+        }
+
+        let Some(label) = self.targets.get(index).map(|target| target.label) else {
+            return;
+        };
+
+        let reason = self
+            .build_hint()
+            .unwrap_or_else(|| format!("{label} is not ready"));
+
+        self.notice = Some((format!("{label}: {reason}"), Instant::now()));
+    }
+
     fn start_build(&mut self, index: usize) {
         if !self.build_enabled(index) {
             return;
@@ -490,6 +518,7 @@ impl App {
             return;
         };
 
+        self.sequence = self.sequence.started(index);
         self.build_states[index] = State::Running;
         self.build_message = format!("{} running", target.label);
         self.output_label = format!("{} output", target.label);

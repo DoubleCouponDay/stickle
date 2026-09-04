@@ -6,6 +6,7 @@ mod env;
 mod probe;
 mod project;
 mod scanner;
+mod sequence;
 mod theme;
 mod ui;
 
@@ -73,6 +74,7 @@ fn handle_key(app: &mut App, key: KeyEvent) {
 
     match key.code {
         KeyCode::Char('q') | KeyCode::Esc => app.quit = true,
+        KeyCode::Char('b') => app.build_next(),
         KeyCode::Char('r') => app.rescan(),
         KeyCode::Char('t') => app.toggle_theme(),
         KeyCode::Char('n') => app.jump_to_next_unmet(),

@@ -780,6 +780,8 @@ fn draw_footer(frame: &mut Frame, area: Rect, theme: Theme) {
         Span::raw(" move  "),
         key("n", theme),
         Span::raw(" next unmet  "),
+        key("b", theme),
+        Span::raw(" build next  "),
         key("up/down", theme),
         Span::raw(" focused pane  "),
         key("pgup/pgdn", theme),
