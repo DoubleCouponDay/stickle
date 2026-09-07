@@ -1,0 +1,52 @@
+name: build-tui
+
+on:
+  push:
+    branches:
+      - main2
+    tags:
+      - "v*"
+  pull_request:
+  workflow_dispatch:
+
+defaults:
+  run:
+    working-directory: tui
+
+jobs:
+  build:
+    name: ${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            binary: stickle.exe
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-musl
+            binary: stickle
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install musl toolchain
+        if: matrix.os == 'ubuntu-latest'
+        working-directory: .
+        run: sudo apt-get update && sudo apt-get install --yes musl-tools
+
+      - name: Add rust target
+        run: rustup target add ${{ matrix.target }}
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: tui
+
+      - name: Build
+        run: cargo build --release --target ${{ matrix.target }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: stickle-${{ matrix.target }}
+          path: tui/target/${{ matrix.target }}/release/${{ matrix.binary }}
+          if-no-files-found: error
