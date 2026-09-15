@@ -11,6 +11,7 @@ on:
 
 env:
   COMPILER_REPO: DoubleCouponDay/rusty-fork
+  GH_TOKEN: ${{ secrets.COMPILER_ARTIFACTS_TOKEN }}
 
 jobs:
   linux:
@@ -20,8 +21,6 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install plc and stdlib
-        env:
-          GH_TOKEN: ${{ secrets.COMPILER_ARTIFACTS_TOKEN }}
         run: |
           RUN_ID=$(gh run list --repo "$COMPILER_REPO" --workflow linux.yml --status success --limit 1 --json databaseId --jq '.[0].databaseId')
           if [ -z "$RUN_ID" ]; then
@@ -58,8 +57,6 @@ jobs:
         run: choco install llvm --version=21.1.7 --yes --no-progress
 
       - name: Install plc and stdlib
-        env:
-          GH_TOKEN: ${{ secrets.COMPILER_ARTIFACTS_TOKEN }}
         run: |
           $runId = gh run list --repo $env:COMPILER_REPO --workflow windows.yml --status success --limit 1 --json databaseId --jq '.[0].databaseId'
           if (-not $runId) {
