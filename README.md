@@ -1,5 +1,8 @@
 # Stickle
 
+[![build-libbuiltins](https://github.com/DoubleCouponDay/stickle/actions/workflows/build-libbuiltins.yml/badge.svg?branch=main2)](https://github.com/DoubleCouponDay/stickle/actions/workflows/build-libbuiltins.yml)
+[![build-tui](https://github.com/DoubleCouponDay/stickle/actions/workflows/build-tui.yml/badge.svg?branch=main2)](https://github.com/DoubleCouponDay/stickle/actions/workflows/build-tui.yml)
+
 The Stickle Workflow has a streamlined Terminal User Interface (TUI) and example code for using the [Rusty Compiler](https://github.com/doublecouponday/rusty-fork).
 
 ![tui demo](https://raw.githubusercontent.com/DoubleCouponDay/stickle/refs/heads/main2/tui_demo.webp)
