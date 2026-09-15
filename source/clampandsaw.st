@@ -11,6 +11,7 @@ TYPE State : (
 );
 END_TYPE
 
+{network_publish := 'PublishOnly'}
 VAR_GLOBAL
     currentState: State := AllStopped;
     THNTD: BOOL := FALSE;
