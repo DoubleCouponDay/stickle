@@ -30,7 +30,7 @@ jobs:
             exit 1
           fi
           gh run download "$RUN_ID" --repo "$COMPILER_REPO" --dir packages --name deb-x86_64
-          sudo dpkg --install packages/*.deb
+          sudo dpkg --install packages/*_amd64.deb
           plc --version
 
       - name: Stage the builtins folder
