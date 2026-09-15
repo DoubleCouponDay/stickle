@@ -92,9 +92,9 @@ plc ./source/clampandsaw.st --xml-omron --generate-external-constructors -i ./so
 - Build the Omron library, then compile the project against it:
     
     ```
-    plc ./libbuiltins/*.st --shared --linker=cc -l iec61131std -o ./compiled/libbuiltins.so
+    plc ./libbuiltins/*.st --shared --linker=cc -L ./compiled -l iec61131std -o ./compiled/libbuiltins.so
 
-    plc ./source/*.st --shared --linker=cc --generate-external-constructors -i ./externals/stdlib_externals.st -i ./libNX1P2/nx1p2_externals.st -L ./compiled -l iec61131std -l builtins --linker-arg=--rpath='$ORIGIN' -o ./compiled/lib_structured_text.so
+    plc ./source/*.st --shared --linker=cc --generate-external-constructors -i ./externals/stdlib_externals.st -i ./libNX1P2/externals/nx1p2_externals.st -L ./compiled -l iec61131std -l builtins --linker-arg=--rpath='$ORIGIN' -o ./compiled/lib_structured_text.so
     ```
 
     The `-i` includes declare the Omron system variables and the `stdlib` function blocks. Without them the sources will not compile. Note that on Linux the `lib` prefix is implicit, so `libbuiltins.so` is linked with `-l builtins`.
@@ -106,7 +106,7 @@ plc ./source/clampandsaw.st --xml-omron --generate-external-constructors -i ./so
 Structured Text can also be compiled to IEC 61131-10 XML, which imports into Omron Sysmac Studio.
 
 ```
-plc ./source/clampandsaw.st ./source/testallbuiltins.st --xml-omron --generate-external-constructors -i ./externals/stdlib_externals.st -i ./libNX1P2/nx1p2_externals.st -L ./compiled -l iec61131std -l builtins -o ./compiled/lib_structured_text.xml
+plc ./source/clampandsaw.st ./source/testallbuiltins.st --xml-omron --generate-external-constructors -i ./externals/stdlib_externals.st -i ./libNX1P2/externals/nx1p2_externals.st -L ./compiled -l iec61131std -l builtins -o ./compiled/lib_structured_text.xml
 ```
 
 You can perform this compilation procedure by running the Bash script, instead.
