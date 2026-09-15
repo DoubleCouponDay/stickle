@@ -67,8 +67,9 @@ jobs:
           if (-not $runId) {
             Write-Error "no successful windows.yml run found in $env:COMPILER_REPO"
           }
-          gh run download $runId --repo $env:COMPILER_REPO --dir tools --name plc.exe --name stdlib.lib --name stdlib.dll
-          Get-ChildItem -Recurse -File tools | Move-Item -Destination tools -Force
+          gh run download $runId --repo $env:COMPILER_REPO --dir download --name plc.exe --name stdlib.lib --name stdlib.dll
+          New-Item -ItemType Directory -Force -Path tools | Out-Null
+          Get-ChildItem -Recurse -File download | Move-Item -Destination tools -Force
           "$env:GITHUB_WORKSPACE\tools" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
           "C:\Program Files\LLVM\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
           "LIB=$env:GITHUB_WORKSPACE\tools;$env:LIB" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
