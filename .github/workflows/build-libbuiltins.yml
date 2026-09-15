@@ -1,0 +1,90 @@
+name: build-libbuiltins
+
+on:
+  push:
+    branches:
+      - main2
+    tags:
+      - "v*"
+  pull_request:
+  workflow_dispatch:
+
+env:
+  COMPILER_REPO: DoubleCouponDay/rusty-fork
+
+jobs:
+  linux:
+    name: x86_64-unknown-linux-gnu
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install plc and stdlib
+        env:
+          GH_TOKEN: ${{ secrets.COMPILER_ARTIFACTS_TOKEN }}
+        run: |
+          RUN_ID=$(gh run list --repo "$COMPILER_REPO" --workflow linux.yml --status success --limit 1 --json databaseId --jq '.[0].databaseId')
+          if [ -z "$RUN_ID" ]; then
+            echo "no successful linux.yml run found in $COMPILER_REPO" >&2
+            exit 1
+          fi
+          gh run download "$RUN_ID" --repo "$COMPILER_REPO" --dir packages --name deb-x86_64
+          sudo dpkg --install packages/*.deb
+          plc --version
+
+      - name: Stage the builtins folder
+        run: |
+          mkdir -p compiled
+          cp -r libNX1P2 libbuiltins
+
+      - name: Build libbuiltins.so
+        run: plc ./libbuiltins/*.st --shared --linker=cc -L ./compiled -l iec61131std -o ./compiled/libbuiltins.so
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: libbuiltins-x86_64-unknown-linux-gnu
+          path: compiled/libbuiltins.so
+          if-no-files-found: error
+
+  windows:
+    name: x86_64-pc-windows-msvc
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Install LLVM
+        run: choco install llvm --version=21.1.7 --yes --no-progress
+
+      - name: Install plc and stdlib
+        env:
+          GH_TOKEN: ${{ secrets.COMPILER_ARTIFACTS_TOKEN }}
+        run: |
+          $runId = gh run list --repo $env:COMPILER_REPO --workflow windows.yml --status success --limit 1 --json databaseId --jq '.[0].databaseId'
+          if (-not $runId) {
+            Write-Error "no successful windows.yml run found in $env:COMPILER_REPO"
+          }
+          gh run download $runId --repo $env:COMPILER_REPO --dir tools --name plc.exe --name stdlib.lib --name stdlib.dll
+          Get-ChildItem -Recurse -File tools | Move-Item -Destination tools -Force
+          "$env:GITHUB_WORKSPACE\tools" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          "C:\Program Files\LLVM\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          "LIB=$env:GITHUB_WORKSPACE\tools;$env:LIB" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Stage the builtins folder
+        run: |
+          New-Item -ItemType Directory -Force -Path compiled | Out-Null
+          Copy-Item -Recurse -Path libNX1P2 -Destination libbuiltins
+
+      - name: Build libbuiltins.dll
+        run: |
+          plc ./libbuiltins/*.st -c -l iec61131std -l ws2_32 -l ntdll -l userenv -o ./compiled/libbuiltins.o
+          clang ./compiled/libbuiltins.o --shared -l iec61131std -l ws2_32 -l ntdll -l userenv -fuse-ld=lld-link "-Wl,/DEF:libbuiltins/exports.def" -o ./compiled/libbuiltins.dll
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: libbuiltins-x86_64-pc-windows-msvc
+          path: |
+            compiled/libbuiltins.dll
+            compiled/libbuiltins.lib
+          if-no-files-found: error
