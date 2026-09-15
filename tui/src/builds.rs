@@ -51,16 +51,16 @@ impl Target {
 }
 
 #[cfg(windows)]
-pub const OMRON_CHECK: &str = "libNX1P2.dll";
+pub const BUILTINS_CHECK: &str = "libbuiltins.dll";
 #[cfg(windows)]
-pub const OMRON_ARTIFACT: &str = "compiled/libNX1P2.dll";
+pub const BUILTINS_ARTIFACT: &str = "compiled/libbuiltins.dll";
 #[cfg(windows)]
 pub const LIBRARY_ARTIFACT: &str = "compiled/lib_structured_text.dll";
 
 #[cfg(not(windows))]
-pub const OMRON_CHECK: &str = "libNX1P2.so";
+pub const BUILTINS_CHECK: &str = "libbuiltins.so";
 #[cfg(not(windows))]
-pub const OMRON_ARTIFACT: &str = "compiled/libNX1P2.so";
+pub const BUILTINS_ARTIFACT: &str = "compiled/libbuiltins.so";
 #[cfg(not(windows))]
 pub const LIBRARY_ARTIFACT: &str = "compiled/lib_structured_text.so";
 
@@ -308,14 +308,14 @@ fn join(dirs: &[PathBuf]) -> Option<OsString> {
 pub fn targets() -> Vec<Target> {
     vec![
         Target {
-            label: "libNX1P2.dll",
-            ignores: &[SOURCE_CHECK, OMRON_CHECK, TEST_PROJECT_CHECK],
+            label: "libbuiltins.dll",
+            ignores: &[SOURCE_CHECK, BUILTINS_CHECK, TEST_PROJECT_CHECK],
             requires: None,
             steps: vec![
                 Step {
                     program: "plc",
                     args: args(&[
-                        "./libNX1P2/*.st",
+                        "./libbuiltins/*.st",
                         "-c",
                         "-l",
                         "iec61131std",
@@ -326,13 +326,13 @@ pub fn targets() -> Vec<Target> {
                         "-l",
                         "userenv",
                         "-o",
-                        "./compiled/libNX1P2.o",
+                        "./compiled/libbuiltins.o",
                     ]),
                 },
                 Step {
                     program: "clang",
                     args: args(&[
-                        "./compiled/libNX1P2.o",
+                        "./compiled/libbuiltins.o",
                         "--shared",
                         "-l",
                         "iec61131std",
@@ -343,9 +343,9 @@ pub fn targets() -> Vec<Target> {
                         "-l",
                         "userenv",
                         "-fuse-ld=lld-link",
-                        "-Wl,/DEF:libNX1P2/exports.def",
+                        "-Wl,/DEF:libbuiltins/exports.def",
                         "-o",
-                        "./compiled/libNX1P2.dll",
+                        "./compiled/libbuiltins.dll",
                     ]),
                 },
             ],
@@ -353,7 +353,7 @@ pub fn targets() -> Vec<Target> {
         Target {
             label: "lib_structured_text.dll",
             ignores: &[TEST_PROJECT_CHECK],
-            requires: Some(OMRON_ARTIFACT),
+            requires: Some(BUILTINS_ARTIFACT),
             steps: vec![
                 Step {
                     program: "plc",
@@ -364,13 +364,13 @@ pub fn targets() -> Vec<Target> {
                         "-i",
                         "./externals/stdlib_externals.st",
                         "-i",
-                        "./externals/omron_externals.st",
+                        "./libNX1P2/nx1p2_externals.st",
                         "-L",
                         "./compiled",
                         "-l",
                         "iec61131std",
                         "-l",
-                        "libNX1P2",
+                        "libbuiltins",
                         "-l",
                         "ws2_32",
                         "-l",
@@ -391,7 +391,7 @@ pub fn targets() -> Vec<Target> {
                         "-L",
                         "./compiled",
                         "-l",
-                        "libNX1P2",
+                        "libbuiltins",
                         "-l",
                         "ws2_32",
                         "-l",
@@ -409,7 +409,7 @@ pub fn targets() -> Vec<Target> {
         Target {
             label: "lib_structured_text.xml",
             ignores: &[TEST_PROJECT_CHECK],
-            requires: Some(OMRON_ARTIFACT),
+            requires: Some(BUILTINS_ARTIFACT),
             steps: vec![Step {
                 program: "plc",
                 args: args(&[
@@ -420,13 +420,13 @@ pub fn targets() -> Vec<Target> {
                     "-i",
                     "./externals/stdlib_externals.st",
                     "-i",
-                    "./externals/omron_externals.st",
+                    "./libNX1P2/nx1p2_externals.st",
                     "-L",
                     "./compiled",
                     "-l",
                     "iec61131std",
                     "-l",
-                    "libNX1P2",
+                    "libbuiltins",
                     "-l",
                     "ws2_32",
                     "-l",
@@ -463,26 +463,26 @@ fn test_target() -> Target {
 pub fn targets() -> Vec<Target> {
     vec![
         Target {
-            label: "libNX1P2.so",
-            ignores: &[SOURCE_CHECK, OMRON_CHECK, TEST_PROJECT_CHECK],
+            label: "libbuiltins.so",
+            ignores: &[SOURCE_CHECK, BUILTINS_CHECK, TEST_PROJECT_CHECK],
             requires: None,
             steps: vec![Step {
                 program: "plc",
                 args: args(&[
-                    "./libNX1P2/*.st",
+                    "./libbuiltins/*.st",
                     "--shared",
                     "--linker=cc",
                     "-l",
                     "iec61131std",
                     "-o",
-                    "./compiled/libNX1P2.so",
+                    "./compiled/libbuiltins.so",
                 ]),
             }],
         },
         Target {
             label: "lib_structured_text.so",
             ignores: &[TEST_PROJECT_CHECK],
-            requires: Some(OMRON_ARTIFACT),
+            requires: Some(BUILTINS_ARTIFACT),
             steps: vec![Step {
                 program: "plc",
                 args: args(&[
@@ -493,13 +493,13 @@ pub fn targets() -> Vec<Target> {
                     "-i",
                     "./externals/stdlib_externals.st",
                     "-i",
-                    "./externals/omron_externals.st",
+                    "./libNX1P2/nx1p2_externals.st",
                     "-L",
                     "./compiled",
                     "-l",
                     "iec61131std",
                     "-l",
-                    "NX1P2",
+                    "builtins",
                     "--linker-arg=--rpath=$ORIGIN",
                     "-o",
                     "./compiled/lib_structured_text.so",
@@ -509,7 +509,7 @@ pub fn targets() -> Vec<Target> {
         Target {
             label: "lib_structured_text.xml",
             ignores: &[TEST_PROJECT_CHECK],
-            requires: Some(OMRON_ARTIFACT),
+            requires: Some(BUILTINS_ARTIFACT),
             steps: vec![Step {
                 program: "plc",
                 args: args(&[
@@ -520,13 +520,13 @@ pub fn targets() -> Vec<Target> {
                     "-i",
                     "./externals/stdlib_externals.st",
                     "-i",
-                    "./externals/omron_externals.st",
+                    "./libNX1P2/nx1p2_externals.st",
                     "-L",
                     "./compiled",
                     "-l",
                     "iec61131std",
                     "-l",
-                    "NX1P2",
+                    "builtins",
                     "-o",
                     "./compiled/lib_structured_text.xml",
                 ]),

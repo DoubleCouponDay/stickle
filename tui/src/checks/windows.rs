@@ -1,6 +1,6 @@
 use std::path::{Path, PathBuf};
 
-use crate::builds::{OMRON_ARTIFACT, OMRON_CHECK};
+use crate::builds::{BUILTINS_ARTIFACT, BUILTINS_CHECK};
 use crate::env::EnvSnapshot;
 use crate::probe::Probes;
 
@@ -35,16 +35,16 @@ pub fn groups(env: &EnvSnapshot, probes: &mut Probes, root: &Path) -> Vec<Group>
 fn artifact_group(root: &Path) -> Group {
     let check = file_check(
         root,
-        OMRON_ARTIFACT,
-        OMRON_CHECK,
-        "the library that the lib_structured_text builds link against with -l libNX1P2",
+        BUILTINS_ARTIFACT,
+        BUILTINS_CHECK,
+        "the built in library that the lib_structured_text builds link against with -l libbuiltins",
         vec![
             "lib_structured_text.dll and lib_structured_text.xml cannot be built until it exists."
                 .into(),
-            "It is produced from the libNX1P2 sources, so build libNX1P2.dll first:".into(),
-            "plc ./libNX1P2/*.st -c -l iec61131std -l ws2_32 -l ntdll -l userenv -o ./compiled/libNX1P2.o"
+            "It is produced from the libbuiltins sources, whatever they are named, so build libbuiltins.dll first:".into(),
+            "plc ./libbuiltins/*.st -c -l iec61131std -l ws2_32 -l ntdll -l userenv -o ./compiled/libbuiltins.o"
                 .into(),
-            "clang ./compiled/libNX1P2.o --shared -l iec61131std -l ws2_32 -l ntdll -l userenv -fuse-ld=lld-link \"-Wl,/DEF:libNX1P2/exports.def\" -o ./compiled/libNX1P2.dll"
+            "clang ./compiled/libbuiltins.o --shared -l iec61131std -l ws2_32 -l ntdll -l userenv -fuse-ld=lld-link \"-Wl,/DEF:libbuiltins/exports.def\" -o ./compiled/libbuiltins.dll"
                 .into(),
             "The Build pane runs both steps for you.".into(),
         ],
@@ -361,9 +361,9 @@ fn exports_group(root: &Path) -> Group {
         ),
         file_check(
             root,
-            "libNX1P2/exports.def",
-            "libNX1P2/exports.def",
-            "the export list handed to lld-link for libNX1P2.dll",
+            "libbuiltins/exports.def",
+            "libbuiltins/exports.def",
+            "the export list handed to lld-link for libbuiltins.dll",
             vec!["Restore the file from source control.".into()],
         ),
     ];

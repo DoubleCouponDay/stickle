@@ -92,21 +92,21 @@ plc ./source/clampandsaw.st --xml-omron --generate-external-constructors -i ./so
 - Build the Omron library, then compile the project against it:
     
     ```
-    plc ./libNX1P2/*.st --shared --linker=cc -l iec61131std -o ./compiled/libNX1P2.so
+    plc ./libbuiltins/*.st --shared --linker=cc -l iec61131std -o ./compiled/libbuiltins.so
 
-    plc ./source/*.st --shared --linker=cc --generate-external-constructors -i ./externals/stdlib_externals.st -i ./externals/omron_externals.st -L ./compiled -l iec61131std -l NX1P2 --linker-arg=--rpath='$ORIGIN' -o ./compiled/lib_structured_text.so
+    plc ./source/*.st --shared --linker=cc --generate-external-constructors -i ./externals/stdlib_externals.st -i ./libNX1P2/nx1p2_externals.st -L ./compiled -l iec61131std -l builtins --linker-arg=--rpath='$ORIGIN' -o ./compiled/lib_structured_text.so
     ```
 
-    The `-i` includes declare the Omron system variables and the `stdlib` function blocks. Without them the sources will not compile. Note that on Linux the `lib` prefix is implicit, so `libNX1P2.so` is linked with `-l NX1P2`.
+    The `-i` includes declare the Omron system variables and the `stdlib` function blocks. Without them the sources will not compile. Note that on Linux the `lib` prefix is implicit, so `libbuiltins.so` is linked with `-l builtins`.
 
-    The `{external}` types in those includes are declared here but defined in `libNX1P2`, which does not export their compiler-generated `__ctor` symbols. `--generate-external-constructors` makes the compiler emit those constructors into this build instead, so the link resolves without adding internal symbols to `libNX1P2/exports.def`. Without it the link fails with `undefined symbol: _sNXUNIT_ID__ctor`.
+    The `{external}` types in those includes are declared here but defined in `libbuiltins`, which does not export their compiler-generated `__ctor` symbols. `--generate-external-constructors` makes the compiler emit those constructors into this build instead, so the link resolves without adding internal symbols to `libbuiltins/exports.def`. Without it the link fails with `undefined symbol: _sNXUNIT_ID__ctor`.
 
-    `lib_structured_text.so` records a dependency on `libNX1P2.so`, and `-L` is only a link-time search path, so without a runtime search path the dynamic loader cannot find it and `dotnet test` fails with `DllNotFoundException`. `--linker-arg=--rpath='$ORIGIN'` writes a `RUNPATH` of `$ORIGIN` into the library, which resolves relative to the library itself, so `libNX1P2.so` is found next to it regardless of the working directory. Note that `--linker-arg` is passed straight to `ld.lld`, so the `-Wl,` prefixed form is rejected, and `$ORIGIN` must be quoted to survive the shell.
+    `lib_structured_text.so` records a dependency on `libbuiltins.so`, and `-L` is only a link-time search path, so without a runtime search path the dynamic loader cannot find it and `dotnet test` fails with `DllNotFoundException`. `--linker-arg=--rpath='$ORIGIN'` writes a `RUNPATH` of `$ORIGIN` into the library, which resolves relative to the library itself, so `libbuiltins.so` is found next to it regardless of the working directory. Note that `--linker-arg` is passed straight to `ld.lld`, so the `-Wl,` prefixed form is rejected, and `$ORIGIN` must be quoted to survive the shell.
 
 Structured Text can also be compiled to IEC 61131-10 XML, which imports into Omron Sysmac Studio.
 
 ```
-plc ./source/clampandsaw.st ./source/testallbuiltins.st --xml-omron --generate-external-constructors -i ./externals/stdlib_externals.st -i ./externals/omron_externals.st -L ./compiled -l iec61131std -l NX1P2 -o ./compiled/lib_structured_text.xml
+plc ./source/clampandsaw.st ./source/testallbuiltins.st --xml-omron --generate-external-constructors -i ./externals/stdlib_externals.st -i ./libNX1P2/nx1p2_externals.st -L ./compiled -l iec61131std -l builtins -o ./compiled/lib_structured_text.xml
 ```
 
 You can perform this compilation procedure by running the Bash script, instead.
@@ -205,15 +205,16 @@ This is a known bug in the compiler as it is crashing with the following error m
 error: process didn't exit successfully: `target\debug\plc.exe ./examples/source/clampandsaw.st ./examples/source/externals.st -ir -l iec61131std -l ws2_32 -l ntdll -l userenv` (exit code: 0xc0000409, STATUS_STACK_BUFFER_OVERRUN)
 ```
 
-## Nice to have
+### What libs are required to link with in order to fully pass the Windows Workspace unit tests in Rusty-Fork?
 
-- Network Publish Mode parsing to enum.
+    kernel32.lib ntdll.lib userenv.lib ws2_32.lib dbghelp.lib
+    
+
+## Nice to have
 
 - Global pattern input files for xml conversion.
 
     This works for `-c` so why not other compilation modes?
-
-- Support network publish modes for globals.
 
 - Support Unions.
 
@@ -223,15 +224,4 @@ error: process didn't exit successfully: `target\debug\plc.exe ./examples/source
 
 - Explore XML Generation for Codesys.
 
-- add lit tests for Windows.
-
 - Bring DLLs up to feature parity with LIBs.
-
-- Remove the tabs in the first indentation column.
-
-    This is due to copying from source code which has an indentation on the first column.
-
-- What libs are required to link with in order to fully pass the Windows Workspace unit tests in Rusty-Fork?
-
-    kernel32.lib ntdll.lib userenv.lib ws2_32.lib dbghelp.lib
-    

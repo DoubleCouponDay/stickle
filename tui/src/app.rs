@@ -465,7 +465,7 @@ impl App {
             .groups
             .iter()
             .flat_map(|group| &group.checks)
-            .filter(|check| check.status == Status::Fail && check.name != builds::OMRON_CHECK)
+            .filter(|check| check.status == Status::Fail && check.name != builds::BUILTINS_CHECK)
             .count();
 
         if blocking > 0 {
@@ -478,7 +478,7 @@ impl App {
                 .is_some_and(|relative| !self.report.root.join(relative).is_file())
         });
 
-        missing.then(|| format!("build {} first", builds::OMRON_CHECK))
+        missing.then(|| format!("build {} first", builds::BUILTINS_CHECK))
     }
 
     pub fn building(&self) -> Option<usize> {

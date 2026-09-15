@@ -1,4 +1,4 @@
-LIBRARY libNX1P2
+LIBRARY libbuiltins
 EXPORTS
     _PLC_OptSerialErrSta
     _PowerOnCount

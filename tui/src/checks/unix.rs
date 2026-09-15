@@ -1,7 +1,7 @@
 use std::env;
 use std::path::{Path, PathBuf};
 
-use crate::builds::{OMRON_ARTIFACT, OMRON_CHECK};
+use crate::builds::{BUILTINS_ARTIFACT, BUILTINS_CHECK};
 use crate::env::EnvSnapshot;
 use crate::probe::Probes;
 
@@ -29,14 +29,14 @@ pub fn groups(env: &EnvSnapshot, probes: &mut Probes, root: &Path) -> Vec<Group>
 fn artifact_group(root: &Path) -> Group {
     let check = file_check(
         root,
-        OMRON_ARTIFACT,
-        OMRON_CHECK,
-        "the library that the lib_structured_text builds link against with -l NX1P2",
+        BUILTINS_ARTIFACT,
+        BUILTINS_CHECK,
+        "the built in library that the lib_structured_text builds link against with -l builtins",
         vec![
             "lib_structured_text.so and lib_structured_text.xml cannot be built until it exists."
                 .into(),
-            "It is produced from the libNX1P2 sources, so build libNX1P2.so first:".into(),
-            "plc ./libNX1P2/*.st --shared --linker=cc --target=x86_64 -l iec61131std -o ./compiled/libNX1P2.so"
+            "It is produced from the libbuiltins sources, whatever they are named, so build libbuiltins.so first:".into(),
+            "plc ./libbuiltins/*.st --shared --linker=cc --target=x86_64 -l iec61131std -o ./compiled/libbuiltins.so"
                 .into(),
             "The Build pane runs that for you.".into(),
         ],
@@ -175,28 +175,28 @@ fn shared_object_group(env: &EnvSnapshot) -> Group {
         },
     });
 
-    checks.push(match find_in(&dirs, "libNX1P2.so") {
+    checks.push(match find_in(&dirs, "libbuiltins.so") {
         Some(path) => Check {
-            name: "libNX1P2.so".into(),
+            name: "libbuiltins.so".into(),
             status: Status::Pass,
             summary: "found".into(),
-            expected: "libNX1P2.so beside lib_structured_text.so in ./compiled, where its $ORIGIN runpath resolves it"
+            expected: "libbuiltins.so beside lib_structured_text.so in ./compiled, where its $ORIGIN runpath resolves it"
                 .into(),
             found: path.display().to_string(),
             remedy: Vec::new(),
         },
         None => Check {
-            name: "libNX1P2.so".into(),
+            name: "libbuiltins.so".into(),
             status: Status::Fail,
             summary: "not built".into(),
-            expected: "libNX1P2.so beside lib_structured_text.so in ./compiled, where its $ORIGIN runpath resolves it"
+            expected: "libbuiltins.so beside lib_structured_text.so in ./compiled, where its $ORIGIN runpath resolves it"
                 .into(),
             found: format!("searched:\n{listing}"),
             remedy: vec![
-                "It is built from the libNX1P2 sources before the main sources are compiled:".into(),
-                "plc ./libNX1P2/*.st --shared --linker=cc --target=x86_64 -l iec61131std -o ./compiled/libNX1P2.so"
+                "It is built from every .st file in libbuiltins before the main sources are compiled:".into(),
+                "plc ./libbuiltins/*.st --shared --linker=cc --target=x86_64 -l iec61131std -o ./compiled/libbuiltins.so"
                     .into(),
-                "lib_structured_text.so is linked with --linker-arg=--rpath='$ORIGIN', so libNX1P2.so only has to sit next to it in ./compiled. No copy into /lib is needed.".into(),
+                "lib_structured_text.so is linked with --linker-arg=--rpath='$ORIGIN', so libbuiltins.so only has to sit next to it in ./compiled. No copy into /lib is needed.".into(),
             ],
         },
     });

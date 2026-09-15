@@ -256,9 +256,9 @@ fn sources_group(root: &Path) -> Group {
         ),
         st_dir_check(
             root,
-            "libNX1P2",
-            "libNX1P2 .st files",
-            "the library sources plc compiles into libNX1P2, which the shared library links against",
+            "libbuiltins",
+            "libbuiltins .st files",
+            "the built in library sources plc compiles into libbuiltins, which the shared library links against. The file names inside are free, so a controller specific stub such as NX1P2 lives here too",
         ),
         st_dir_check(
             root,
