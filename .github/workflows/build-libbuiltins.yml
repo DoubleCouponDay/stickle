@@ -11,12 +11,14 @@ on:
 
 env:
   COMPILER_REPO: DoubleCouponDay/rusty-fork
-  GH_TOKEN: ${{ secrets.COMPILER_ARTIFACTS_TOKEN }}
 
 jobs:
   linux:
     name: x86_64-unknown-linux-gnu
     runs-on: ubuntu-latest
+    environment: default
+    env:
+      GH_TOKEN: ${{ secrets.COMPILER_ARTIFACTS_TOKEN }}
     steps:
       - uses: actions/checkout@v4
 
@@ -48,6 +50,9 @@ jobs:
   windows:
     name: x86_64-pc-windows-msvc
     runs-on: windows-latest
+    environment: default
+    env:
+      GH_TOKEN: ${{ secrets.COMPILER_ARTIFACTS_TOKEN }}
     steps:
       - uses: actions/checkout@v4
 
