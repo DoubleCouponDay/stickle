@@ -3,7 +3,7 @@ use ratatui::layout::{Alignment, Constraint, Layout, Margin, Rect};
 use ratatui::style::{Color, Modifier, Style};
 use ratatui::text::{Line, Span};
 use ratatui::widgets::{
-    Block, BorderType, Gauge, List, ListItem, Paragraph, Scrollbar, ScrollbarOrientation,
+    Block, BorderType, Gauge, List, ListItem, ListState, Paragraph, Scrollbar, ScrollbarOrientation,
     ScrollbarState, Wrap,
 };
 
@@ -291,9 +291,15 @@ fn draw_list(frame: &mut Frame, area: Rect, app: &mut App, theme: Theme) {
             Style::new().fg(theme.fg).add_modifier(Modifier::BOLD),
         ));
 
-    app.list_area = block.inner(area);
+    let inner = block.inner(area);
+
+    app.list_area = inner;
 
     if app.rows.is_empty() {
+        app.list_track = Rect::ZERO;
+        app.list_limit = 0;
+        app.list_offset = 0;
+
         let waiting = Paragraph::new(vec![
             Line::raw(""),
             Line::from(Span::styled(
@@ -331,12 +337,75 @@ fn draw_list(frame: &mut Frame, area: Rect, app: &mut App, theme: Theme) {
         })
         .collect();
 
+    let rows = app.rows.len();
+    let limit = rows.saturating_sub(inner.height as usize);
+
+    app.list_offset = app.list_offset.min(limit);
+
+    let window = app.list_offset..app.list_offset + inner.height as usize;
+
+    let selected = app.list.selected().filter(|index| window.contains(index));
+
+    let mut state = ListState::default()
+        .with_offset(app.list_offset)
+        .with_selected(selected);
+
     let list = List::new(items)
         .block(block)
         .highlight_style(Style::new().add_modifier(Modifier::REVERSED))
         .highlight_symbol("");
 
-    frame.render_stateful_widget(list, area, &mut app.list);
+    frame.render_stateful_widget(list, area, &mut state);
+
+    let bar = area.inner(Margin {
+        vertical: 1,
+        horizontal: 0,
+    });
+
+    app.list_limit = limit as u16;
+    app.list_track = if limit == 0 || bar.width == 0 {
+        Rect::ZERO
+    } else {
+        Rect {
+            x: bar.right() - 1,
+            y: bar.y,
+            width: 1,
+            height: bar.height,
+        }
+    };
+
+    app.list_thumb = thumb_length(bar.height, inner.height, rows);
+
+    let over = app.hovered == Some(Button::ListScrollbar);
+    let held = app.pressed == Some(Button::ListScrollbar);
+
+    let thumb = if limit == 0 {
+        theme.dim
+    } else if held {
+        theme.press(theme.accent)
+    } else if over {
+        theme.hover(theme.accent)
+    } else {
+        theme.accent
+    };
+
+    let mut scroll = ScrollbarState::new(rows)
+        .viewport_content_length(inner.height as usize)
+        .position(app.list_offset);
+
+    frame.render_stateful_widget(
+        Scrollbar::new(ScrollbarOrientation::VerticalRight)
+            .begin_symbol(None)
+            .end_symbol(None)
+            .track_style(if over || held {
+                Style::new().fg(theme.surface(0.45))
+            } else {
+                theme.dimmed()
+            })
+            .thumb_style(Style::new().fg(thumb)),
+        bar,
+        &mut scroll,
+    );
 }
 
 fn draw_detail(frame: &mut Frame, area: Rect, app: &mut App, theme: Theme) {
@@ -412,8 +481,8 @@ fn draw_detail(frame: &mut Frame, area: Rect, app: &mut App, theme: Theme) {
 
     app.detail_thumb = thumb_length(bar.height, inner.height, rows);
 
-    let over = app.hovered == Some(Button::Scrollbar);
-    let held = app.pressed == Some(Button::Scrollbar);
+    let over = app.hovered == Some(Button::DetailScrollbar);
+    let held = app.pressed == Some(Button::DetailScrollbar);
 
     let thumb = if limit == 0 {
         theme.dim

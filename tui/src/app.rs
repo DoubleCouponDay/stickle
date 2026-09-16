@@ -94,7 +94,8 @@ pub enum Button {
     Dark,
     Light,
     Build(usize),
-    Scrollbar,
+    DetailScrollbar,
+    ListScrollbar,
 }
 
 pub struct Change {
@@ -108,6 +109,7 @@ pub struct App {
     pub report: Report,
     pub rows: Vec<Row>,
     pub list: ListState,
+    pub list_offset: usize,
     pub detail_scroll: u16,
     pub quit: bool,
     pub scans: u64,
@@ -118,6 +120,9 @@ pub struct App {
     pub dark_button: Rect,
     pub light_button: Rect,
     pub list_area: Rect,
+    pub list_track: Rect,
+    pub list_limit: u16,
+    pub list_thumb: u16,
     pub detail_area: Rect,
     pub detail_track: Rect,
     pub detail_limit: u16,
@@ -149,6 +154,7 @@ impl App {
             report: Report::pending(),
             rows: Vec::new(),
             list: ListState::default(),
+            list_offset: 0,
             detail_scroll: 0,
             quit: false,
             scans: 0,
@@ -159,6 +165,9 @@ impl App {
             dark_button: Rect::ZERO,
             light_button: Rect::ZERO,
             list_area: Rect::ZERO,
+            list_track: Rect::ZERO,
+            list_limit: 0,
+            list_thumb: 1,
             detail_area: Rect::ZERO,
             detail_track: Rect::ZERO,
             detail_limit: 0,
@@ -255,7 +264,11 @@ impl App {
         }
 
         if self.detail_track.contains(position) {
-            return Some(Button::Scrollbar);
+            return Some(Button::DetailScrollbar);
+        }
+
+        if self.list_track.contains(position) {
+            return Some(Button::ListScrollbar);
         }
 
         self.build_buttons
@@ -264,31 +277,25 @@ impl App {
             .map(Button::Build)
     }
 
-    pub fn scroll_to(&mut self, row: u16) {
-        let track = self.detail_track;
-
-        if track.height == 0 || self.detail_limit == 0 {
+    pub fn scroll_detail_to(&mut self, row: u16) {
+        let Some(position) =
+            track_position(self.detail_track, self.detail_thumb, self.detail_limit, row)
+        else {
             return;
-        }
+        };
 
-        let thumb = self.detail_thumb.clamp(1, track.height);
-        let travel = track.height.saturating_sub(thumb);
-
-        if travel == 0 {
-            self.detail_scroll = self.detail_limit;
-            self.selection = None;
-            self.follow = false;
-            return;
-        }
-
-        let offset = row.saturating_sub(track.y).min(track.height - 1);
-        let top = u32::from(offset.saturating_sub(thumb / 2).min(travel));
-        let span = u32::from(travel);
-        let limit = u32::from(self.detail_limit);
-
-        self.detail_scroll = ((top * limit + span / 2) / span).min(limit) as u16;
+        self.detail_scroll = position;
         self.selection = None;
         self.follow = false;
+    }
+
+    pub fn scroll_list_to(&mut self, row: u16) {
+        let Some(position) = track_position(self.list_track, self.list_thumb, self.list_limit, row)
+        else {
+            return;
+        };
+
+        self.list_offset = position as usize;
     }
 
     pub fn mouse_down(&mut self, column: u16, row: u16) {
@@ -297,9 +304,16 @@ impl App {
         self.pressed = self.button_at(position);
         self.hovered = self.pressed;
 
-        if self.pressed == Some(Button::Scrollbar) {
+        if self.pressed == Some(Button::DetailScrollbar) {
             self.focus = Focus::Detail;
-            self.scroll_to(row);
+            self.scroll_detail_to(row);
+            return;
+        }
+
+        if self.pressed == Some(Button::ListScrollbar) {
+            self.focus = Focus::Requirements;
+            self.selection = None;
+            self.scroll_list_to(row);
             return;
         }
 
@@ -330,8 +344,13 @@ impl App {
 
         self.hovered = self.button_at(Position::new(column, row));
 
-        if self.pressed == Some(Button::Scrollbar) {
-            self.scroll_to(row);
+        if self.pressed == Some(Button::DetailScrollbar) {
+            self.scroll_detail_to(row);
+            return;
+        }
+
+        if self.pressed == Some(Button::ListScrollbar) {
+            self.scroll_list_to(row);
             return;
         }
 
@@ -536,7 +555,7 @@ impl App {
     }
 
     fn select_row_at(&mut self, row: u16) {
-        let offset = self.list.offset() + (row - self.list_area.y) as usize;
+        let offset = self.list_offset + (row - self.list_area.y) as usize;
 
         if matches!(self.rows.get(offset), Some(Row::Item { .. })) {
             self.list.select(Some(offset));
@@ -603,8 +622,29 @@ impl App {
         self.last_scan = Some(Instant::now());
 
         match self.selected.clone().and_then(|key| self.row_of(&key)) {
-            Some(index) => self.list.select(Some(index)),
+            Some(index) => {
+                self.list.select(Some(index));
+                self.reveal_selection();
+            }
             None => self.select_first_unmet(),
+        }
+    }
+
+    fn reveal_selection(&mut self) {
+        let Some(index) = self.list.selected() else {
+            return;
+        };
+
+        let height = self.list_area.height as usize;
+
+        if height == 0 {
+            return;
+        }
+
+        if index < self.list_offset {
+            self.list_offset = index;
+        } else if index >= self.list_offset + height {
+            self.list_offset = index + 1 - height;
         }
     }
 
@@ -644,6 +684,7 @@ impl App {
             });
 
         self.list.select(target);
+        self.reveal_selection();
         self.remember_selection();
     }
 
@@ -689,6 +730,7 @@ impl App {
 
             if matches!(self.rows[index], Row::Item { .. }) {
                 self.list.select(Some(index));
+                self.reveal_selection();
                 self.show_requirement();
                 self.remember_selection();
                 return;
@@ -708,6 +750,7 @@ impl App {
 
             if self.is_unmet(&self.rows[index]) {
                 self.list.select(Some(index));
+                self.reveal_selection();
                 self.show_requirement();
                 self.remember_selection();
                 return;
@@ -735,6 +778,26 @@ impl App {
             Row::Header { .. } => false,
         }
     }
+}
+
+fn track_position(track: Rect, thumb: u16, limit: u16, row: u16) -> Option<u16> {
+    if track.height == 0 || limit == 0 {
+        return None;
+    }
+
+    let thumb = thumb.clamp(1, track.height);
+    let travel = track.height.saturating_sub(thumb);
+
+    if travel == 0 {
+        return Some(limit);
+    }
+
+    let offset = row.saturating_sub(track.y).min(track.height - 1);
+    let top = u32::from(offset.saturating_sub(thumb / 2).min(travel));
+    let span = u32::from(travel);
+    let total = u32::from(limit);
+
+    Some(((top * total + span / 2) / span).min(total) as u16)
 }
 
 fn classify(line: &str) -> Kind {
