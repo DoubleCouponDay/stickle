@@ -95,8 +95,8 @@ fn handle_mouse(app: &mut App, mouse: MouseEvent) {
         MouseEventKind::Drag(MouseButton::Left) => app.mouse_drag(mouse.column, mouse.row),
         MouseEventKind::Up(MouseButton::Left) => app.mouse_up(mouse.column, mouse.row),
         MouseEventKind::Moved => app.mouse_move(mouse.column, mouse.row),
-        MouseEventKind::ScrollDown => app.scroll_detail(1),
-        MouseEventKind::ScrollUp => app.scroll_detail(-1),
+        MouseEventKind::ScrollDown => app.scroll(mouse.column, mouse.row, 1),
+        MouseEventKind::ScrollUp => app.scroll(mouse.column, mouse.row, -1),
         _ => {}
     }
 }

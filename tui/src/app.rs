@@ -298,6 +298,31 @@ impl App {
         self.list_offset = position as usize;
     }
 
+    pub fn scroll(&mut self, column: u16, row: u16, delta: i16) {
+        let position = Position::new(column, row);
+
+        if self.list_area.contains(position) || self.list_track.contains(position) {
+            self.scroll_list(delta);
+            return;
+        }
+
+        if self.detail_area.contains(position) || self.detail_track.contains(position) {
+            self.scroll_detail(delta);
+            return;
+        }
+
+        match self.focus {
+            Focus::Requirements => self.scroll_list(delta),
+            Focus::Detail => self.scroll_detail(delta),
+        }
+    }
+
+    pub fn scroll_list(&mut self, delta: i16) {
+        let next = self.list_offset as isize + delta as isize;
+
+        self.list_offset = next.clamp(0, self.list_limit as isize) as usize;
+    }
+
     pub fn mouse_down(&mut self, column: u16, row: u16) {
         let position = Position::new(column, row);
 
@@ -623,8 +648,13 @@ impl App {
 
         match self.selected.clone().and_then(|key| self.row_of(&key)) {
             Some(index) => {
+                let moved = self.list.selected() != Some(index);
+
                 self.list.select(Some(index));
-                self.reveal_selection();
+
+                if moved {
+                    self.reveal_selection();
+                }
             }
             None => self.select_first_unmet(),
         }
