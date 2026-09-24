@@ -41,7 +41,7 @@ Develop and troubleshoot your Automation projects while decoupling from any manu
 - Proceed with compilation:
     
     ```
-    plc ./source/* -c -l iec61131std -l ws2_32 -l ntdll -l userenv -o ./compiled/lib_structured_text.o
+    plc ./source/**/*.st -c -l iec61131std -l ws2_32 -l ntdll -l userenv -o ./compiled/lib_structured_text.o
 
     clang ./compiled/lib_structured_text.o --shared -l iec61131std -l ws2_32 -l ntdll -l userenv -fuse-ld=lld-link "-Wl,/DEF:exports.def" -o ./compiled/lib_structured_text.dll
     ```
@@ -95,9 +95,9 @@ plc ./source/clampandsaw.st --xml-omron --generate-external-constructors -i ./so
 - Build the Omron library, then compile the project against it:
     
     ```
-    plc ./libbuiltins/*.st --shared --linker=cc -L ./compiled -l iec61131std -o ./compiled/libbuiltins.so
+    plc './libbuiltins/**/*.st' --shared --linker=cc -L ./compiled -l iec61131std -o ./compiled/libbuiltins.so
 
-    plc ./source/*.st --shared --linker=cc --generate-external-constructors -i ./externals/stdlib_externals.st -i ./libNX1P2/externals/nx1p2_externals.st -L ./compiled -l iec61131std -l builtins --linker-arg=--rpath='$ORIGIN' -o ./compiled/lib_structured_text.so
+    plc './source/**/*.st' --shared --linker=cc --generate-external-constructors -i ./externals/stdlib_externals.st -i ./libNX1P2/externals/nx1p2_externals.st -L ./compiled -l iec61131std -l builtins --linker-arg=--rpath='$ORIGIN' -o ./compiled/lib_structured_text.so
     ```
 
     The `-i` includes declare the Omron system variables and the `stdlib` function blocks. Without them the sources will not compile. Note that on Linux the `lib` prefix is implicit, so `libbuiltins.so` is linked with `-l builtins`.

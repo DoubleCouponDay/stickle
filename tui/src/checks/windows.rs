@@ -43,7 +43,7 @@ fn artifact_group(root: &Path) -> Group {
                 .into(),
             "Either drop a pipeline libbuiltins.dll, with its libbuiltins.lib import library, into the libbuiltins folder or into compiled.".into(),
             "Or produce it from the libbuiltins sources, whatever they are named, by building libbuiltins.dll first:".into(),
-            "plc ./libbuiltins/*.st -c -l iec61131std -l ws2_32 -l ntdll -l userenv -o ./compiled/libbuiltins.o"
+            "plc ./libbuiltins/**/*.st -c -l iec61131std -l ws2_32 -l ntdll -l userenv -o ./compiled/libbuiltins.o"
                 .into(),
             "clang ./compiled/libbuiltins.o --shared -l iec61131std -l ws2_32 -l ntdll -l userenv -fuse-ld=lld-link \"-Wl,/DEF:libbuiltins/exports.def\" -o ./compiled/libbuiltins.dll"
                 .into(),

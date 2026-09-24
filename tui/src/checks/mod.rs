@@ -416,16 +416,21 @@ fn st_dir_check(
 
 fn st_files(dir: &Path) -> Vec<String> {
     let mut found = Vec::new();
+    let mut pending = vec![dir.to_path_buf()];
 
-    if let Ok(entries) = fs::read_dir(dir) {
-        for entry in entries.flatten() {
-            let path = entry.path();
+    while let Some(current) = pending.pop() {
+        if let Ok(entries) = fs::read_dir(&current) {
+            for entry in entries.flatten() {
+                let path = entry.path();
 
-            if path
-                .extension()
-                .is_some_and(|extension| extension.eq_ignore_ascii_case("st"))
-            {
-                found.push(path.display().to_string());
+                if path.is_dir() {
+                    pending.push(path);
+                } else if path
+                    .extension()
+                    .is_some_and(|extension| extension.eq_ignore_ascii_case("st"))
+                {
+                    found.push(path.display().to_string());
+                }
             }
         }
     }

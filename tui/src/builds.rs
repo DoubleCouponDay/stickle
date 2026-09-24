@@ -320,7 +320,7 @@ pub fn targets() -> Vec<Target> {
                 Step {
                     program: "plc",
                     args: args(&[
-                        "./libbuiltins/*.st",
+                        "./libbuiltins/**/*.st",
                         "-c",
                         "-l",
                         "iec61131std",
@@ -363,7 +363,7 @@ pub fn targets() -> Vec<Target> {
                 Step {
                     program: "plc",
                     args: args(&[
-                        "./source/*.st",
+                        "./source/**/*.st",
                         "-c",
                         "--generate-external-constructors",
                         "-i",
@@ -420,7 +420,7 @@ pub fn targets() -> Vec<Target> {
             steps: vec![Step {
                 program: "plc",
                 args: args(&[
-                    "./source/*.st",
+                    "./source/**/*.st",
                     "--xml-omron",
                     "--generate-external-constructors",
                     "-i",
@@ -475,7 +475,7 @@ pub fn targets() -> Vec<Target> {
             steps: vec![Step {
                 program: "plc",
                 args: args(&[
-                    "./libbuiltins/*.st",
+                    "./libbuiltins/**/*.st",
                     "--shared",
                     "--linker=cc",
                     "-L",
@@ -494,7 +494,7 @@ pub fn targets() -> Vec<Target> {
             steps: vec![Step {
                 program: "plc",
                 args: args(&[
-                    "./source/*.st",
+                    "./source/**/*.st",
                     "--shared",
                     "--linker=cc",
                     "--generate-external-constructors",
@@ -521,7 +521,7 @@ pub fn targets() -> Vec<Target> {
             steps: vec![Step {
                 program: "plc",
                 args: args(&[
-                    "./source/*.st",
+                    "./source/**/*.st",
                     "--xml-omron",
                     "--generate-external-constructors",
                     "-i",

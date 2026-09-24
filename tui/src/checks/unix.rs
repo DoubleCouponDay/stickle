@@ -37,7 +37,7 @@ fn artifact_group(root: &Path) -> Group {
                 .into(),
             "Either drop a pipeline libbuiltins.so into the libbuiltins folder or into compiled.".into(),
             "Or produce it from the libbuiltins sources, whatever they are named, by building libbuiltins.so first:".into(),
-            "plc ./libbuiltins/*.st --shared --linker=cc --target=x86_64 -l iec61131std -o ./compiled/libbuiltins.so"
+            "plc ./libbuiltins/**/*.st --shared --linker=cc --target=x86_64 -l iec61131std -o ./compiled/libbuiltins.so"
                 .into(),
             "The Build pane runs that for you.".into(),
         ],
@@ -195,7 +195,7 @@ fn shared_object_group(env: &EnvSnapshot) -> Group {
             found: format!("searched:\n{listing}"),
             remedy: vec![
                 "It is built from every .st file in libbuiltins before the main sources are compiled:".into(),
-                "plc ./libbuiltins/*.st --shared --linker=cc --target=x86_64 -l iec61131std -o ./compiled/libbuiltins.so"
+                "plc ./libbuiltins/**/*.st --shared --linker=cc --target=x86_64 -l iec61131std -o ./compiled/libbuiltins.so"
                     .into(),
                 "lib_structured_text.so is linked with --linker-arg=--rpath='$ORIGIN', so libbuiltins.so only has to sit next to it in ./compiled. No copy into /lib is needed.".into(),
             ],
