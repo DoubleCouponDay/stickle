@@ -26,6 +26,7 @@ pub struct Target {
 
 pub const SOURCE_CHECK: &str = "source .st files";
 pub const TEST_PROJECT_CHECK: &str = "tests folder with .csproj";
+pub const DOTNET_GROUP: &str = ".NET test host";
 pub const PROJECT_TOKEN: &str = "{project}";
 
 impl Target {
@@ -309,7 +310,7 @@ pub fn targets() -> Vec<Target> {
     vec![
         Target {
             label: "libbuiltins.dll",
-            ignores: &[SOURCE_CHECK, BUILTINS_CHECK, TEST_PROJECT_CHECK],
+            ignores: &[SOURCE_CHECK, BUILTINS_CHECK, DOTNET_GROUP],
             requires: None,
             steps: vec![
                 Step {
@@ -352,7 +353,7 @@ pub fn targets() -> Vec<Target> {
         },
         Target {
             label: "lib_structured_text.dll",
-            ignores: &[TEST_PROJECT_CHECK],
+            ignores: &[DOTNET_GROUP],
             requires: Some(BUILTINS_ARTIFACT),
             steps: vec![
                 Step {
@@ -406,7 +407,7 @@ pub fn targets() -> Vec<Target> {
         },
         Target {
             label: "lib_structured_text.xml",
-            ignores: &[TEST_PROJECT_CHECK],
+            ignores: &[DOTNET_GROUP],
             requires: Some(BUILTINS_ARTIFACT),
             steps: vec![Step {
                 program: "plc",
@@ -459,7 +460,7 @@ pub fn targets() -> Vec<Target> {
     vec![
         Target {
             label: "libbuiltins.so",
-            ignores: &[SOURCE_CHECK, BUILTINS_CHECK, TEST_PROJECT_CHECK],
+            ignores: &[SOURCE_CHECK, BUILTINS_CHECK, DOTNET_GROUP],
             requires: None,
             steps: vec![Step {
                 program: "plc",
@@ -478,7 +479,7 @@ pub fn targets() -> Vec<Target> {
         },
         Target {
             label: "lib_structured_text.so",
-            ignores: &[TEST_PROJECT_CHECK],
+            ignores: &[DOTNET_GROUP],
             requires: Some(BUILTINS_ARTIFACT),
             steps: vec![Step {
                 program: "plc",
@@ -503,7 +504,7 @@ pub fn targets() -> Vec<Target> {
         },
         Target {
             label: "lib_structured_text.xml",
-            ignores: &[TEST_PROJECT_CHECK],
+            ignores: &[DOTNET_GROUP],
             requires: Some(BUILTINS_ARTIFACT),
             steps: vec![Step {
                 program: "plc",

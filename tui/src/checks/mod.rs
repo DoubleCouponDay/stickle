@@ -1,7 +1,7 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use crate::builds::TEST_PROJECT_CHECK;
+use crate::builds::{DOTNET_GROUP, TEST_PROJECT_CHECK};
 use crate::env::EnvSnapshot;
 use crate::probe::Probes;
 use crate::project::Project;
@@ -203,7 +203,7 @@ fn dotnet_group(env: &EnvSnapshot, probes: &mut Probes, project: &Project) -> Gr
     checks.push(test_project_check(project));
 
     Group {
-        title: ".NET test host".into(),
+        title: DOTNET_GROUP.into(),
         checks,
     }
 }

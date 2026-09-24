@@ -478,14 +478,15 @@ impl App {
             return false;
         }
 
-        let blocked = self
-            .report
-            .groups
-            .iter()
-            .flat_map(|group| &group.checks)
-            .any(|check| {
+        let blocked = self.report.groups.iter().any(|group| {
+            if target.ignores.contains(&group.title.as_str()) {
+                return false;
+            }
+
+            group.checks.iter().any(|check| {
                 check.status == Status::Fail && !target.ignores.contains(&check.name.as_str())
-            });
+            })
+        });
 
         if blocked {
             return false;
