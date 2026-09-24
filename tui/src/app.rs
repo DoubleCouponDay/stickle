@@ -492,10 +492,11 @@ impl App {
             return false;
         }
 
-        match target.requires {
-            Some(relative) => self.report.root.join(relative).is_file(),
-            None => true,
-        }
+        target.requires.is_empty()
+            || target
+                .requires
+                .iter()
+                .any(|relative| self.report.root.join(relative).is_file())
     }
 
     pub fn build_hint(&self) -> Option<String> {
@@ -518,9 +519,11 @@ impl App {
         }
 
         let missing = self.targets.iter().any(|target| {
-            target
-                .requires
-                .is_some_and(|relative| !self.report.root.join(relative).is_file())
+            !target.requires.is_empty()
+                && !target
+                    .requires
+                    .iter()
+                    .any(|relative| self.report.root.join(relative).is_file())
         });
 
         missing.then(|| format!("build {} first", builds::BUILTINS_CHECK))

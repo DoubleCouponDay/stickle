@@ -20,11 +20,12 @@ pub struct Step {
 pub struct Target {
     pub label: &'static str,
     pub ignores: &'static [&'static str],
-    pub requires: Option<&'static str>,
+    pub requires: &'static [&'static str],
     pub steps: Vec<Step>,
 }
 
 pub const SOURCE_CHECK: &str = "source .st files";
+pub const BUILTINS_SOURCE_CHECK: &str = "libbuiltins .st files";
 pub const TEST_PROJECT_CHECK: &str = "tests folder with .csproj";
 pub const DOTNET_GROUP: &str = ".NET test host";
 pub const PROJECT_TOKEN: &str = "{project}";
@@ -54,16 +55,19 @@ impl Target {
 #[cfg(windows)]
 pub const BUILTINS_CHECK: &str = "libbuiltins.dll";
 #[cfg(windows)]
-pub const BUILTINS_ARTIFACT: &str = "compiled/libbuiltins.dll";
+pub const BUILTINS_ARTIFACTS: &[&str] = &[
+    "compiled/libbuiltins.dll",
+    "libbuiltins/libbuiltins.dll",
+];
 #[cfg(windows)]
-pub const LIBRARY_ARTIFACT: &str = "compiled/lib_structured_text.dll";
+pub const LIBRARY_ARTIFACTS: &[&str] = &["compiled/lib_structured_text.dll"];
 
 #[cfg(not(windows))]
 pub const BUILTINS_CHECK: &str = "libbuiltins.so";
 #[cfg(not(windows))]
-pub const BUILTINS_ARTIFACT: &str = "compiled/libbuiltins.so";
+pub const BUILTINS_ARTIFACTS: &[&str] = &["compiled/libbuiltins.so", "libbuiltins/libbuiltins.so"];
 #[cfg(not(windows))]
-pub const LIBRARY_ARTIFACT: &str = "compiled/lib_structured_text.so";
+pub const LIBRARY_ARTIFACTS: &[&str] = &["compiled/lib_structured_text.so"];
 
 #[derive(Clone, Copy)]
 pub enum State {
@@ -311,7 +315,7 @@ pub fn targets() -> Vec<Target> {
         Target {
             label: "libbuiltins.dll",
             ignores: &[SOURCE_CHECK, BUILTINS_CHECK, DOTNET_GROUP],
-            requires: None,
+            requires: &[],
             steps: vec![
                 Step {
                     program: "plc",
@@ -353,8 +357,8 @@ pub fn targets() -> Vec<Target> {
         },
         Target {
             label: "lib_structured_text.dll",
-            ignores: &[DOTNET_GROUP],
-            requires: Some(BUILTINS_ARTIFACT),
+            ignores: &[BUILTINS_SOURCE_CHECK, DOTNET_GROUP],
+            requires: BUILTINS_ARTIFACTS,
             steps: vec![
                 Step {
                     program: "plc",
@@ -366,6 +370,8 @@ pub fn targets() -> Vec<Target> {
                         "./**/externals/*.st",
                         "-L",
                         "./compiled",
+                        "-L",
+                        "./libbuiltins",
                         "-l",
                         "iec61131std",
                         "-l",
@@ -389,6 +395,8 @@ pub fn targets() -> Vec<Target> {
                         "iec61131std",
                         "-L",
                         "./compiled",
+                        "-L",
+                        "./libbuiltins",
                         "-l",
                         "libbuiltins",
                         "-l",
@@ -407,8 +415,8 @@ pub fn targets() -> Vec<Target> {
         },
         Target {
             label: "lib_structured_text.xml",
-            ignores: &[DOTNET_GROUP],
-            requires: Some(BUILTINS_ARTIFACT),
+            ignores: &[BUILTINS_SOURCE_CHECK, DOTNET_GROUP],
+            requires: BUILTINS_ARTIFACTS,
             steps: vec![Step {
                 program: "plc",
                 args: args(&[
@@ -419,6 +427,8 @@ pub fn targets() -> Vec<Target> {
                     "./**/externals/*.st",
                     "-L",
                     "./compiled",
+                    "-L",
+                    "./libbuiltins",
                     "-l",
                     "iec61131std",
                     "-l",
@@ -442,7 +452,7 @@ fn test_target() -> Target {
     Target {
         label: "dotnet test",
         ignores: &[],
-        requires: Some(LIBRARY_ARTIFACT),
+        requires: LIBRARY_ARTIFACTS,
         steps: vec![Step {
             program: "dotnet",
             args: args(&[
@@ -461,7 +471,7 @@ pub fn targets() -> Vec<Target> {
         Target {
             label: "libbuiltins.so",
             ignores: &[SOURCE_CHECK, BUILTINS_CHECK, DOTNET_GROUP],
-            requires: None,
+            requires: &[],
             steps: vec![Step {
                 program: "plc",
                 args: args(&[
@@ -479,8 +489,8 @@ pub fn targets() -> Vec<Target> {
         },
         Target {
             label: "lib_structured_text.so",
-            ignores: &[DOTNET_GROUP],
-            requires: Some(BUILTINS_ARTIFACT),
+            ignores: &[BUILTINS_SOURCE_CHECK, DOTNET_GROUP],
+            requires: BUILTINS_ARTIFACTS,
             steps: vec![Step {
                 program: "plc",
                 args: args(&[
@@ -492,6 +502,8 @@ pub fn targets() -> Vec<Target> {
                     "./**/externals/*.st",
                     "-L",
                     "./compiled",
+                    "-L",
+                    "./libbuiltins",
                     "-l",
                     "iec61131std",
                     "-l",
@@ -504,8 +516,8 @@ pub fn targets() -> Vec<Target> {
         },
         Target {
             label: "lib_structured_text.xml",
-            ignores: &[DOTNET_GROUP],
-            requires: Some(BUILTINS_ARTIFACT),
+            ignores: &[BUILTINS_SOURCE_CHECK, DOTNET_GROUP],
+            requires: BUILTINS_ARTIFACTS,
             steps: vec![Step {
                 program: "plc",
                 args: args(&[
@@ -516,6 +528,8 @@ pub fn targets() -> Vec<Target> {
                     "./**/externals/*.st",
                     "-L",
                     "./compiled",
+                    "-L",
+                    "./libbuiltins",
                     "-l",
                     "iec61131std",
                     "-l",

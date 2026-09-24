@@ -1,10 +1,10 @@
 use std::path::{Path, PathBuf};
 
-use crate::builds::{BUILTINS_ARTIFACT, BUILTINS_CHECK};
+use crate::builds::{BUILTINS_ARTIFACTS, BUILTINS_CHECK};
 use crate::env::EnvSnapshot;
 use crate::probe::Probes;
 
-use super::{Check, Group, Status, file_check, find_in, which};
+use super::{Check, Group, Status, any_file_check, file_check, find_in, which};
 
 pub const NAME: &str = "Windows";
 pub const DOTNET_REMEDY: &str = "https://dotnet.microsoft.com/download";
@@ -33,15 +33,16 @@ pub fn groups(env: &EnvSnapshot, probes: &mut Probes, root: &Path) -> Vec<Group>
 }
 
 fn artifact_group(root: &Path) -> Group {
-    let check = file_check(
+    let check = any_file_check(
         root,
-        BUILTINS_ARTIFACT,
+        BUILTINS_ARTIFACTS,
         BUILTINS_CHECK,
-        "the built in library that the lib_structured_text builds link against with -l libbuiltins",
+        "the built in library that the lib_structured_text builds link against with -l libbuiltins, taken from compiled or from the libbuiltins folder",
         vec![
             "lib_structured_text.dll and lib_structured_text.xml cannot be built until it exists."
                 .into(),
-            "It is produced from the libbuiltins sources, whatever they are named, so build libbuiltins.dll first:".into(),
+            "Either drop a pipeline libbuiltins.dll, with its libbuiltins.lib import library, into the libbuiltins folder or into compiled.".into(),
+            "Or produce it from the libbuiltins sources, whatever they are named, by building libbuiltins.dll first:".into(),
             "plc ./libbuiltins/*.st -c -l iec61131std -l ws2_32 -l ntdll -l userenv -o ./compiled/libbuiltins.o"
                 .into(),
             "clang ./compiled/libbuiltins.o --shared -l iec61131std -l ws2_32 -l ntdll -l userenv -fuse-ld=lld-link \"-Wl,/DEF:libbuiltins/exports.def\" -o ./compiled/libbuiltins.dll"

@@ -1,7 +1,9 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use crate::builds::{DOTNET_GROUP, TEST_PROJECT_CHECK};
+use crate::builds::{
+    BUILTINS_CHECK, BUILTINS_SOURCE_CHECK, DOTNET_GROUP, SOURCE_CHECK, TEST_PROJECT_CHECK,
+};
 use crate::env::EnvSnapshot;
 use crate::probe::Probes;
 use crate::project::Project;
@@ -251,20 +253,31 @@ fn sources_group(root: &Path) -> Group {
         st_dir_check(
             root,
             "source",
-            "source .st files",
+            SOURCE_CHECK,
             "the Structured Text sources plc compiles into the shared library",
+            vec!["Restore the sources from source control.".into()],
         ),
         st_dir_check(
             root,
             "libbuiltins",
-            "libbuiltins .st files",
-            "the built in library sources plc compiles into libbuiltins, which the shared library links against. The file names inside are free, so a controller specific stub such as NX1P2 lives here too",
+            BUILTINS_SOURCE_CHECK,
+            &format!(
+                "the built in library sources plc compiles into libbuiltins, which the shared library links against. The file names inside are free, so a controller specific stub such as NX1P2 lives here too. Only the {BUILTINS_CHECK} build needs them, the lib_structured_text builds take a prebuilt {BUILTINS_CHECK} instead"
+            ),
+            vec![
+                format!("Only the {BUILTINS_CHECK} build is held back by this."),
+                format!(
+                    "To build lib_structured_text without the sources, drop a pipeline {BUILTINS_CHECK} into the libbuiltins folder or into compiled."
+                ),
+                "Otherwise restore the sources from source control.".into(),
+            ],
         ),
         st_dir_check(
             root,
             "externals",
             "externals .st files",
             "the declaration files passed to plc with -i, without which the sources will not compile",
+            vec!["Restore the sources from source control.".into()],
         ),
     ];
 
@@ -300,6 +313,46 @@ fn sources_group(root: &Path) -> Group {
     }
 }
 
+pub fn any_file_check(
+    root: &Path,
+    relatives: &[&str],
+    name: &str,
+    purpose: &str,
+    remedy: Vec<String>,
+) -> Check {
+    let found = relatives
+        .iter()
+        .map(|relative| root.join(relative))
+        .find(|path| path.is_file());
+
+    match found {
+        Some(path) => Check {
+            name: name.into(),
+            status: Status::Pass,
+            summary: "present".into(),
+            expected: format!("{name}, {purpose}"),
+            found: path.display().to_string(),
+            remedy: Vec::new(),
+        },
+        None => Check {
+            name: name.into(),
+            status: Status::Fail,
+            summary: "missing".into(),
+            expected: format!("{name}, {purpose}"),
+            found: format!(
+                "searched:\n{}",
+                relatives
+                    .iter()
+                    .map(|relative| root.join(relative).display().to_string())
+                    .collect::<Vec<_>>()
+                    .join("\n")
+            ),
+            remedy,
+        },
+    }
+}
+
+#[cfg_attr(not(windows), allow(dead_code))]
 pub fn file_check(
     root: &Path,
     relative: &str,
@@ -330,7 +383,13 @@ pub fn file_check(
     }
 }
 
-fn st_dir_check(root: &Path, relative: &str, name: &str, purpose: &str) -> Check {
+fn st_dir_check(
+    root: &Path,
+    relative: &str,
+    name: &str,
+    purpose: &str,
+    remedy: Vec<String>,
+) -> Check {
     let dir = root.join(relative);
     let files = st_files(&dir);
 
@@ -341,7 +400,7 @@ fn st_dir_check(root: &Path, relative: &str, name: &str, purpose: &str) -> Check
             summary: "no .st files".into(),
             expected: format!("{name}, {purpose}"),
             found: format!("{} holds no .st files", dir.display()),
-            remedy: vec!["Restore the sources from source control.".into()],
+            remedy,
         }
     } else {
         Check {

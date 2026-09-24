@@ -1,11 +1,11 @@
 use std::env;
 use std::path::{Path, PathBuf};
 
-use crate::builds::{BUILTINS_ARTIFACT, BUILTINS_CHECK};
+use crate::builds::{BUILTINS_ARTIFACTS, BUILTINS_CHECK};
 use crate::env::EnvSnapshot;
 use crate::probe::Probes;
 
-use super::{Check, Group, Status, file_check, find_in, which};
+use super::{Check, Group, Status, any_file_check, find_in, which};
 
 pub const NAME: &str = "Linux";
 pub const DOTNET_REMEDY: &str =
@@ -27,15 +27,16 @@ pub fn groups(env: &EnvSnapshot, probes: &mut Probes, root: &Path) -> Vec<Group>
 }
 
 fn artifact_group(root: &Path) -> Group {
-    let check = file_check(
+    let check = any_file_check(
         root,
-        BUILTINS_ARTIFACT,
+        BUILTINS_ARTIFACTS,
         BUILTINS_CHECK,
-        "the built in library that the lib_structured_text builds link against with -l builtins",
+        "the built in library that the lib_structured_text builds link against with -l builtins, taken from compiled or from the libbuiltins folder",
         vec![
             "lib_structured_text.so and lib_structured_text.xml cannot be built until it exists."
                 .into(),
-            "It is produced from the libbuiltins sources, whatever they are named, so build libbuiltins.so first:".into(),
+            "Either drop a pipeline libbuiltins.so into the libbuiltins folder or into compiled.".into(),
+            "Or produce it from the libbuiltins sources, whatever they are named, by building libbuiltins.so first:".into(),
             "plc ./libbuiltins/*.st --shared --linker=cc --target=x86_64 -l iec61131std -o ./compiled/libbuiltins.so"
                 .into(),
             "The Build pane runs that for you.".into(),
