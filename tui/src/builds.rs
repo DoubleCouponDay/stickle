@@ -413,8 +413,7 @@ pub fn targets() -> Vec<Target> {
             steps: vec![Step {
                 program: "plc",
                 args: args(&[
-                    "./source/clampandsaw.st",
-                    "./source/testallbuiltins.st",
+                    "./source/*.st",
                     "--xml-omron",
                     "--generate-external-constructors",
                     "-i",
@@ -515,8 +514,7 @@ pub fn targets() -> Vec<Target> {
             steps: vec![Step {
                 program: "plc",
                 args: args(&[
-                    "./source/clampandsaw.st",
-                    "./source/testallbuiltins.st",
+                    "./source/*.st",
                     "--xml-omron",
                     "--generate-external-constructors",
                     "-i",
