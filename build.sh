@@ -14,7 +14,7 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-plc ./source/clampandsaw.st ./source/testallbuiltins.st --xml-omron --generate-external-constructors -i ./externals/stdlib_externals.st -i ./libNX1P2/externals/nx1p2_externals.st -L ./compiled -l iec61131std -l builtins -o ./compiled/lib_structured_text.xml
+plc ./source/clampandsaw.st ./source/testallbuiltins.st --xml-omron -i ./externals/stdlib_externals.st -i ./libNX1P2/externals/nx1p2_externals.st -L ./compiled -l iec61131std -l builtins -o ./compiled/lib_structured_text.xml
 
 if [ $? -ne 0 ]; then
     exit 1

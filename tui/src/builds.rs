@@ -365,7 +365,6 @@ pub fn targets() -> Vec<Target> {
                     args: args(&[
                         "./source/**/*.st",
                         "-c",
-                        "--generate-external-constructors",
                         "-i",
                         "./**/externals/*.st",
                         "-L",
@@ -422,7 +421,6 @@ pub fn targets() -> Vec<Target> {
                 args: args(&[
                     "./source/**/*.st",
                     "--xml-omron",
-                    "--generate-external-constructors",
                     "-i",
                     "./**/externals/*.st",
                     "-L",
@@ -523,7 +521,6 @@ pub fn targets() -> Vec<Target> {
                 args: args(&[
                     "./source/**/*.st",
                     "--xml-omron",
-                    "--generate-external-constructors",
                     "-i",
                     "./**/externals/*.st",
                     "-L",

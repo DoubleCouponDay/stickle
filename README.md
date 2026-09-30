@@ -61,7 +61,7 @@ You can perform this compilation procedure by running the Powershell script, ins
 Structured Text can also be compiled to IEC 61131-10 XML, which imports into Omron Sysmac Studio.
 
 ```
-plc ./source/clampandsaw.st --xml-omron --generate-external-constructors -i ./source/externals.st -l iec61131std -l ws2_32 -l ntdll -l userenv -o ./compiled/lib_structured_text.xml
+plc ./source/clampandsaw.st --xml-omron -i ./source/externals.st -l iec61131std -l ws2_32 -l ntdll -l userenv -o ./compiled/lib_structured_text.xml
 ```
 
 ### Compiling on Linux
@@ -102,14 +102,16 @@ plc ./source/clampandsaw.st --xml-omron --generate-external-constructors -i ./so
 
     The `-i` includes declare the Omron system variables and the `stdlib` function blocks. Without them the sources will not compile. Note that on Linux the `lib` prefix is implicit, so `libbuiltins.so` is linked with `-l builtins`.
 
-    The `{external}` types in those includes are declared here but defined in `libbuiltins`, which does not export their compiler-generated `__ctor` symbols. `--generate-external-constructors` makes the compiler emit those constructors into this build instead, so the link resolves without adding internal symbols to `libbuiltins/exports.def`. Without it the link fails with `undefined symbol: _sNXUNIT_ID__ctor`.
+    `--generate-external-constructors` makes the compiler emit a local definition of the `__ctor` and vtable symbols for every `{external}` type it sees, including the `stdlib` function blocks such as `TON` and `R_TRIG`.
+
+    When the main build fails with `undefined symbol: <Type>__ctor` for a type defined in `libbuiltins`, add a `<Type>__ctor` line under `EXPORTS` in `libbuiltins/exports.def` and rebuild `libbuiltins`. Do not add `__ctor` lines to the main project's `exports.def`, and do not add `--generate-external-constructors` to the main build to work around it.
 
     `lib_structured_text.so` records a dependency on `libbuiltins.so`, and `-L` is only a link-time search path, so without a runtime search path the dynamic loader cannot find it and `dotnet test` fails with `DllNotFoundException`. `--linker-arg=--rpath='$ORIGIN'` writes a `RUNPATH` of `$ORIGIN` into the library, which resolves relative to the library itself, so `libbuiltins.so` is found next to it regardless of the working directory. Note that `--linker-arg` is passed straight to `ld.lld`, so the `-Wl,` prefixed form is rejected, and `$ORIGIN` must be quoted to survive the shell.
 
 Structured Text can also be compiled to IEC 61131-10 XML, which imports into Omron Sysmac Studio.
 
 ```
-plc ./source/clampandsaw.st ./source/testallbuiltins.st --xml-omron --generate-external-constructors -i ./externals/stdlib_externals.st -i ./libNX1P2/externals/nx1p2_externals.st -L ./compiled -l iec61131std -l builtins -o ./compiled/lib_structured_text.xml
+plc ./source/clampandsaw.st ./source/testallbuiltins.st --xml-omron -i ./externals/stdlib_externals.st -i ./libNX1P2/externals/nx1p2_externals.st -L ./compiled -l iec61131std -l builtins -o ./compiled/lib_structured_text.xml
 ```
 
 You can perform this compilation procedure by running the Bash script, instead.
