@@ -160,3 +160,32 @@ EXPORTS
     Get10msCnt
     GetPrgHashCode
     PLC_ReadTotalPowerOnTime
+    NanoSecToTime
+    GetTime
+    SizeOfAry
+    EnumToNum
+    StackPush
+    WriteToLog
+    _sNXUNIT_ID__ctor
+    _sOPTSERIALERR_STA__ctor
+    _sAXIS_REF__ctor
+    AirCylinderCyc__ctor
+    AirCylinderDev__ctor
+    AnalogSensorCyc__ctor
+    DigitalSensorCyc__ctor
+    DigitalSensorDev__ctor
+    DOLDev__ctor
+    DOLCyc__ctor
+    HydraulicCylinderCyc__ctor
+    HydraulicCylinderDev__ctor
+    Log__ctor
+    MachineCyc__ctor
+    MachineMod__ctor
+    SafetyDev__ctor
+    SequencerCyc__ctor
+    SequencerMod__ctor
+    ServoCyc__ctor
+    ServoDev__ctor
+    ServoDevTarget__ctor
+    VSDCyc__ctor
+    VSDDev__ctor
