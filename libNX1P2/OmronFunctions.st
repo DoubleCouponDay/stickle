@@ -9,24 +9,24 @@ END_FUNCTION
 
 FUNCTION SizeOfAry : UINT
     VAR_IN_OUT
-        In: LogEntry;
+        In: ANY;
     END_VAR
 END_FUNCTION
 
 FUNCTION EnumToNum : DINT
     VAR_INPUT
-        In: LogLevelEnum;
+        In: DINT;
     END_VAR
 END_FUNCTION
 
 FUNCTION StackPush : BOOL
     VAR_INPUT
-        In: LogEntry;
+        In: ANY;
         Size: UINT;
     END_VAR
 
     VAR_IN_OUT
-        InOut: LogEntry;
+        InOut: ANY;
         Num: UINT;
     END_VAR
 END_FUNCTION
