@@ -1,11 +1,11 @@
 # libbuiltins
-plc ./libbuiltins/**/*.st -c -l iec61131std -l ws2_32 -l ntdll -l userenv -o ./compiled/libbuiltins.o
+plc ./libslinked/**/*.st -c -l iec61131std -l ws2_32 -l ntdll -l userenv -o ./compiled/libbuiltins.o
 
 if($LASTEXITCODE -ne 0) {
     exit
 }
 
-clang ./compiled/libbuiltins.o --shared -l iec61131std -l ws2_32 -l ntdll -l userenv -fuse-ld=lld-link "-Wl,/DEF:libbuiltins/exports.def" -o ./compiled/libbuiltins.dll
+clang ./compiled/libbuiltins.o --shared -l iec61131std -l ws2_32 -l ntdll -l userenv -fuse-ld=lld-link "-Wl,/DEF:libslinked/exports.def" -o ./compiled/libbuiltins.dll
 
 if($LASTEXITCODE -ne 0) {
     exit

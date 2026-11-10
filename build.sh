@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # libbuiltins
-plc './libbuiltins/**/*.st' --shared --linker=cc -L ./compiled -l iec61131std -o ./compiled/libbuiltins.so
+plc './libslinked/**/*.st' --shared --linker=cc -L ./compiled -l iec61131std -o ./compiled/libbuiltins.so
 
 if [ $? -ne 0 ]; then
     exit 1

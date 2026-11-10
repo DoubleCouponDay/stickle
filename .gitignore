@@ -39,4 +39,4 @@ target/
 **/*.lib
 **/*.xml
 **/compiled/
-libbuiltins/
+libslinked/

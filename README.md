@@ -95,7 +95,7 @@ plc ./source/clampandsaw.st --xml-omron -i ./source/externals.st -l iec61131std 
 - Build the Omron library, then compile the project against it:
     
     ```
-    plc './libbuiltins/**/*.st' --shared --linker=cc -L ./compiled -l iec61131std -o ./compiled/libbuiltins.so
+    plc './libslinked/**/*.st' --shared --linker=cc -L ./compiled -l iec61131std -o ./compiled/libbuiltins.so
 
     plc './source/**/*.st' --shared --linker=cc --generate-external-constructors -i ./externals/stdlib_externals.st -i ./libNX1P2/externals/nx1p2_externals.st -L ./compiled -l iec61131std -l builtins --linker-arg=--rpath='$ORIGIN' -o ./compiled/lib_structured_text.so
     ```
@@ -104,7 +104,7 @@ plc ./source/clampandsaw.st --xml-omron -i ./source/externals.st -l iec61131std 
 
     `--generate-external-constructors` makes the compiler emit a local definition of the `__ctor` and vtable symbols for every `{external}` type it sees, including the `stdlib` function blocks such as `TON` and `R_TRIG`.
 
-    When the main build fails with `undefined symbol: <Type>__ctor` for a type defined in `libbuiltins`, add a `<Type>__ctor` line under `EXPORTS` in `libbuiltins/exports.def` and rebuild `libbuiltins`. Do not add `__ctor` lines to the main project's `exports.def`, and do not add `--generate-external-constructors` to the main build to work around it.
+    When the main build fails with `undefined symbol: <Type>__ctor` for a type defined in `libbuiltins`, add a `<Type>__ctor` line under `EXPORTS` in `libslinked/exports.def` and rebuild `libbuiltins`. Do not add `__ctor` lines to the main project's `exports.def`, and do not add `--generate-external-constructors` to the main build to work around it.
 
     `lib_structured_text.so` records a dependency on `libbuiltins.so`, and `-L` is only a link-time search path, so without a runtime search path the dynamic loader cannot find it and `dotnet test` fails with `DllNotFoundException`. `--linker-arg=--rpath='$ORIGIN'` writes a `RUNPATH` of `$ORIGIN` into the library, which resolves relative to the library itself, so `libbuiltins.so` is found next to it regardless of the working directory. Note that `--linker-arg` is passed straight to `ld.lld`, so the `-Wl,` prefixed form is rejected, and `$ORIGIN` must be quoted to survive the shell.
 

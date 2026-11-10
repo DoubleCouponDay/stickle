@@ -578,7 +578,7 @@ impl App {
 
         let root = self.report.root.clone();
         let snapshot = self.report.env.clone();
-        let target = target.resolved(self.report.test_project.as_deref());
+        let target = target.resolved(self.report.test_project.as_deref(), &root);
 
         self.runner.start(index, &target, root, snapshot);
     }

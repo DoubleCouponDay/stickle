@@ -31,13 +31,16 @@ fn artifact_group(root: &Path) -> Group {
         root,
         BUILTINS_ARTIFACTS,
         BUILTINS_CHECK,
-        "the built in library that the lib_structured_text builds link against with -l builtins, taken from compiled or from the libbuiltins folder",
+        "the built in library that the lib_structured_text builds link against with -l builtins, taken from compiled or from the libslinked folder. Every other .so in the libslinked folder is linked as well, which is how a project creates its own exported common library: put libname.so and the libname.def it exports with next to libbuiltins.so and exports.def, and the builds add -l name for it",
         vec![
             "lib_structured_text.so and lib_structured_text.xml cannot be built until it exists."
                 .into(),
-            "Either drop a pipeline libbuiltins.so into the libbuiltins folder or into compiled.".into(),
-            "Or produce it from the libbuiltins sources, whatever they are named, by building libbuiltins.so first:".into(),
-            "plc ./libbuiltins/**/*.st --shared --linker=cc --target=x86_64 -l iec61131std -o ./compiled/libbuiltins.so"
+            "To create an exported common library, compile its sources into the libslinked folder:".into(),
+            "plc <common sources> --shared --linker=cc -i <declarations it needs> -L ./libslinked -l iec61131std -l builtins -o ./libslinked/libcommon.so".into(),
+            "Its sources can then live in externals: -i keeps them declaration only, so lib_structured_text.so links them from libcommon.so and lib_structured_text.xml leaves them to the controller.".into(),
+            "Either drop a pipeline libbuiltins.so into the libslinked folder or into compiled.".into(),
+            "Or produce it from the libslinked sources, whatever they are named, by building libbuiltins.so first:".into(),
+            "plc ./libslinked/**/*.st --shared --linker=cc --target=x86_64 -l iec61131std -o ./compiled/libbuiltins.so"
                 .into(),
             "The Build pane runs that for you.".into(),
         ],
@@ -194,8 +197,8 @@ fn shared_object_group(env: &EnvSnapshot) -> Group {
                 .into(),
             found: format!("searched:\n{listing}"),
             remedy: vec![
-                "It is built from every .st file in libbuiltins before the main sources are compiled:".into(),
-                "plc ./libbuiltins/**/*.st --shared --linker=cc --target=x86_64 -l iec61131std -o ./compiled/libbuiltins.so"
+                "It is built from every .st file in libslinked before the main sources are compiled:".into(),
+                "plc ./libslinked/**/*.st --shared --linker=cc --target=x86_64 -l iec61131std -o ./compiled/libbuiltins.so"
                     .into(),
                 "lib_structured_text.so is linked with --linker-arg=--rpath='$ORIGIN', so libbuiltins.so only has to sit next to it in ./compiled. No copy into /lib is needed.".into(),
             ],

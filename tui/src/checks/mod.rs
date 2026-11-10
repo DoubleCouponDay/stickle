@@ -2,7 +2,8 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 use crate::builds::{
-    BUILTINS_CHECK, BUILTINS_SOURCE_CHECK, DOTNET_GROUP, SOURCE_CHECK, TEST_PROJECT_CHECK,
+    BUILTINS_CHECK, BUILTINS_SOURCE_CHECK, DOTNET_GROUP, LIBRARIES_DIR, SOURCE_CHECK,
+    TEST_PROJECT_CHECK,
 };
 use crate::env::EnvSnapshot;
 use crate::probe::Probes;
@@ -259,7 +260,7 @@ fn sources_group(root: &Path) -> Group {
         ),
         st_dir_check(
             root,
-            "libbuiltins",
+            LIBRARIES_DIR,
             BUILTINS_SOURCE_CHECK,
             &format!(
                 "the built in library sources plc compiles into libbuiltins, which the shared library links against. The file names inside are free, so a controller specific stub such as NX1P2 lives here too. Only the {BUILTINS_CHECK} build needs them, the lib_structured_text builds take a prebuilt {BUILTINS_CHECK} instead"
@@ -267,7 +268,7 @@ fn sources_group(root: &Path) -> Group {
             vec![
                 format!("Only the {BUILTINS_CHECK} build is held back by this."),
                 format!(
-                    "To build lib_structured_text without the sources, drop a pipeline {BUILTINS_CHECK} into the libbuiltins folder or into compiled."
+                    "To build lib_structured_text without the sources, drop a pipeline {BUILTINS_CHECK} into the libslinked folder or into compiled."
                 ),
                 "Otherwise restore the sources from source control.".into(),
             ],

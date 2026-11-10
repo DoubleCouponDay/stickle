@@ -36,10 +36,10 @@ jobs:
       - name: Stage the builtins folder
         run: |
           mkdir -p compiled
-          cp -r libNX1P2 libbuiltins
+          cp -r libNX1P2 libslinked
 
       - name: Build libbuiltins.so
-        run: plc ./libbuiltins/*.st --shared --linker=cc -L ./compiled -l iec61131std -o ./compiled/libbuiltins.so
+        run: plc ./libslinked/*.st --shared --linker=cc -L ./compiled -l iec61131std -o ./compiled/libbuiltins.so
 
       - uses: actions/upload-artifact@v4
         with:
@@ -77,12 +77,12 @@ jobs:
       - name: Stage the builtins folder
         run: |
           New-Item -ItemType Directory -Force -Path compiled | Out-Null
-          Copy-Item -Recurse -Path libNX1P2 -Destination libbuiltins
+          Copy-Item -Recurse -Path libNX1P2 -Destination libslinked
 
       - name: Build libbuiltins.dll
         run: |
-          plc ./libbuiltins/*.st -c -l iec61131std -l ws2_32 -l ntdll -l userenv -o ./compiled/libbuiltins.o
-          clang ./compiled/libbuiltins.o --shared -l iec61131std -l ws2_32 -l ntdll -l userenv -fuse-ld=lld-link "-Wl,/DEF:libbuiltins/exports.def" -o ./compiled/libbuiltins.dll
+          plc ./libslinked/*.st -c -l iec61131std -l ws2_32 -l ntdll -l userenv -o ./compiled/libbuiltins.o
+          clang ./compiled/libbuiltins.o --shared -l iec61131std -l ws2_32 -l ntdll -l userenv -fuse-ld=lld-link "-Wl,/DEF:libslinked/exports.def" -o ./compiled/libbuiltins.dll
 
       - uses: actions/upload-artifact@v4
         with:

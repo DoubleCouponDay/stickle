@@ -37,15 +37,19 @@ fn artifact_group(root: &Path) -> Group {
         root,
         BUILTINS_ARTIFACTS,
         BUILTINS_CHECK,
-        "the built in library that the lib_structured_text builds link against with -l libbuiltins, taken from compiled or from the libbuiltins folder",
+        "the built in library that the lib_structured_text builds link against with -l libbuiltins, taken from compiled or from the libslinked folder. Every other dll in the libslinked folder is linked as well, which is how a project creates its own exported common library: put name.dll, its name.lib import library and the name.def it exports with next to libbuiltins.dll and exports.def, and the builds add -l name for it",
         vec![
             "lib_structured_text.dll and lib_structured_text.xml cannot be built until it exists."
                 .into(),
-            "Either drop a pipeline libbuiltins.dll, with its libbuiltins.lib import library, into the libbuiltins folder or into compiled.".into(),
-            "Or produce it from the libbuiltins sources, whatever they are named, by building libbuiltins.dll first:".into(),
-            "plc ./libbuiltins/**/*.st -c -l iec61131std -l ws2_32 -l ntdll -l userenv -o ./compiled/libbuiltins.o"
+            "To create an exported common library, compile its sources and export every POU and __ctor the project uses through its own .def:".into(),
+            "plc <common sources> -c -i <declarations it needs> -L ./libslinked -l iec61131std -l libbuiltins -o ./compiled/libcommon.o".into(),
+            "clang ./compiled/libcommon.o --shared -l iec61131std -L ./libslinked -l libbuiltins -fuse-ld=lld-link \"-Wl,/DEF:libslinked/libcommon.def\" -o ./libslinked/libcommon.dll".into(),
+            "Its sources can then live in externals: -i keeps them declaration only, so lib_structured_text.dll links them from libcommon.dll and lib_structured_text.xml leaves them to the controller.".into(),
+            "Either drop a pipeline libbuiltins.dll, with its libbuiltins.lib import library, into the libslinked folder or into compiled.".into(),
+            "Or produce it from the libslinked sources, whatever they are named, by building libbuiltins.dll first:".into(),
+            "plc ./libslinked/**/*.st -c -l iec61131std -l ws2_32 -l ntdll -l userenv -o ./compiled/libbuiltins.o"
                 .into(),
-            "clang ./compiled/libbuiltins.o --shared -l iec61131std -l ws2_32 -l ntdll -l userenv -fuse-ld=lld-link \"-Wl,/DEF:libbuiltins/exports.def\" -o ./compiled/libbuiltins.dll"
+            "clang ./compiled/libbuiltins.o --shared -l iec61131std -l ws2_32 -l ntdll -l userenv -fuse-ld=lld-link \"-Wl,/DEF:libslinked/exports.def\" -o ./compiled/libbuiltins.dll"
                 .into(),
             "The Build pane runs both steps for you.".into(),
         ],
@@ -362,8 +366,8 @@ fn exports_group(root: &Path) -> Group {
         ),
         file_check(
             root,
-            "libbuiltins/exports.def",
-            "libbuiltins/exports.def",
+            "libslinked/exports.def",
+            "libslinked/exports.def",
             "the export list handed to lld-link for libbuiltins.dll",
             vec!["Restore the file from source control.".into()],
         ),

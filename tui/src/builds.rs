@@ -25,24 +25,32 @@ pub struct Target {
 }
 
 pub const SOURCE_CHECK: &str = "source .st files";
-pub const BUILTINS_SOURCE_CHECK: &str = "libbuiltins .st files";
+pub const BUILTINS_SOURCE_CHECK: &str = "libslinked .st files";
 pub const TEST_PROJECT_CHECK: &str = "tests folder with .csproj";
 pub const DOTNET_GROUP: &str = ".NET test host";
 pub const PROJECT_TOKEN: &str = "{project}";
+pub const LIBRARIES_TOKEN: &str = "{libraries}";
+pub const LIBRARIES_DIR: &str = "libslinked";
 
 impl Target {
-    pub fn resolved(&self, project: Option<&Path>) -> Target {
+    pub fn resolved(&self, project: Option<&Path>, root: &Path) -> Target {
         let mut copy = self.clone();
+        let libraries = linked_libraries(root);
 
         for step in &mut copy.steps {
             step.args = step
                 .args
                 .iter()
-                .filter_map(|arg| {
+                .flat_map(|arg| {
                     if arg == PROJECT_TOKEN {
-                        project.map(|path| path.display().to_string())
+                        project.map(|path| path.display().to_string()).into_iter().collect()
+                    } else if arg == LIBRARIES_TOKEN {
+                        libraries
+                            .iter()
+                            .flat_map(|name| ["-l".to_string(), name.clone()])
+                            .collect()
                     } else {
-                        Some(arg.clone())
+                        vec![arg.clone()]
                     }
                 })
                 .collect();
@@ -52,22 +60,66 @@ impl Target {
     }
 }
 
+pub fn linked_libraries(root: &Path) -> Vec<String> {
+    let mut names = vec![BUILTINS_LINK_NAME.to_string()];
+
+    let Ok(entries) = std::fs::read_dir(root.join(LIBRARIES_DIR)) else {
+        return names;
+    };
+
+    let mut extra: Vec<String> = entries
+        .filter_map(|entry| entry.ok().map(|it| it.path()))
+        .filter(|path| {
+            path.is_file()
+                && path
+                    .extension()
+                    .is_some_and(|extension| extension.eq_ignore_ascii_case(SHARED_EXTENSION))
+        })
+        .filter_map(|path| path.file_stem().map(|stem| stem.to_string_lossy().into_owned()))
+        .map(|stem| link_name(&stem))
+        .filter(|name| !name.eq_ignore_ascii_case(BUILTINS_LINK_NAME))
+        .collect();
+
+    extra.sort_by_key(|name| name.to_lowercase());
+    extra.dedup_by(|a, b| a.eq_ignore_ascii_case(b));
+    names.extend(extra);
+    names
+}
+
+#[cfg(windows)]
+fn link_name(stem: &str) -> String {
+    stem.to_string()
+}
+
+#[cfg(not(windows))]
+fn link_name(stem: &str) -> String {
+    stem.strip_prefix("lib").unwrap_or(stem).to_string()
+}
+
 #[cfg(windows)]
 pub const BUILTINS_CHECK: &str = "libbuiltins.dll";
 #[cfg(windows)]
 pub const BUILTINS_ARTIFACTS: &[&str] = &[
     "compiled/libbuiltins.dll",
-    "libbuiltins/libbuiltins.dll",
+    "libslinked/libbuiltins.dll",
 ];
 #[cfg(windows)]
 pub const LIBRARY_ARTIFACTS: &[&str] = &["compiled/lib_structured_text.dll"];
+#[cfg(windows)]
+pub const BUILTINS_LINK_NAME: &str = "libbuiltins";
+#[cfg(windows)]
+pub const SHARED_EXTENSION: &str = "dll";
 
 #[cfg(not(windows))]
 pub const BUILTINS_CHECK: &str = "libbuiltins.so";
 #[cfg(not(windows))]
-pub const BUILTINS_ARTIFACTS: &[&str] = &["compiled/libbuiltins.so", "libbuiltins/libbuiltins.so"];
+pub const BUILTINS_ARTIFACTS: &[&str] = &["compiled/libbuiltins.so", "libslinked/libbuiltins.so"];
 #[cfg(not(windows))]
 pub const LIBRARY_ARTIFACTS: &[&str] = &["compiled/lib_structured_text.so"];
+#[cfg(not(windows))]
+pub const BUILTINS_LINK_NAME: &str = "builtins";
+#[cfg(not(windows))]
+pub const SHARED_EXTENSION: &str = "so";
 
 #[derive(Clone, Copy)]
 pub enum State {
@@ -320,7 +372,7 @@ pub fn targets() -> Vec<Target> {
                 Step {
                     program: "plc",
                     args: args(&[
-                        "./libbuiltins/**/*.st",
+                        "./libslinked/**/*.st",
                         "-c",
                         "-l",
                         "iec61131std",
@@ -348,7 +400,7 @@ pub fn targets() -> Vec<Target> {
                         "-l",
                         "userenv",
                         "-fuse-ld=lld-link",
-                        "-Wl,/DEF:libbuiltins/exports.def",
+                        "-Wl,/DEF:libslinked/exports.def",
                         "-o",
                         "./compiled/libbuiltins.dll",
                     ]),
@@ -370,11 +422,10 @@ pub fn targets() -> Vec<Target> {
                         "-L",
                         "./compiled",
                         "-L",
-                        "./libbuiltins",
+                        "./libslinked",
                         "-l",
                         "iec61131std",
-                        "-l",
-                        "libbuiltins",
+                        LIBRARIES_TOKEN,
                         "-l",
                         "ws2_32",
                         "-l",
@@ -395,9 +446,8 @@ pub fn targets() -> Vec<Target> {
                         "-L",
                         "./compiled",
                         "-L",
-                        "./libbuiltins",
-                        "-l",
-                        "libbuiltins",
+                        "./libslinked",
+                        LIBRARIES_TOKEN,
                         "-l",
                         "ws2_32",
                         "-l",
@@ -426,11 +476,10 @@ pub fn targets() -> Vec<Target> {
                     "-L",
                     "./compiled",
                     "-L",
-                    "./libbuiltins",
+                    "./libslinked",
                     "-l",
                     "iec61131std",
-                    "-l",
-                    "libbuiltins",
+                    LIBRARIES_TOKEN,
                     "-l",
                     "ws2_32",
                     "-l",
@@ -473,7 +522,7 @@ pub fn targets() -> Vec<Target> {
             steps: vec![Step {
                 program: "plc",
                 args: args(&[
-                    "./libbuiltins/**/*.st",
+                    "./libslinked/**/*.st",
                     "--shared",
                     "--linker=cc",
                     "-L",
@@ -501,11 +550,10 @@ pub fn targets() -> Vec<Target> {
                     "-L",
                     "./compiled",
                     "-L",
-                    "./libbuiltins",
+                    "./libslinked",
                     "-l",
                     "iec61131std",
-                    "-l",
-                    "builtins",
+                    LIBRARIES_TOKEN,
                     "--linker-arg=--rpath=$ORIGIN",
                     "-o",
                     "./compiled/lib_structured_text.so",
@@ -526,11 +574,10 @@ pub fn targets() -> Vec<Target> {
                     "-L",
                     "./compiled",
                     "-L",
-                    "./libbuiltins",
+                    "./libslinked",
                     "-l",
                     "iec61131std",
-                    "-l",
-                    "builtins",
+                    LIBRARIES_TOKEN,
                     "-o",
                     "./compiled/lib_structured_text.xml",
                 ]),
