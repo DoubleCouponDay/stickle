@@ -165,6 +165,7 @@ EXPORTS
     SizeOfAry
     EnumToNum
     StackPush
+    MilliSecToTime
     _sNXUNIT_ID__ctor
     _sOPTSERIALERR_STA__ctor
     _sAXIS_REF__ctor

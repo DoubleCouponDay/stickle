@@ -30,3 +30,11 @@ FUNCTION StackPush : BOOL
         Num: UINT;
     END_VAR
 END_FUNCTION
+
+FUNCTION MilliSecToTime : TIME
+    VAR_INPUT
+        In: DINT;
+    END_VAR
+
+MilliSecToTime := NanoSecToTime(In*1000000);
+END_FUNCTION
